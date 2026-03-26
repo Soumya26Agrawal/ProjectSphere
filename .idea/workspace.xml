@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="720e8091-1ff4-4da0-8284-4bbc4c5e8bcc" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/model/TicketHistory.java" beforeDir="false" afterPath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/model/TicketHistory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/project_sphere/src/main/java/com/cts/mfrp/project_sphere/service/UserService.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 1
+}]]></component>
+  <component name="ProjectId" id="3BTZDw13KPN5PaiLqZcH2AgRsi4" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "userAndTickethistory",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/2480175/OneDrive - Cognizant/Desktop/Projects/ProjectSphere"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="720e8091-1ff4-4da0-8284-4bbc4c5e8bcc" name="Changes" comment="" />
+      <created>1774514905134</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774514905134</updated>
+    </task>
+    <servers />
+  </component>
+</project>

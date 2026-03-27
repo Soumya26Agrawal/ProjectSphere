@@ -1,9 +1,13 @@
 package com.cts.mfrp.project_sphere.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "attachmentId")
 @Entity
 public class Attachment
 {
@@ -63,6 +67,8 @@ public class Attachment
         this.fileUrl = fileUrl;
     }
 
+    @CreationTimestamp
+    @Column(updatable = false)
     public LocalDateTime getUploadedAt() {
         return uploadedAt;
     }

@@ -1,6 +1,6 @@
 package com.cts.mfrp.project_sphere.controller;
 
-import com.cts.mfrp.project_sphere.model.Comment;
+import com.cts.mfrp.project_sphere.model.TicketComment;
 import com.cts.mfrp.project_sphere.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,25 +14,25 @@ public class CommentController
     private CommentRepository commentRepository;
 
     @GetMapping
-    public List<Comment> getAllComments() {
+    public List<TicketComment> getAllComments() {
         return commentRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Comment> getCommentById(@PathVariable Integer id) {
+    public ResponseEntity<TicketComment> getCommentById(@PathVariable Integer id) {
         return commentRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Comment createComment(@RequestBody Comment comment) {
+    public TicketComment createComment(@RequestBody TicketComment comment) {
         return commentRepository.save(comment);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Comment> updateComment(@PathVariable Integer id,
-                                                       @RequestBody Comment updatedComment) {
+    public ResponseEntity<TicketComment> updateComment(@PathVariable Integer id,
+                                                       @RequestBody TicketComment updatedComment) {
         return commentRepository.findById(id)
                 .map(existing -> {
                     existing.setCommentBody(updatedComment.getCommentBody());

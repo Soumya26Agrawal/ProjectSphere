@@ -30,7 +30,7 @@ public class TicketHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "history_id")
     private long historyId;
 
     @ManyToOne(fetch = FetchType.LAZY)  //one ticket can have many ticket histories

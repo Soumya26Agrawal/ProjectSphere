@@ -4,5 +4,5 @@ public enum TicketType {
     EPIC,
     USER_STORY,
     TASK,
-    BUG
+    DEFECT
 }

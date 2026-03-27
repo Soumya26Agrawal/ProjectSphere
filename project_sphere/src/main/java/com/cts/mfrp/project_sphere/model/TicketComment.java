@@ -1,10 +1,18 @@
 package com.cts.mfrp.project_sphere.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-public class Comment
+
+@Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "ticketId")
+public class TicketComment
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,14 +30,15 @@ public class Comment
     @Column(name = "comment_body", columnDefinition = "TEXT", nullable = false)
     private String commentBody;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false,updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public Comment()
+    public TicketComment()
     {
 
     }
-    public Comment(Integer commentId, Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
+    public TicketComment(Integer commentId, Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
         this.commentId = commentId;
         this.ticket = ticket;
         this.user = user;
@@ -37,7 +46,7 @@ public class Comment
         this.createdAt = createdAt;
     }
 
-    public Comment(Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
+    public TicketComment(Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
         this.ticket = ticket;
         this.user = user;
         this.commentBody = commentBody;

@@ -8,4 +8,10 @@ import java.util.List;
 @Repository
 public interface SprintRepository extends JpaRepository<Sprint, Long> {
     List<Sprint> findByProjectProjectId(Long projectId);
+
+import java.util.List;
+
+@Repository
+public interface SprintRepository extends JpaRepository<Sprint, Integer> {
+    List<Sprint> findByProjectId(String projectId);
 }

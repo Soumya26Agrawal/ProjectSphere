@@ -95,4 +95,10 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
+
+    // Login by email for active users
+    public User login(String email) {
+        return userRepository.findByEmailAndIsActiveTrue(email)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+    }
 }

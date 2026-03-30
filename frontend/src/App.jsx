@@ -1,30 +1,57 @@
-import { useState } from 'react'
-import axios from 'axios';
-import './App.css'
+﻿import React, { useState } from 'react';
+import LandingView from './views/LandingView';
+import LoginView from './views/LoginView';
+import { loginUser } from './services/authService';
+import './App.css';
 
-function App() {
-  const [file, setFile] = useState(null);
- 
-  const handleFileChange = (e) => setFile(e.target.files[0]);
- 
-  const handleUpload = async () => {
-    const formData = new FormData();
-    formData.append('file', file); // 'file' must match the @RequestParam name in Spring
- 
+export default function App() {
+  const [currentView, setCurrentView] = useState('landing');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setLoginError('');
+    setIsLoading(true);
+
     try {
-      await axios.post('http://localhost:8081/api/excel/upload', formData);
-      alert("Upload successful!");
+      const result = await loginUser({
+        email: email.trim(),
+        password,
+      });
+
+      const name = [result?.firstName, result?.lastName].filter(Boolean).join(' ').trim();
+      const greetingName = name || result?.email || 'User';
+      window.alert(`Successfully logged in as ${greetingName}`);
     } catch (error) {
-      console.error("Upload failed", error);
+      setLoginError(error.message || 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
   };
- 
-  return (
-<div>
-<input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
-<button onClick={handleUpload}>Upload to Server</button>
-</div>
+
+  const navigateTo = (view) => {
+    setCurrentView(view);
+    window.scrollTo(0, 0);
+  };
+
+  return currentView === 'landing' ? (
+    <LandingView navigateTo={navigateTo} />
+  ) : (
+    <LoginView
+      navigateTo={navigateTo}
+      showPassword={showPassword}
+      setShowPassword={setShowPassword}
+      isLoading={isLoading}
+      handleLogin={handleLogin}
+      email={email}
+      setEmail={setEmail}
+      password={password}
+      setPassword={setPassword}
+      loginError={loginError}
+    />
   );
 }
-
-export default App

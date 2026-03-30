@@ -25,20 +25,20 @@ public class ProjectTeamController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectTeam> getById(@PathVariable Integer id) {
+    public ResponseEntity<ProjectTeam> getById(@PathVariable Long id) {
         return projectTeamRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/project/{projectId}")
-    public List<ProjectTeam> getByProject(@PathVariable String projectId) {
-        return projectTeamRepository.findByProjectId(projectId);
+    public List<ProjectTeam> getByProject(@PathVariable Long projectId) {
+        return projectTeamRepository.findByProjectProjectId(projectId);
     }
 
     @GetMapping("/employee/{employeeId}")
-    public List<ProjectTeam> getByEmployee(@PathVariable String employeeId) {
-        return projectTeamRepository.findByEmployeeId(employeeId);
+    public List<ProjectTeam> getByEmployee(@PathVariable Long employeeId) {
+        return projectTeamRepository.findByUserEmployeeId(employeeId);
     }
 
     @PostMapping
@@ -48,12 +48,12 @@ public class ProjectTeamController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProjectTeam> update(@PathVariable Integer id,
+    public ResponseEntity<ProjectTeam> update(@PathVariable Long id,
                                               @RequestBody ProjectTeam projectTeam) {
         return projectTeamRepository.findById(id)
                 .map(existing -> {
-                    existing.setProjectId(projectTeam.getProjectId());
-                    existing.setEmployeeId(projectTeam.getEmployeeId());
+                    existing.setProject(projectTeam.getProject());
+                    existing.setUser(projectTeam.getUser());
                     existing.setProjectRole(projectTeam.getProjectRole());
                     ProjectTeam updated = projectTeamRepository.save(existing);
                     return ResponseEntity.ok(updated);
@@ -62,7 +62,7 @@ public class ProjectTeamController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         return projectTeamRepository.findById(id)
                 .map(found -> {
                     projectTeamRepository.delete(found);

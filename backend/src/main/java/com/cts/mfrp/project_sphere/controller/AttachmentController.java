@@ -3,11 +3,14 @@ package com.cts.mfrp.project_sphere.controller;
 import com.cts.mfrp.project_sphere.model.Attachment;
 import com.cts.mfrp.project_sphere.repository.AttachmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RestController
+@RequestMapping("/api/attachments")
 public class AttachmentController
 {
     @Autowired
@@ -19,20 +22,21 @@ public class AttachmentController
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Attachment> getAttachmentById(@PathVariable Integer id) {
+    public ResponseEntity<Attachment> getAttachmentById(@PathVariable Long id) {
         return attachmentRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Attachment createAttachment(@RequestBody Attachment attachment) {
-        return attachmentRepository.save(attachment);
+    public ResponseEntity<Attachment> createAttachment(@RequestBody Attachment attachment) {
+        Attachment savedAttachment = attachmentRepository.save(attachment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedAttachment);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Attachment> updateAttachment(@PathVariable Integer id,
-                                                             @RequestBody Attachment updatedAttachment) {
+    public ResponseEntity<Attachment> updateAttachment(@PathVariable Long id,
+                                                       @RequestBody Attachment updatedAttachment) {
         return attachmentRepository.findById(id)
                 .map(existing -> {
                     existing.setFileUrl(updatedAttachment.getFileUrl());
@@ -44,13 +48,12 @@ public class AttachmentController
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteAttachment(@PathVariable Integer id) {
-        return attachmentRepository.findById(id)
-                .map(existing -> {
-                    attachmentRepository.delete(existing);
-                    return ResponseEntity.noContent().build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Void> deleteAttachment(@PathVariable Long id) {
+        if (attachmentRepository.existsById(id)) {
+            attachmentRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
 }

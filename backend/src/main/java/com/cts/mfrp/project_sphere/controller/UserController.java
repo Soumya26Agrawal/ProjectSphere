@@ -29,13 +29,16 @@ public class UserController {
             return ResponseEntity.badRequest().body("Employee ID and Role are required");
         }
 
+        user.setIsActive(true);
+
         try {
             User savedUser = userService.createUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("An error occurred while creating the user profile");
+            e.printStackTrace(); // <-- This will print the actual error to your terminal
+            return ResponseEntity.internalServerError().body("An error occurred while creating the user profile: " + e.getMessage());
         }
     }
 

@@ -13,26 +13,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "sprint")
+@Table
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "sprintId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "sprintId", scope = Sprint.class)
 public class Sprint {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sprint_id")
-    private Integer sprintId;
+    private Long sprintId;
 
-    @Column(name = "sprint_name", length = 255, nullable = false)
+    @Column(length = 255, nullable = false)
     private String sprintName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "project_id", nullable = false)
-    @JoinColumn(name = "project_id")
     private Project project;
 
     @OneToMany(mappedBy = "sprint",cascade = CascadeType.ALL, orphanRemoval = true)

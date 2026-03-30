@@ -9,28 +9,28 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "defectId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "defectId", scope = Defect.class)
 @Entity
 @Data
 @NoArgsConstructor
 public class Defect {
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private long defectId;
-@OneToOne(fetch=FetchType.EAGER,cascade = CascadeType.ALL)
-@JoinColumn(name="ticket_id")
-private Ticket ticket;
-@Enumerated(EnumType.STRING)
-private Reproducibility reproducible;
-@Enumerated(EnumType.STRING)
-private Severity severity;
-private String expectedResult;
-private String actualResult;
-@ElementCollection
-@CollectionTable(name = "defect_reproduce_steps", joinColumns = @JoinColumn(name = "defect_id"))
-@Column(name = "steps")
-private List<String> stepsToReproduce=new ArrayList<>();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long defectId;
 
-
-
+    @OneToOne(fetch=FetchType.EAGER,cascade = CascadeType.ALL)
+    private Ticket ticket;
+    
+    @Enumerated(EnumType.STRING)
+    private Reproducibility reproducible;
+    
+    @Enumerated(EnumType.STRING)
+    private Severity severity;
+    
+    private String expectedResult;
+    private String actualResult;
+    
+    @ElementCollection
+    @CollectionTable(joinColumns = @JoinColumn)
+    private List<String> stepsToReproduce=new ArrayList<>();
 }

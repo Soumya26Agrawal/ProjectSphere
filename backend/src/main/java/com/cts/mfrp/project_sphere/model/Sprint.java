@@ -24,21 +24,20 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "sprint")
+@Table
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "sprintId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "sprintId", scope = Sprint.class)
 public class Sprint {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sprint_id")
-    private Integer sprintId;
+    private Long sprintId;
 
-    @Column(name = "sprint_name", length = 255, nullable = false)
+    @Column(length = 255, nullable = false)
     private String sprintName;
 
     @Column(name = "start_date")

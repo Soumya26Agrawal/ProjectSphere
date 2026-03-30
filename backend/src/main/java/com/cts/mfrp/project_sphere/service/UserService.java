@@ -84,7 +84,7 @@ public class UserService {
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
         
-        existingUser.setActive(false);
+        existingUser.setIsActive(false);
         return userRepository.save(existingUser);
     }
 

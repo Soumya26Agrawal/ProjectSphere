@@ -12,5 +12,5 @@ import java.util.List;
 public interface TicketHistoryRepository extends JpaRepository<TicketHistory, Long> {
     
     @Query("SELECT th FROM TicketHistory th WHERE th.ticket.ticketId = :ticketId ORDER BY th.timeStamp DESC")
-    List<TicketHistory> findByTicketIdOrderByTimeStampDesc(@Param("ticketId") long ticketId);
+    List<TicketHistory> findByTicketTicketIdOrderByTimeStampDesc(@Param("ticketId") long ticketId);
 }

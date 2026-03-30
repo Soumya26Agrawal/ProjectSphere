@@ -20,12 +20,20 @@ public class ProjectTeamController {
     // GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<ProjectTeam> getById(@PathVariable Long id) {
+        return projectTeamRepository.findById(id)
         return projectTeamService.getProjectTeamById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     //  GET BY PROJECT ID (One-to-One relation)
     @GetMapping("/project/{projectId}")
+    public List<ProjectTeam> getByProject(@PathVariable Long projectId) {
+        return projectTeamRepository.findByProjectProjectId(projectId);
+    }
+
+    @GetMapping("/employee/{employeeId}")
+    public List<ProjectTeam> getByEmployee(@PathVariable Long employeeId) {
+        return projectTeamRepository.findByUserEmployeeId(employeeId);
     public ResponseEntity<ProjectTeam> getByProject(@PathVariable String projectId) {
         return projectTeamService.getProjectTeamByProjectId(projectId)
                 .map(ResponseEntity::ok)
@@ -40,6 +48,26 @@ public class ProjectTeamController {
     // UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<ProjectTeam> update(@PathVariable Long id,
+                                              @RequestBody ProjectTeam projectTeam) {
+        return projectTeamRepository.findById(id)
+                .map(existing -> {
+                    existing.setProject(projectTeam.getProject());
+                    existing.setUser(projectTeam.getUser());
+                    existing.setProjectRole(projectTeam.getProjectRole());
+                    ProjectTeam updated = projectTeamRepository.save(existing);
+                    return ResponseEntity.ok(updated);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        return projectTeamRepository.findById(id)
+                .map(found -> {
+                    projectTeamRepository.delete(found);
+                    return ResponseEntity.noContent().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
                                               @RequestBody ProjectTeam newData) {
         try {
             ProjectTeam updated = projectTeamService.updateProjectTeam(id, newData);

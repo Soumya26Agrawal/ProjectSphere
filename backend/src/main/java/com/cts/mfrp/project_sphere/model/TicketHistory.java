@@ -19,38 +19,41 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "ticket_history")
+@Table
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "historyId", scope = TicketHistory.class)
 public class TicketHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "history_id")
-    private long historyId;
+    private Long historyId;
 
     @ManyToOne(fetch = FetchType.LAZY)  //one ticket can have many ticket histories
-    @JoinColumn(name = "ticket_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Ticket ticket;
 
-    @Column(name = "changed_by", nullable = false)
-    private long changedBy;   //referencing to user_id
+    @Column(nullable = false)
+    private Long changedBy;   //referencing to user_id
 
-    @Column(name = "field_changed", nullable = false)
+    @Column(nullable = false)
     private String fieldChanged;  //status, assigne, any ticket field 
 
-    @Column(name = "old_value", nullable = false)
+    @Column(nullable = false)
     private String oldValue;
 
-    @Column(name = "new_value", nullable = false)
+    @Column(nullable = false)
     private String newValue;
 
     @CreationTimestamp
-    @Column(name = "changed_at", updatable = false)
+    @Column(updatable = false)
     private LocalDateTime timeStamp;
 
 }

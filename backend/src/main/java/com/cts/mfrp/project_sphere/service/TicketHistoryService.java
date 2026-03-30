@@ -15,6 +15,6 @@ public class TicketHistoryService {
     TicketHistoryRepository ticketHistoryRepository;
 
     public List<TicketHistory> findTicketHistory(long ticketId) {
-        return ticketHistoryRepository.findByTicketIdOrderByTimeStampDesc(ticketId);
+        return ticketHistoryRepository.findByTicketTicketIdOrderByTimeStampDesc(ticketId);
     }
 }

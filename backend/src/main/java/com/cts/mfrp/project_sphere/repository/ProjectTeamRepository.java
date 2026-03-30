@@ -4,6 +4,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 @Repository
 public interface ProjectTeamRepository extends JpaRepository<ProjectTeam, Long> {
+    
+    List<ProjectTeam> findByProjectProjectId(Long projectId);
+    
+    List<ProjectTeam> findByUserEmployeeId(Long employeeId);
+
     ProjectTeam findByProjectId_ProjectId(String projectId);
 }
  

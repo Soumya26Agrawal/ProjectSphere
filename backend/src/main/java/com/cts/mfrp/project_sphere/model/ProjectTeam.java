@@ -1,82 +1,50 @@
 package com.cts.mfrp.project_sphere.model;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
+import java.util.List;
 @Entity
 @Table(name = "project_team")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "teamId")
 public class ProjectTeam {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_id")
-    private Integer teamId;
-
-    @Column(name = "project_id", nullable = false, length = 50)
-    private String projectId;
-
-    @Column(name = "employee_id", nullable = false, length = 50)
-    private String employeeId;
-
-    @Column(name = "project_role", nullable = false, length = 50)
-    private String projectRole;
-
-    public ProjectTeam() {
-    }
-
-    public ProjectTeam(String projectId, String employeeId, String projectRole) {
+    private Long teamId;  
+    // ONE-TO-ONE WITH PROJECT (renamed variable)
+    @OneToOne
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project projectId;   
+    // MANY-TO-MANY WITH USERS
+    @ManyToMany
+    @JoinTable(
+        name = "project_team_users",
+        joinColumns = @JoinColumn(name = "team_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> users;
+    // Constructors
+    public ProjectTeam() {}
+    public ProjectTeam(Project projectId, List<User> users) {
         this.projectId = projectId;
-        this.employeeId = employeeId;
-        this.projectRole = projectRole;
+        this.users = users;
     }
-
-    public Integer getTeamId() {
+    // Getters & Setters
+    public Long getTeamId() {
         return teamId;
     }
-
-    public void setTeamId(Integer teamId) {
+    public void setTeamId(Long teamId) {
         this.teamId = teamId;
     }
-
-    public String getProjectId() {
+    public Project getProjectId() {
         return projectId;
     }
-
-    public void setProjectId(String projectId) {
+    public void setProjectId(Project projectId) {
         this.projectId = projectId;
     }
-
-    public String getEmployeeId() {
-        return employeeId;
+    public List<User> getUsers() {
+        return users;
+    }
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
-
-    public String getProjectRole() {
-        return projectRole;
-    }
-
-    public void setProjectRole(String projectRole) {
-        this.projectRole = projectRole;
-    }
-
-    @Override
-    public String toString() {
-        return "ProjectTeam{" +
-                "teamId=" + teamId +
-                ", projectId='" + projectId + '\'' +
-                ", employeeId='" + employeeId + '\'' +
-                ", projectRole='" + projectRole + '\'' +
-                '}';
-    }
 }
-
+ 

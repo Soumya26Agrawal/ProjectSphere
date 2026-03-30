@@ -56,5 +56,9 @@ public class Sprint {
     @JoinColumn(name = "project_id", nullable = false)
     @JsonIgnore
     private Project project;
+
+    @OneToMany(mappedBy = "sprint",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Ticket> tickets=new ArrayList<>();
 }
 

@@ -1,25 +1,20 @@
-package com.cts.mfrp.project_sphere.model;
+package com.cts.mfrp.project_sphere .model;
 
 
 import com.cts.mfrp.project_sphere.Enum.Role;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -41,10 +36,16 @@ public class User {
     @Column(name = "phone_number")
     private Long phoneNumber;
 
+    @OneToMany(orphanRemoval = true)
+    private List<Ticket> reportedTickets=new ArrayList<>();
+
+    @OneToMany(orphanRemoval = true)
+    private List<Ticket> assignedTickets=new ArrayList<>();
     @Enumerated(EnumType.STRING)
     @Column(name = "system_role", nullable = false)
     private Role role;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = true; 
+    @Builder.Default
+    private boolean isActive = true;
 }

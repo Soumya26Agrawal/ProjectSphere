@@ -1,5 +1,4 @@
 package com.cts.mfrp.project_sphere.model;
-
 import com.cts.mfrp.project_sphere.Enum.Reproducibility;
 import com.cts.mfrp.project_sphere.Enum.Severity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -7,7 +6,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 

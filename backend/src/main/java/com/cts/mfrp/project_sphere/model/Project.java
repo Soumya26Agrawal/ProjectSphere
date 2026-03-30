@@ -30,8 +30,9 @@ import lombok.Setter;
 public class Project {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "project_id", length = 50)
-    private String projectId;
+    private long projectId;
 
     @Column(name = "project_name", length = 255, nullable = false)
     private String projectName;
@@ -46,6 +47,9 @@ public class Project {
     @Builder.Default
     private Domain domain = Domain.TECHNOLOGY;
 
+    @OneToMany(mappedBy = "project",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Ticket> tickets=new ArrayList<>();
     @OneToMany(mappedBy = "project")
     @Builder.Default
     private List<Sprint> sprints = new ArrayList<>();

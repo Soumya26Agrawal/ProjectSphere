@@ -3,41 +3,37 @@ package com.cts.mfrp.project_sphere.model;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-
 @Entity
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "commentId", scope = TicketComment.class)
-public class TicketComment
-{
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "commentId")
+public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comment_id")
     private Long commentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(name = "comment_body", columnDefinition = "TEXT", nullable = false)
     private String commentBody;
 
-    @Column(nullable = false, updatable = false)
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public TicketComment()
-    {
+    public Comment() {}
 
-    }
-    public TicketComment(Long commentId, Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
+    public Comment(Long commentId, Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
         this.commentId = commentId;
         this.ticket = ticket;
         this.user = user;
@@ -45,7 +41,7 @@ public class TicketComment
         this.createdAt = createdAt;
     }
 
-    public TicketComment(Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
+    public Comment(Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
         this.ticket = ticket;
         this.user = user;
         this.commentBody = commentBody;

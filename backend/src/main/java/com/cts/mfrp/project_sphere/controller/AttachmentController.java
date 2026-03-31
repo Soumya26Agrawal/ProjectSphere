@@ -1,59 +1,55 @@
 package com.cts.mfrp.project_sphere.controller;
 
 import com.cts.mfrp.project_sphere.model.Attachment;
-import com.cts.mfrp.project_sphere.repository.AttachmentRepository;
+import com.cts.mfrp.project_sphere.service.AttachmentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/attachments")
-public class AttachmentController
-{
+public class AttachmentController {
+
     @Autowired
-    private AttachmentRepository attachmentRepository;
+    private AttachmentService attachmentService;
 
     @GetMapping
     public List<Attachment> getAllAttachments() {
-        return attachmentRepository.findAll();
+        return attachmentService.getAllAttachments();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Attachment> getAttachmentById(@PathVariable Long id) {
-        return attachmentRepository.findById(id)
-                .map(ResponseEntity::ok)
+        Optional<Attachment> attachment = attachmentService.getAttachmentById(id);
+        return attachment.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Attachment> createAttachment(@RequestBody Attachment attachment) {
-        Attachment savedAttachment = attachmentRepository.save(attachment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedAttachment);
+    public Attachment createAttachment(@RequestBody Attachment attachment) {
+        return attachmentService.createAttachment(attachment);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Attachment> updateAttachment(@PathVariable Long id,
                                                        @RequestBody Attachment updatedAttachment) {
-        return attachmentRepository.findById(id)
-                .map(existing -> {
-                    existing.setFileUrl(updatedAttachment.getFileUrl());
-                    existing.setUploadedAt(updatedAttachment.getUploadedAt());
-                    existing.setTicket(updatedAttachment.getTicket());
-                    return ResponseEntity.ok(attachmentRepository.save(existing));
-                })
+        Optional<Attachment> updated = attachmentService.updateAttachment(id, updatedAttachment);
+        return updated.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAttachment(@PathVariable Long id) {
-        if (attachmentRepository.existsById(id)) {
-            attachmentRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        boolean deleted = attachmentService.deleteAttachment(id);
+        return deleted ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/ticket/{ticketId}")
+    public List<Attachment> getAttachmentsByTicket(@PathVariable Long ticketId) {
+        return attachmentService.getAttachmentsByTicket(ticketId);
+    }
 }

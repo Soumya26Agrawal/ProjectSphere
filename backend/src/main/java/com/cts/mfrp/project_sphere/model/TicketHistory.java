@@ -37,7 +37,7 @@ public class TicketHistory {
     private Long historyId;
 
     @ManyToOne(fetch = FetchType.LAZY)  //one ticket can have many ticket histories
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="ticket_id")
     private Ticket ticket;
 
     @Column(nullable = false)

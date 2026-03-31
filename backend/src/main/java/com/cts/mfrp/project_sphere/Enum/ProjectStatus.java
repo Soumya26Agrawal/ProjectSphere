@@ -1,6 +1,6 @@
 package com.cts.mfrp.project_sphere.Enum;
 
-public enum Status {
+public enum ProjectStatus {
     IN_PROGRESS,
     COMPLETED
 }

@@ -4,7 +4,6 @@ import com.cts.mfrp.project_sphere.Enum.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,8 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "users") 
-public class User {
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
@@ -29,26 +27,24 @@ public class User implements UserDetails {
 
     @Column(nullable = false, unique = true)
     private Long employeeId;
-
     private String firstName;
-
     private String lastName;
-
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @Column(name = "phone_number")
     private Long phoneNumber;
 
-    @OneToMany(mappedBy = "reporter", orphanRemoval = true)
-    @JsonIgnore
-    @Builder.Default
+    @OneToMany(mappedBy = "reporter", fetch=FetchType.LAZY, orphanRemoval = true)
+//    @JsonIgnore
+//    @Builder.Default
     private List<Ticket> reportedTickets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "assignee", orphanRemoval = true)
-    @JsonIgnore
-    @Builder.Default
+    @OneToMany(mappedBy = "assignee", fetch=FetchType.LAZY, orphanRemoval = true)
+//    @JsonIgnore
+//    @Builder.Default
     private List<Ticket> assignedTickets = new ArrayList<>();
 
     @OneToMany(mappedBy = "manager")
@@ -56,10 +52,10 @@ public class User implements UserDetails {
     @Builder.Default
     private List<Project> managedProjects = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    @Builder.Default
-    private List<ProjectTeam> teams = new ArrayList<>();
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonIgnore
+//    @Builder.Default
+//    private List<ProjectTeam> teams = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -68,15 +64,14 @@ public class User implements UserDetails {
     @Column(nullable = false)
     @Builder.Default
     private Boolean isActive = true;
-    private boolean isActive = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_"+role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
-    public @Nullable String getPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -102,9 +97,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return Boolean.TRUE.equals(isActive);
     }
 }
-
-
-

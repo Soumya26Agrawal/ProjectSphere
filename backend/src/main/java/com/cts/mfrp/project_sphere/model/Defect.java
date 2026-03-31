@@ -18,7 +18,8 @@ public class Defect {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long defectId;
 
-    @OneToOne(fetch=FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToOne(fetch=FetchType.EAGER,cascade = {CascadeType.MERGE,CascadeType.REMOVE})
+    @JoinColumn(name="ticket_id")
     private Ticket ticket;
     
     @Enumerated(EnumType.STRING)
@@ -31,6 +32,6 @@ public class Defect {
     private String actualResult;
     
     @ElementCollection
-    @CollectionTable(joinColumns = @JoinColumn)
-    private List<String> stepsToReproduce=new ArrayList<>();
+    @CollectionTable(joinColumns = @JoinColumn(name="defect_id"))
+    private List<String> stepsToReproduce=new ArrayList<>();  // by default Element Collection uses Lazy loaded
 }

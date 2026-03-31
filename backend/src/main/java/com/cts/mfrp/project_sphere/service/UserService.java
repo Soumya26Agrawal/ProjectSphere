@@ -2,6 +2,7 @@ package com.cts.mfrp.project_sphere.service;
 
 import com.cts.mfrp.project_sphere.Enum.Role;
 import com.cts.mfrp.project_sphere.dto.AuthRequest;
+import com.cts.mfrp.project_sphere.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +10,10 @@ import org.springframework.stereotype.Service;
 
 import com.cts.mfrp.project_sphere.model.User;
 import com.cts.mfrp.project_sphere.repository.UserRepository;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +29,8 @@ public class UserService {
         // 2. Create the User entity
         User user = User.builder()
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // ENCRYPT THE PASSWORD
+                .password(passwordEncoder.encode(request.getPassword()))
+                .employeeId(request.getEmployeeId())// ENCRYPT THE PASSWORD
                 .role(Role.ADMIN) // Default role
                 .build();
         // 3. Save to Database
@@ -100,5 +106,16 @@ public class UserService {
     public User login(String email) {
         return userRepository.findByEmailAndIsActiveTrue(email)
             .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+    }
+    public void save(MultipartFile file){
+        try{
+            List<User> users= UserUtil.convertExcelToList(file.getInputStream());
+            userRepository.saveAll(users);
+
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+
     }
 }

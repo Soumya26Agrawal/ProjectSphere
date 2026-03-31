@@ -15,7 +15,7 @@ public class ProjectTeamService {
     public Optional<ProjectTeam> getProjectTeamById(Long id) {
         return projectTeamRepository.findById(id);
     }
-    public Optional<ProjectTeam> getProjectTeamByProjectId(String projectId) {
+    public Optional<ProjectTeam> getProjectTeamByProjectId(Long projectId) {
         ProjectTeam team = projectTeamRepository.findByProjectId_ProjectId(projectId);
         return Optional.ofNullable(team);
     }

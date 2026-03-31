@@ -1,89 +1,105 @@
 package com.cts.mfrp.project_sphere.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.cts.mfrp.project_sphere.model.Project;
+import com.cts.mfrp.project_sphere.repository.ProjectRepository;
+import lombok.RequiredArgsConstructor;
+import com.cts.mfrp.project_sphere.service.ProjectService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/projects")
+@RequestMapping("/api/projects")
+@RequiredArgsConstructor
 public class ProjectController {
 
-    private final Map<Integer, Project> projectStore = new ConcurrentHashMap<>();
-    private final AtomicInteger projectIdSequence = new AtomicInteger(0);
+    private final ProjectRepository projectRepository;
 
     @GetMapping
     public List<Project> getAllProjects() {
-        return new ArrayList<>(projectStore.values());
+        return projectRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable int id) {
-        Project project = projectStore.get(id);
-        return project != null ? ResponseEntity.ok(project) : ResponseEntity.notFound().build();
+    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
+        return projectRepository.findById(id)
+    private final ProjectService projectService;
+
+    public ProjectController(ProjectService projectService) {
+        this.projectService = projectService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Project>> getAllProjects() {
+        List<Project> projects = projectService.findAll();
+        return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Project> getProjectById(@PathVariable String id) {
+        return projectService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<Project> createProject(@RequestBody Project project) {
-        if (project == null || project.projectName() == null || project.projectName().isBlank()) {
+        if (project.getProjectName() == null || project.getProjectName().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
-
-        int id = projectIdSequence.incrementAndGet();
-        Project stored = new Project(id, project.projectId(), project.projectName(), project.projectManagerId());
-        projectStore.put(id, stored);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(stored);
+        Project saved = projectRepository.save(project);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Project> updateProject(@PathVariable int id, @RequestBody Project updated) {
-        Project existing = projectStore.get(id);
-        if (existing == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Project merged = new Project(id,
-                Optional.ofNullable(updated.projectId()).orElse(existing.projectId()),
-                Optional.ofNullable(updated.projectName()).orElse(existing.projectName()),
-                Optional.ofNullable(updated.projectManagerId()).orElse(existing.projectManagerId()));
-
-        projectStore.put(id, merged);
-        return ResponseEntity.ok(merged);
+    public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project updated) {
+        return projectRepository.findById(id)
+                .map(existing -> {
+                    if(updated.getProjectName() != null) {
+                        existing.setProjectName(updated.getProjectName());
+                    }
+                    if(updated.getManager() != null) {
+                        existing.setManager(updated.getManager());
+                    }
+                    return ResponseEntity.ok(projectRepository.save(existing));
+                }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable int id) {
-        if (projectStore.remove(id) != null) {
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        if (projectRepository.existsById(id)) {
+            projectRepository.deleteById(id);
+        if (project == null || project.getProjectName() == null || project.getProjectName().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Project created = projectService.create(project);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Project> updateProject(@PathVariable String id, @RequestBody Project updatedProject) {
+        return projectService.update(id, updatedProject)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable String id) {
+        if (projectService.findById(id).isPresent()) {
+            projectService.delete(id);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/count")
-    public int countProjects() {
-        return projectStore.size();
-    }
-
-    public static record Project(int id, String projectId, String projectName, String projectManagerId) {
-        public Project {
-            if (projectId == null || projectId.isBlank()) {
-                projectId = String.valueOf(id);
-            }
-        }
+    public long countProjects() {
+        return projectRepository.count();
+    public ResponseEntity<Long> countProjects() {
+        long count = projectService.count();
+        return ResponseEntity.ok(count);
     }
 }
 

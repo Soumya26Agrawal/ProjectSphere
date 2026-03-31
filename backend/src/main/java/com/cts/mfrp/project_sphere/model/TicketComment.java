@@ -11,26 +11,25 @@ import java.time.LocalDateTime;
 
 
 @Entity
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "commentId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "commentId", scope = TicketComment.class)
 public class TicketComment
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
-    private Integer commentId;
+    private Long commentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ticket_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Ticket ticket;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(nullable = false)
     private User user;
 
-    @Column(name = "comment_body", columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String commentBody;
 
-    @Column(name = "created_at", nullable = false,updatable = false)
+    @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -38,7 +37,7 @@ public class TicketComment
     {
 
     }
-    public TicketComment(Integer commentId, Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
+    public TicketComment(Long commentId, Ticket ticket, User user, String commentBody, LocalDateTime createdAt) {
         this.commentId = commentId;
         this.ticket = ticket;
         this.user = user;
@@ -53,11 +52,11 @@ public class TicketComment
         this.createdAt = createdAt;
     }
 
-    public Integer getCommentId() {
+    public Long getCommentId() {
         return commentId;
     }
 
-    public void setCommentId(Integer commentId) {
+    public void setCommentId(Long commentId) {
         this.commentId = commentId;
     }
 

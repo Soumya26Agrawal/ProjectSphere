@@ -3,11 +3,14 @@ package com.cts.mfrp.project_sphere.controller;
 import com.cts.mfrp.project_sphere.model.TicketComment;
 import com.cts.mfrp.project_sphere.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RestController
+@RequestMapping("/api/comments")
 public class CommentController
 {
     @Autowired
@@ -19,24 +22,24 @@ public class CommentController
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TicketComment> getCommentById(@PathVariable Integer id) {
+    public ResponseEntity<TicketComment> getCommentById(@PathVariable Long id) {
         return commentRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public TicketComment createComment(@RequestBody TicketComment comment) {
-        return commentRepository.save(comment);
+    public ResponseEntity<TicketComment> createComment(@RequestBody TicketComment comment) {
+        TicketComment savedComment = commentRepository.save(comment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TicketComment> updateComment(@PathVariable Integer id,
+    public ResponseEntity<TicketComment> updateComment(@PathVariable Long id,
                                                        @RequestBody TicketComment updatedComment) {
         return commentRepository.findById(id)
                 .map(existing -> {
                     existing.setCommentBody(updatedComment.getCommentBody());
-                    existing.setCreatedAt(updatedComment.getCreatedAt());
                     existing.setTicket(updatedComment.getTicket());
                     existing.setUser(updatedComment.getUser());
                     return ResponseEntity.ok(commentRepository.save(existing));
@@ -45,15 +48,12 @@ public class CommentController
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteComment(@PathVariable Integer id) {
-        return commentRepository.findById(id)
-                .map(existing -> {
-                    commentRepository.delete(existing);
-                    return ResponseEntity.<Void>noContent().build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
+        if (commentRepository.existsById(id)) {
+            commentRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
-
-
 }
 

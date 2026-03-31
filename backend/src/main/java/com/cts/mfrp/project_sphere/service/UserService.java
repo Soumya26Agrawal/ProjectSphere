@@ -1,16 +1,37 @@
 package com.cts.mfrp.project_sphere.service;
 
+import com.cts.mfrp.project_sphere.Enum.Role;
+import com.cts.mfrp.project_sphere.dto.AuthRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.cts.mfrp.project_sphere.model.User;
 import com.cts.mfrp.project_sphere.repository.UserRepository;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    
-    @Autowired
-    UserRepository userRepository;
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    public String register(AuthRequest request) {
+        // 1. Check if user already exists (Optional but recommended)
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("User already exists");
+        }
+        // 2. Create the User entity
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword())) // ENCRYPT THE PASSWORD
+                .role(Role.ADMIN) // Default role
+                .build();
+        // 3. Save to Database
+        userRepository.save(user);
+        return "User registered successfully";
+
+    }
 
     //create user(POST)
     public User createUser(User user){
@@ -63,7 +84,7 @@ public class UserService {
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
         
-        existingUser.setActive(false);
+        existingUser.setIsActive(false);
         return userRepository.save(existingUser);
     }
 
@@ -73,5 +94,11 @@ public class UserService {
             throw new IllegalArgumentException("User not found");
         }
         userRepository.deleteById(id);
+    }
+
+    // Login by email for active users
+    public User login(String email) {
+        return userRepository.findByEmailAndIsActiveTrue(email)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
     }
 }

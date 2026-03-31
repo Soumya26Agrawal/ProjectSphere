@@ -18,11 +18,11 @@ public class ProjectService {
     }
 
     public List<Project> findAll() {
-        return projectRepository.findAllWithSprints();
+        return projectRepository.findAll();
     }
 
     public Optional<Project> findById(String projectId) {
-        return projectRepository.findByIdWithSprints(projectId);
+        return projectRepository.findById(projectId);
     }
 
     @Transactional

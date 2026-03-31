@@ -1,8 +1,10 @@
 package com.cts.mfrp.project_sphere.repository;
 
-import com.cts.mfrp.project_sphere.model.TicketComment;
+import com.cts.mfrp.project_sphere.model.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
-public interface CommentRepository extends JpaRepository<TicketComment, Long> {}
+public interface CommentRepository extends JpaRepository<Comment, Long> {
+    List<Comment> findByUser_UserId(Long userId);
+    List<Comment> findByTicket_TicketId(Long ticketId);
+}

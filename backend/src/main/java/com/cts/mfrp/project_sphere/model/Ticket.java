@@ -26,35 +26,40 @@ public class Ticket {
     private Long ticketId;
     
     @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="project_id")
     private Project project;                  // add one to many in sprint
     
     @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="sprint_id")
     private Sprint sprint;                    // add one to many in sprint
     
     @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="parent_id")
     private Ticket parent;
     
     @OneToMany(mappedBy = "parent", fetch=FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.REMOVE)
     private List<Ticket> children=new ArrayList<>();
     
     @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="assignee_id")
     private User assignee;
     
     @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="reporter_id")
     private User reporter;
     
     @OneToMany(mappedBy = "ticket", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TicketHistory> ticketLogs=new ArrayList<>();
     
     @OneToMany(mappedBy = "ticket", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<TicketComment> ticketComments=new ArrayList<>();
+    private List<Comment> ticketComments=new ArrayList<>();
     
-    @OneToMany(mappedBy = "ticket", fetch=FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "ticket", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Attachment> attachments=new ArrayList<>();
     
     @Enumerated(EnumType.STRING)
     private TicketType type;
-    @OneToOne(mappedBy = "ticket", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "ticket", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,CascadeType.REMOVE})
     private Defect defect;
     @Enumerated(EnumType.STRING)
     private Status status;

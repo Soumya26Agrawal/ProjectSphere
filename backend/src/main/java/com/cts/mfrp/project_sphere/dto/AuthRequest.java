@@ -25,6 +25,8 @@ public class AuthRequest {
     // Optional: Add other fields if your User entity needs them
     // private String firstName;
     // private String lastName;
+
+    private Long employeeId;
 }
 
 //@Valid Annotation in Controller

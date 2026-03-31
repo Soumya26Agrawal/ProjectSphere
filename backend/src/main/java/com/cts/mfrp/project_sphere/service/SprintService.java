@@ -1,6 +1,5 @@
 package com.cts.mfrp.project_sphere.service;
 
-<<<<<<< HEAD
 import com.cts.mfrp.project_sphere.model.Sprint;
 import com.cts.mfrp.project_sphere.repository.ProjectRepository;
 import com.cts.mfrp.project_sphere.repository.SprintRepository;
@@ -29,8 +28,8 @@ public class SprintService {
         return sprintRepository.findById(sprintId);
     }
 
-    public List<Sprint> findByProjectId(String projectId) {
-        return sprintRepository.findByProjectId(projectId);
+    public List<Sprint> findByProjectId(Long projectId) {
+        return sprintRepository.findByProjectProjectId(projectId);
     }
 
     @Transactional

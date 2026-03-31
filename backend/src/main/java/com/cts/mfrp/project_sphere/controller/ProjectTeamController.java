@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
-@RequestMapping("/api/project-teams")
+@RequestMapping("/project-teams")
 public class ProjectTeamController {
     private final ProjectTeamService projectTeamService;
     public ProjectTeamController(ProjectTeamService projectTeamService) {
@@ -17,20 +17,12 @@ public class ProjectTeamController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<ProjectTeam> getById(@PathVariable Long id) {
-        return projectTeamRepository.findById(id)
         return projectTeamService.getProjectTeamById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     @GetMapping("/project/{projectId}")
-    public List<ProjectTeam> getByProject(@PathVariable Long projectId) {
-        return projectTeamRepository.findByProjectProjectId(projectId);
-    }
-
-    @GetMapping("/employee/{employeeId}")
-    public List<ProjectTeam> getByEmployee(@PathVariable Long employeeId) {
-        return projectTeamRepository.findByUserEmployeeId(employeeId);
-    public ResponseEntity<ProjectTeam> getByProject(@PathVariable String projectId) {
+    public ResponseEntity<ProjectTeam> getByProject(@PathVariable Long projectId) {
         return projectTeamService.getProjectTeamByProjectId(projectId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -41,26 +33,6 @@ public class ProjectTeamController {
     }
     @PutMapping("/{id}")
     public ResponseEntity<ProjectTeam> update(@PathVariable Long id,
-                                              @RequestBody ProjectTeam projectTeam) {
-        return projectTeamRepository.findById(id)
-                .map(existing -> {
-                    existing.setProject(projectTeam.getProject());
-                    existing.setUser(projectTeam.getUser());
-                    existing.setProjectRole(projectTeam.getProjectRole());
-                    ProjectTeam updated = projectTeamRepository.save(existing);
-                    return ResponseEntity.ok(updated);
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return projectTeamRepository.findById(id)
-                .map(found -> {
-                    projectTeamRepository.delete(found);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElse(ResponseEntity.notFound().build());
                                               @RequestBody ProjectTeam newData) {
         try {
             ProjectTeam updated = projectTeamService.updateProjectTeam(id, newData);
@@ -80,4 +52,3 @@ public class ProjectTeamController {
     }
 
 }
- 

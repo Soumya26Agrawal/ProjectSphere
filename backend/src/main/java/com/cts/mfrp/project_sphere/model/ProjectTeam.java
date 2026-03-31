@@ -8,11 +8,9 @@ public class ProjectTeam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_id")
     private Long teamId;  
-    // ONE-TO-ONE WITH PROJECT (renamed variable)
     @OneToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project projectId;   
-    // MANY-TO-MANY WITH USERS
     @ManyToMany
     @JoinTable(
         name = "project_team_users",
@@ -20,13 +18,11 @@ public class ProjectTeam {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> users;
-    // Constructors
     public ProjectTeam() {}
     public ProjectTeam(Project projectId, List<User> users) {
         this.projectId = projectId;
         this.users = users;
     }
-    // Getters & Setters
     public Long getTeamId() {
         return teamId;
     }

@@ -8,36 +8,29 @@ import java.util.List;
 @RequestMapping("/api/project-teams")
 public class ProjectTeamController {
     private final ProjectTeamService projectTeamService;
-    // Constructor Injection
     public ProjectTeamController(ProjectTeamService projectTeamService) {
         this.projectTeamService = projectTeamService;
     }
-    //  GET ALL
     @GetMapping
     public List<ProjectTeam> getAll() {
         return projectTeamService.getAllProjectTeams();
     }
-    // GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<ProjectTeam> getById(@PathVariable Long id) {
         return projectTeamService.getProjectTeamById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    //  GET BY PROJECT ID (One-to-One relation)
     @GetMapping("/project/{projectId}")
     public ResponseEntity<ProjectTeam> getByProject(@PathVariable String projectId) {
         return projectTeamService.getProjectTeamByProjectId(projectId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
-    // CREATE
     @PostMapping
     public ProjectTeam create(@RequestBody ProjectTeam projectTeam) {
         return projectTeamService.createProjectTeam(projectTeam);
     }
-    // UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<ProjectTeam> update(@PathVariable Long id,
                                               @RequestBody ProjectTeam newData) {
@@ -48,7 +41,6 @@ public class ProjectTeamController {
             return ResponseEntity.notFound().build();
         }
     }
-    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         try {

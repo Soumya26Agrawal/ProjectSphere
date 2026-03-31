@@ -1,59 +1,60 @@
 package com.cts.mfrp.project_sphere.controller;
 
-import com.cts.mfrp.project_sphere.model.TicketComment;
-import com.cts.mfrp.project_sphere.repository.CommentRepository;
+import com.cts.mfrp.project_sphere.model.Comment;
+import com.cts.mfrp.project_sphere.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/comments")
-public class CommentController
-{
+public class CommentController {
+
     @Autowired
-    private CommentRepository commentRepository;
+    private CommentService commentService;
 
     @GetMapping
-    public List<TicketComment> getAllComments() {
-        return commentRepository.findAll();
+    public List<Comment> getAllComments() {
+        return commentService.getAllComments();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TicketComment> getCommentById(@PathVariable Long id) {
-        return commentRepository.findById(id)
-                .map(ResponseEntity::ok)
+    public ResponseEntity<Comment> getCommentById(@PathVariable Long id) {
+        Optional<Comment> comment = commentService.getCommentById(id);
+        return comment.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<TicketComment> createComment(@RequestBody TicketComment comment) {
-        TicketComment savedComment = commentRepository.save(comment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
+    public Comment createComment(@RequestBody Comment comment) {
+        return commentService.createComment(comment);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TicketComment> updateComment(@PathVariable Long id,
-                                                       @RequestBody TicketComment updatedComment) {
-        return commentRepository.findById(id)
-                .map(existing -> {
-                    existing.setCommentBody(updatedComment.getCommentBody());
-                    existing.setTicket(updatedComment.getTicket());
-                    existing.setUser(updatedComment.getUser());
-                    return ResponseEntity.ok(commentRepository.save(existing));
-                })
+    public ResponseEntity<Comment> updateComment(@PathVariable Long id,
+                                                 @RequestBody Comment updatedComment) {
+        Optional<Comment> updated = commentService.updateComment(id, updatedComment);
+        return updated.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
-        if (commentRepository.existsById(id)) {
-            commentRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        boolean deleted = commentService.deleteComment(id);
+        return deleted ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<Comment> getCommentsByUser(@PathVariable Long userId) {
+        return commentService.getCommentsByUser(userId);
+    }
+
+    @GetMapping("/ticket/{ticketId}")
+    public List<Comment> getCommentsByTicket(@PathVariable Long ticketId) {
+        return commentService.getCommentsByTicket(ticketId);
     }
 }
-

@@ -7,28 +7,28 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "attachmentId", scope = Attachment.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "attachmentId")
 @Entity
-public class Attachment
-{
+public class Attachment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "attachment_id")
     private Long attachmentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 
-    @Column(length = 500, nullable = false)
+    @Column(name = "file_url", length = 500, nullable = false)
     private String fileUrl;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(name = "uploaded_at", nullable = false, updatable = false)
     private LocalDateTime uploadedAt;
 
-    public Attachment()
-    {
+    public Attachment() {}
 
-    }
     public Attachment(Long attachmentId, Ticket ticket, String fileUrl, LocalDateTime uploadedAt) {
         this.attachmentId = attachmentId;
         this.ticket = ticket;
@@ -66,8 +66,6 @@ public class Attachment
         this.fileUrl = fileUrl;
     }
 
-    @CreationTimestamp
-    @Column(updatable = false)
     public LocalDateTime getUploadedAt() {
         return uploadedAt;
     }

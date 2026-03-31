@@ -2,7 +2,8 @@ package com.cts.mfrp.project_sphere.repository;
 
 import com.cts.mfrp.project_sphere.model.Attachment;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
-public interface AttachmentRepository extends JpaRepository<Attachment, Long> {}
+public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
+    List<Attachment> findByTicket_TicketId(Long ticketId);
+}

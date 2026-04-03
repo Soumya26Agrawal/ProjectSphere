@@ -24,7 +24,7 @@ public class SprintService {
         return sprintRepository.findAll();
     }
 
-    public Optional<Sprint> findById(Integer sprintId) {
+    public Optional<Sprint> findById(Long sprintId) {
         return sprintRepository.findById(sprintId);
     }
 
@@ -33,7 +33,7 @@ public class SprintService {
     }
 
     @Transactional
-    public Optional<Sprint> create(Sprint sprint, String projectId) {
+    public Optional<Sprint> create(Sprint sprint, Long projectId) {
         return projectRepository.findById(projectId)
                 .map(project -> {
                     sprint.setProject(project);
@@ -42,7 +42,7 @@ public class SprintService {
     }
 
     @Transactional
-    public Optional<Sprint> update(Integer sprintId, Sprint updated) {
+    public Optional<Sprint> update(Long sprintId, Sprint updated) {
         return sprintRepository.findById(sprintId)
                 .map(existing -> {
                     existing.setSprintName(updated.getSprintName());
@@ -54,7 +54,7 @@ public class SprintService {
     }
 
     @Transactional
-    public void delete(Integer sprintId) {
+    public void delete(Long sprintId) {
         sprintRepository.deleteById(sprintId);
     }
 

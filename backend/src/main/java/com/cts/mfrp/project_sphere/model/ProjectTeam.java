@@ -1,5 +1,7 @@
 package com.cts.mfrp.project_sphere.model;
 import jakarta.persistence.*;
+import lombok.Builder;
+
 import java.util.List;
 @Entity
 @Table(name = "project_team")
@@ -11,6 +13,8 @@ public class ProjectTeam {
     @OneToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project projectId;
+
+
     @ManyToMany
     @JoinTable(
             name = "project_team_users",

@@ -5,6 +5,8 @@ import com.cts.mfrp.project_sphere.Enum.TicketType;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,6 +20,8 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 //@EntityListeners(AuditingEntityListener.class)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "ticketId", scope = Ticket.class)
 public class Ticket {
@@ -33,33 +37,37 @@ public class Ticket {
     @JoinColumn(name="sprint_id")
     private Sprint sprint;                    // add one to many in sprint
     
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="parent_id")
     private Ticket parent;
-    
+
+    @Builder.Default
     @OneToMany(mappedBy = "parent", fetch=FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.REMOVE)
     private List<Ticket> children=new ArrayList<>();
     
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="assignee_id")
     private User assignee;
     
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="reporter_id")
     private User reporter;
-    
+
+    @Builder.Default
     @OneToMany(mappedBy = "ticket", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TicketHistory> ticketLogs=new ArrayList<>();
-    
+
+    @Builder.Default
     @OneToMany(mappedBy = "ticket", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> ticketComments=new ArrayList<>();
-    
+
+    @Builder.Default
     @OneToMany(mappedBy = "ticket", fetch=FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Attachment> attachments=new ArrayList<>();
     
     @Enumerated(EnumType.STRING)
     private TicketType type;
-    @OneToOne(mappedBy = "ticket", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,CascadeType.REMOVE})
+    @OneToOne(mappedBy = "ticket", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Defect defect;
     @Enumerated(EnumType.STRING)
     private Status status;

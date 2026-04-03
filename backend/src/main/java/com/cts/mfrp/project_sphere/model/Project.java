@@ -1,6 +1,7 @@
 package com.cts.mfrp.project_sphere.model;
 
 import com.cts.mfrp.project_sphere.Enum.Domain;
+import com.cts.mfrp.project_sphere.Enum.ProjectStatus;
 import com.cts.mfrp.project_sphere.Enum.Status;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -26,24 +27,24 @@ public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "project_id", length = 50)
+    @Column(name = "project_id")
     private Long projectId;
 
     @Column(name = "project_name", length = 255, nullable = false)
     private String projectName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    @Builder.Default
-    private Status status = Status.IN_PROGRESS;
+    @Column(name = "project_status", nullable = false)
+//    @Builder.Default
+    private ProjectStatus status;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "domain", nullable = false)
-    @Builder.Default
-    private Domain domain = Domain.TECHNOLOGY;
+//    @Builder.Default
+    private Domain domain;
 
     @OneToMany(mappedBy = "project",cascade = CascadeType.ALL, orphanRemoval = true)
-//    @Builder.Default
+    @Builder.Default
     private List<Ticket> tickets=new ArrayList<>();
     @OneToMany(mappedBy = "project")
     @Builder.Default

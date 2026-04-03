@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sprints")
+@RequestMapping("api/sprints")
 
 public class SprintController {
 
@@ -26,7 +26,7 @@ public class SprintController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Sprint> getSprintById(@PathVariable Integer id) {
+    public ResponseEntity<Sprint> getSprintById(@PathVariable Long id) {
         return sprintService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -38,7 +38,7 @@ public class SprintController {
     }
 
     @PostMapping
-    public ResponseEntity<Sprint> createSprint(@RequestBody Sprint sprint, @RequestParam String projectId) {
+    public ResponseEntity<Sprint> createSprint(@RequestBody Sprint sprint, @RequestParam Long projectId) {
         if (sprint == null || sprint.getSprintName() == null || sprint.getSprintName().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
@@ -48,14 +48,14 @@ public class SprintController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Sprint> updateSprint(@PathVariable Integer id, @RequestBody Sprint updatedSprint) {
+    public ResponseEntity<Sprint> updateSprint(@PathVariable Long id, @RequestBody Sprint updatedSprint) {
         return sprintService.update(id, updatedSprint)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSprint(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteSprint(@PathVariable Long id) {
         if (sprintService.findById(id).isPresent()) {
             sprintService.delete(id);
             return ResponseEntity.noContent().build();

@@ -21,7 +21,7 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public Optional<Project> findById(String projectId) {
+    public Optional<Project> findById(Long projectId) {
         return projectRepository.findById(projectId);
     }
 
@@ -31,7 +31,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public Optional<Project> update(String projectId, Project updated) {
+    public Optional<Project> update(Long projectId, Project updated) {
         return projectRepository.findById(projectId)
                 .map(existing -> {
                     existing.setProjectName(updated.getProjectName());
@@ -46,7 +46,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void delete(String projectId) {
+    public void delete(Long projectId) {
         projectRepository.deleteById(projectId);
         // CascadeType.ALL ensures all sprints are deleted
     }

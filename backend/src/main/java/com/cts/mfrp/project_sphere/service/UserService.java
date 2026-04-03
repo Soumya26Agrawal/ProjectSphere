@@ -2,6 +2,9 @@ package com.cts.mfrp.project_sphere.service;
 
 import com.cts.mfrp.project_sphere.Enum.Role;
 import com.cts.mfrp.project_sphere.dto.AuthRequest;
+import com.cts.mfrp.project_sphere.dto.ManagedProjectDTO;
+import com.cts.mfrp.project_sphere.dto.ProManagerResponseDTO;
+import com.cts.mfrp.project_sphere.model.Project;
 import com.cts.mfrp.project_sphere.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +42,7 @@ public class UserService {
 
     }
 
-    //create user(POST)
+   //create user(POST)
     public User createUser(User user){
         if (userRepository.existsByEmployeeId(user.getEmployeeId())) {
             throw new IllegalArgumentException("Employee ID already exists");
@@ -107,6 +110,7 @@ public class UserService {
         return userRepository.findByEmailAndIsActiveTrue(email)
             .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
     }
+
     public void save(MultipartFile file){
         try{
             List<User> users= UserUtil.convertExcelToList(file.getInputStream());
@@ -117,5 +121,27 @@ public class UserService {
             e.printStackTrace();
         }
 
+    }
+
+    public List<ProManagerResponseDTO> getAllProjectManagers() {
+        List<User> managers= userRepository.findByRole(Role.PROJECT_MANAGER);
+        return managers.stream().map(user-> ProManagerResponseDTO.builder()
+                .userId(user.getUserId())
+                .employeeId(user.getEmployeeId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().name())
+                .isActive(user.getIsActive())
+                .managedProjects(user.getManagedProjects().stream()
+                        .map(p -> ManagedProjectDTO.builder()
+                                .projectId(p.getProjectId())
+                                .projectName(p.getProjectName())
+                                .status(p.getStatus().name())
+                                .build())
+                        .toList())
+                .build())
+                .toList();
     }
 }

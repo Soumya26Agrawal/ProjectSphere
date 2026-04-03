@@ -1,7 +1,10 @@
 package com.cts.mfrp.project_sphere.controller;
 
 import com.cts.mfrp.project_sphere.dto.AuthRequest;
+import com.cts.mfrp.project_sphere.dto.LoginRequest;
 import com.cts.mfrp.project_sphere.dto.LoginResponse;
+import com.cts.mfrp.project_sphere.dto.ProManagerResponseDTO;
+import com.cts.mfrp.project_sphere.model.Project;
 import com.cts.mfrp.project_sphere.model.User;
 import com.cts.mfrp.project_sphere.service.AuthenticationService;
 import com.cts.mfrp.project_sphere.service.UserService;
@@ -9,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -24,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
@@ -97,4 +102,6 @@ public class UserController {
             return ResponseEntity.internalServerError().body("An error occurred while deleting the user profile");
         }
     }
+
+
 }

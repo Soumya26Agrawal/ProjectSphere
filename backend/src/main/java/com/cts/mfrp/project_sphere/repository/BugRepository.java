@@ -1,4 +1,9 @@
 package com.cts.mfrp.project_sphere.repository;
 
-public interface BugRepository {
+import com.cts.mfrp.project_sphere.model.Defect;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface BugRepository extends JpaRepository<Defect,Long> {
 }

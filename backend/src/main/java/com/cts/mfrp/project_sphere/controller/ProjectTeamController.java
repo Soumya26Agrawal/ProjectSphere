@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
-@RequestMapping("/project-teams")
+@RequestMapping("api//project-teams")
 public class ProjectTeamController {
     private final ProjectTeamService projectTeamService;
     public ProjectTeamController(ProjectTeamService projectTeamService) {

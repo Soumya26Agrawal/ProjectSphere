@@ -28,7 +28,7 @@ public class Sprint {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sprint_id")
-    private Integer sprintId;
+    private Long sprintId;
 
     @Column(name = "sprint_name", length = 255, nullable = false)
     private String sprintName;

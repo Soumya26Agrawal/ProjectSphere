@@ -1,0 +1,18 @@
+<div class="home-container">
+  <h2>Home</h2>
+
+  <div *ngIf="user; else noUser">
+    <p><strong>Employee ID:</strong> {{ user.employeeId }}</p>
+    <p><strong>First Name:</strong> {{ user.firstName }}</p>
+    <p><strong>Last Name:</strong> {{ user.lastName }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Phone:</strong> {{ user.phoneNumber }}</p>
+    <p><strong>Role:</strong> {{ user.role }}</p>
+  </div>
+
+  <button routerLink="/projects" class="projects-btn">Projects</button>
+
+  <ng-template #noUser>
+    <p>User details not found. Please login again.</p>
+  </ng-template>
+</div>

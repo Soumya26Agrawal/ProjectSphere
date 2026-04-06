@@ -1,8 +1,7 @@
 package com.cts.mfrp.project_sphere.service;
 
-
-import com.cts.mfrp.project_sphere.dto.AuthRequest;
 import com.cts.mfrp.project_sphere.dto.LoginRequest;
+import com.cts.mfrp.project_sphere.dto.LoginResponse;
 import com.cts.mfrp.project_sphere.model.User;
 import com.cts.mfrp.project_sphere.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +13,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final AuthenticationManager authenticationManager; // Injected here
+    private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserRepository repository;
 
-    public String login(LoginRequest request) {
-        // This single line triggers all the inbuilt logic explained above
+    public LoginResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -27,8 +25,19 @@ public class AuthenticationService {
                 )
         );
 
-        // If we get here, the user is valid.
         User user = repository.findByEmail(request.getEmail()).orElseThrow();
-        return jwtService.generateToken(user);
+        String token = jwtService.generateToken(user);
+
+        return LoginResponse.builder()
+                .message("Login successful")
+                .token(token)
+                .userId(user.getUserId())
+                .employeeId(user.getEmployeeId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole())
+                .build();
     }
 }

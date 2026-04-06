@@ -1,0 +1,106 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 50;
+  transition: all 0.3s;
+  padding: 24px 0;
+  background-color: transparent;
+  font-family: sans-serif;
+}
+
+.navbar.scrolled {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.nav-container {
+  width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.logo-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(to bottom right, #2563eb, #06b6d4);
+  color: white;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s;
+}
+
+.brand:hover .logo-icon {
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
+}
+
+.brand-text {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #0f172a;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #2563eb, #06b6d4);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-login {
+  padding: 12px 24px;
+  background: linear-gradient(to right, #2563eb, #0ea5e9);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  text-decoration: none;
+}
+
+.btn-login:hover {
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-login:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-slow {
+  animation: spin-slow 20s linear infinite;
+}

@@ -1,0 +1,205 @@
+.card {
+  background-color: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.header-badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.badge-id {
+  font-size: 11px;
+  font-weight: 700;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.badge-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.status-active {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.status-completed {
+  background-color: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.more-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.more-btn:hover {
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.card-body {
+  margin-bottom: 24px;
+  flex-grow: 1;
+}
+
+.project-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 0;
+  margin-bottom: 8px;
+  transition: color 0.2s;
+}
+
+.card:hover .project-title {
+  color: #2563eb;
+}
+
+.project-desc {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.card-progress {
+  margin-bottom: 24px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.manager-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.progress-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 1s ease;
+}
+
+.fill-active { background-color: #3b82f6; }
+.fill-completed { background-color: #10b981; }
+
+.card-footer {
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.date-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.icon-calendar {
+  color: #60a5fa;
+  font-style: normal;
+}
+
+.team-avatars {
+  display: flex;
+  align-items: center;
+  margin-left: -8px; /* Offset for overlap */
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  margin-left: -8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Hardcoded for pure css simple requirement */
+.bg-pink-500 { background-color: #ec4899; }
+.bg-indigo-500 { background-color: #6366f1; }
+.bg-sky-500 { background-color: #0ea5e9; }
+.bg-rose-500 { background-color: #f43f5e; }
+.bg-violet-500 { background-color: #8b5cf6; }
+.bg-emerald-500 { background-color: #10b981; }
+.bg-blue-500 { background-color: #3b82f6; }
+.bg-amber-500 { background-color: #f59e0b; }
+
+.avatar-extra {
+  background-color: #f1f5f9;
+  color: #475569;
+}

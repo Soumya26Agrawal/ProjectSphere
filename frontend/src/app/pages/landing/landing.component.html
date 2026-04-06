@@ -1,0 +1,214 @@
+<div class="page-wrapper">
+  <!-- BACKGROUND EFFECTS -->
+  <div class="bg-grid-pattern"></div>
+  <div class="blur-blob top-blob"></div>
+  <div class="blur-blob bottom-blob"></div>
+
+  <!-- NAVBAR -->
+  <app-landing-navbar></app-landing-navbar>
+
+  <!-- HERO SECTION -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Unify your vision. <br />
+        <span class="text-gradient">Master your workflow.</span>
+      </h1>
+      
+      <p class="hero-subtitle">
+        The ultimate ecosystem for modern teams. Sync tasks, manage resources, and deploy projects with unprecedented clarity and AI-driven insights.
+      </p>
+      
+      <div class="hero-actions">
+        <button class="btn-gradient group" routerLink="/login">
+          Get Started 
+          <svg class="icon-arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="bg-pulse-spheres">
+         <div class="sphere-main spin-slow text-center"></div>
+         <div class="sphere-dashed spin-reverse"></div>
+      </div>
+
+      <div class="ui-mockup">
+        <!-- Main Jira Card -->
+        <div class="mock-card animate-float">
+          <div class="mock-card-header">
+            <span>Active Sprint</span>
+            <span class="badge badge-blue">2 days left</span>
+          </div>
+          
+          <div class="mock-tasks">
+            <!-- Ticket 1 -->
+            <div class="task-item">
+              <div class="task-head">
+                <span class="ticket-id">PROJ-124</span>
+                <span class="badge badge-yellow">In Progress</span>
+              </div>
+              <p class="task-title">Update landing page design</p>
+              <div class="task-foot">
+                <div class="avatar-group">
+                  <div class="avatar bg-blue"></div>
+                  <div class="avatar bg-purple"></div>
+                </div>
+                <span class="sp-badge">SP: 5</span>
+              </div>
+            </div>
+
+            <!-- Ticket 2 -->
+            <div class="task-item">
+              <div class="task-head">
+                <span class="ticket-id">PROJ-125</span>
+                <span class="badge badge-green">Done</span>
+              </div>
+              <p class="task-title">Implement authentication</p>
+              <div class="task-foot">
+                <div class="avatar-group">
+                  <div class="avatar bg-cyan"></div>
+                </div>
+                <span class="sp-badge">SP: 3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Side Card -->
+        <div class="velocity-card animate-float-delayed">
+          <div class="v-header">
+            <div class="v-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            </div>
+            <span>Velocity</span>
+          </div>
+          <div class="v-value">42 pts</div>
+          <div class="v-trend">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+            +15% vs last sprint
+          </div>
+        </div>
+
+        <!-- Defect Card -->
+        <div class="defect-card animate-float">
+          <div class="d-header">
+            <span class="badge bg-red-light">Critical</span>
+            <span class="d-id">DEF-402</span>
+          </div>
+          <p class="d-title">Payment timeout bug</p>
+          <div class="d-status-bar">
+            <div class="d-status-fill"></div>
+          </div>
+          <p class="d-subtitle">Fix in progress...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section class="features-section">
+    <div class="features-semi-circle"></div>
+    <div class="features-header">
+      <h2>Everything you need. <br/><span class="text-blue-600">Nothing you don't.</span></h2>
+      <p>Manage tasks, track defects, and ship faster with advanced insights and AI—without the traditional bloat.</p>
+    </div>
+
+    <div class="features-grid">
+                  <!-- Feature 1 -->
+      <div class="feature-card col-span-2 shadow-hover border-hover-red feature-graph-container">
+        <div class="feature-bg-effect red-glow"></div>
+        <div class="card-horizontal" style="position: relative; z-index: 10;">
+          <div class="card-text">
+            <div class="feature-header-inline">
+              <div class="icon-box bg-red text-red">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>
+              </div>
+              <h3>Unified Defect Tracking</h3>
+            </div>
+            <p>Log, assign, and squash bugs seamlessly alongside your feature tickets. Customizable workflows perfectly tailored for your QA and Dev teams.</p>
+          </div>
+
+          <div class="mock-graph" style="align-items: center; justify-content: center; background: #fffcfc; border: 1px solid rgba(254, 202, 202, 0.4);">
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 12px;">
+              <div class="bug-item" style="border: 1px solid #f1f5f9; padding: 12px 16px; border-radius: 8px; background: white; display: flex; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div class="bug-desc" style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500;"><span class="dot bg-red-dot"></span> Memory leak in auth flow</div>
+                <span class="bug-badge bg-red-light">Critical</span>
+              </div>
+              <div class="bug-item" style="border: 1px solid #f1f5f9; padding: 12px 16px; border-radius: 8px; background: white; display: flex; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div class="bug-desc" style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500;"><span class="dot bg-yellow-dot"></span> Mobile menu alignment</div>
+                <span class="bug-badge bg-yellow-light">Minor</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Feature 2 -->
+      <div class="feature-card shadow-hover border-hover-cyan">
+        <div class="feature-bg-effect cyan-glow"></div>
+        <div class="feature-content">
+          <div class="feature-header-inline">
+            <div class="icon-box bg-cyan text-cyan"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h3>Sprint Management</h3>
+          </div>
+          <p>Plan your iterations effectively. Drag and drop backlog items into active sprints with ease and precision.</p>
+        </div>
+      </div>
+
+
+      <!-- Feature 3 -->
+      <div class="feature-card shadow-hover border-hover-purple">
+        <div class="feature-bg-effect purple-glow"></div>
+        <div class="feature-content">
+          <div class="icon-box bg-purple text-purple">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+          </div>
+          <h3>Integrated AI</h3>
+          <p>Auto-triage incoming bugs, generate smart story point estimations, and automatically summarize daily standups.</p>
+        </div>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="feature-card col-span-2 shadow-hover border-hover-blue feature-graph-container">
+        <div class="feature-bg-effect blue-glow"></div>
+        <div class="card-horizontal" style="position: relative; z-index: 10;">
+          <div class="card-text">
+            <div class="icon-box bg-blue text-blue">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            </div>
+            <h3>Advanced Dashboards</h3>
+            <p>Deep-dive into team velocity, burn-down charts, and bottleneck predictions with real-time analytics natively built into your workspace.</p>
+          </div>
+
+          <div class="mock-graph">
+            <div class="bar" *ngFor="let h of graphHeights" [style]="{'height': h + '%'}"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </section>
+
+  <!-- CTA SECTION -->
+  <section class="cta-section">
+    <div class="cta-card">
+      <div class="cta-glow-cyan"></div>
+      <div class="cta-glow-blue"></div>
+      
+      <h2 class="cta-title">Ready to reach your peak?</h2>
+      <p class="cta-subtitle">Join thousands of teams already using ProjectSphere to do the best work of their lives. Setup takes less than 3 minutes.</p>
+      <div class="cta-buttons">
+        <button class="btn-solid" routerLink="/login">Get Started for Free</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <app-landing-footer></app-landing-footer>
+</div>
+
+
+
+
+

@@ -33,6 +33,9 @@ public class Project {
     @Column(name = "project_name", length = 255, nullable = false)
     private String projectName;
 
+    @Column(name = "product_description", length = 1000)
+    private String description;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "project_status", nullable = false)
 //    @Builder.Default

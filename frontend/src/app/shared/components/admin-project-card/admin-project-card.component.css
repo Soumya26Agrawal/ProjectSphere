@@ -11,6 +11,14 @@
   cursor: pointer;
 }
 
+.card-active {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+}
+
+.card-completed {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+}
+
 .card:hover {
   border-color: #93c5fd;
   box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.05);
@@ -30,18 +38,18 @@
 }
 
 .badge-id {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   background-color: #f1f5f9;
-  color: #475569;
+  color: #334155;
   padding: 4px 10px;
   border-radius: 6px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cbd5e1;
 }
 
 .badge-status {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   padding: 4px 10px;
   border-radius: 6px;
   border: 1px solid transparent;
@@ -81,8 +89,8 @@
 }
 
 .project-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 600;
   color: #0f172a;
   margin-top: 0;
   margin-bottom: 8px;
@@ -90,12 +98,13 @@
 }
 
 .card:hover .project-title {
-  color: #2563eb;
+  color: #1d4ed8;
 }
 
 .project-desc {
-  color: #64748b;
-  font-size: 14px;
+  color: #475569;
+  font-size: 15px;
+  font-weight: 500;
   line-height: 1.5;
   margin: 0;
   overflow: hidden;
@@ -117,15 +126,15 @@
 }
 
 .manager-name {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: #334155;
 }
 
 .progress-text {
-  font-size: 12px;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .progress-bar {
@@ -158,8 +167,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #64748b;
-  font-size: 12px;
+  color: #475569;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -179,7 +188,7 @@
   height: 28px;
   border-radius: 50%;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 500;
   color: white;
   display: flex;
   align-items: center;

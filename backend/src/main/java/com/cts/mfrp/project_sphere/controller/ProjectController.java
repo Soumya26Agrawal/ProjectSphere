@@ -1,15 +1,18 @@
 package com.cts.mfrp.project_sphere.controller;
 
+import com.cts.mfrp.project_sphere.dto.ProjectBasicInfoDTO;
 import com.cts.mfrp.project_sphere.model.Project;
 import com.cts.mfrp.project_sphere.service.ProjectService;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("api/projects")
+@CrossOrigin(origins = "http://localhost:4200")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -19,8 +22,8 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Project>> getAllProjects() {
-        List<Project> projects = projectService.findAll();
+    public ResponseEntity<Page<ProjectBasicInfoDTO>> getAllProjects( @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "16") int size) {
+        Page<ProjectBasicInfoDTO> projects = projectService.findAll(page, size);
         return ResponseEntity.ok(projects);
     }
 

@@ -3,12 +3,19 @@ package com.cts.mfrp.project_sphere.service;
 import com.cts.mfrp.project_sphere.Enum.Domain;
 import com.cts.mfrp.project_sphere.Enum.ProjectStatus;
 import com.cts.mfrp.project_sphere.Enum.Status;
+import com.cts.mfrp.project_sphere.dto.ProjectBasicInfoDTO;
 import com.cts.mfrp.project_sphere.dto.ProjectFilterRequestDTO;
 import com.cts.mfrp.project_sphere.model.Project;
+import com.cts.mfrp.project_sphere.model.ProjectTeam;
+import com.cts.mfrp.project_sphere.model.User;
 import com.cts.mfrp.project_sphere.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,13 +23,63 @@ import java.util.Optional;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final ProjectTeamService projectTeamService;
 
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, ProjectTeamService projectTeamService) {
         this.projectRepository = projectRepository;
+        this.projectTeamService = projectTeamService;
     }
 
-    public List<Project> findAll() {
-        return projectRepository.findAll();
+    public Page<ProjectBasicInfoDTO> findAll(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "projectId"));
+        Page<Project> projectPage = projectRepository.findAll(pageable);
+        return projectPage.map(project -> convertToDto(project));
+    }
+
+    private ProjectBasicInfoDTO convertToDto(Project project) {
+        String statusString = null;
+        if (project.getStatus() != null) {
+            statusString = project.getStatus().name();
+        }
+
+        String domainString = null;
+        if (project.getDomain() != null) {
+            domainString = project.getDomain().name();
+        }
+
+        Long managerId = null;
+        if (project.getManager() != null) {
+            managerId = project.getManager().getUserId();
+        }
+
+        Long teamId = null;
+        List<Long> userIds = null;
+
+        Optional<ProjectTeam> teamOpt = projectTeamService.getProjectTeamByProjectId(project.getProjectId());
+        if (teamOpt.isPresent()) {
+            ProjectTeam team = teamOpt.get();
+            teamId = team.getTeamId();
+
+            if (team.getUsers() != null) {
+                userIds = new ArrayList<>();
+                for (User user : team.getUsers()) {
+                    if (user != null && user.getUserId() != null) {
+                        userIds.add(user.getUserId());
+                    }
+                }
+            }
+        }
+
+        return ProjectBasicInfoDTO.builder()
+                .projectId(project.getProjectId())
+                .projectName(project.getProjectName())
+                .description(project.getDescription())
+                .status(statusString)
+                .domain(domainString)
+                .managerId(managerId)
+                .teamId(teamId)
+                .userIds(userIds)
+                .build();
     }
 
     public Optional<Project> findById(Long projectId) {
@@ -62,55 +119,6 @@ public class ProjectService {
         return projectRepository.count();
     }
 
-    public List<Project> filterProjects(ProjectFilterRequestDTO filter) {
-        if (filter == null) return projectRepository.findAll();
-
-        String search = hasText(filter.getSearch()) ? filter.getSearch().trim() : null;
-        Long searchId = parseProjectId(search);
-
-        List<String> statuses = toStatusNames(filter.getStatuses());
-        boolean statusesEmpty = statuses.isEmpty();
-        if (statusesEmpty) statuses = List.of("__NONE__");
-
-        List<String> domains = toDomainNames(filter.getDomains());
-        boolean domainsEmpty = domains.isEmpty();
-        if (domainsEmpty) domains = List.of("__NONE__");
-
-        List<Long> managerIds = filter.getManagerIds() == null ? List.of() : filter.getManagerIds();
-        boolean managerIdsEmpty = managerIds.isEmpty();
-        if (managerIdsEmpty) managerIds = List.of(-1L);
-
-        List<Long> teamMemberIds = filter.getTeamMemberIds() == null ? List.of() : filter.getTeamMemberIds();
-        boolean teamMemberIdsEmpty = teamMemberIds.isEmpty();
-        if (teamMemberIdsEmpty) teamMemberIds = List.of(-1L);
-
-        String timelineContext = filter.getTimelineContext() == null ? null : filter.getTimelineContext().name();
-
-        List<Project> dbFiltered = projectRepository.filterProjectsRaw(
-                search, searchId,
-                statuses, statusesEmpty,
-                domains, domainsEmpty,
-                managerIds, managerIdsEmpty,
-                teamMemberIds, teamMemberIdsEmpty,
-                timelineContext,
-                filter.getFromDate(), filter.getToDate()
-        );
-
-        // completion slider filter in service
-        Integer min = filter.getCompletionMin();
-        Integer max = filter.getCompletionMax();
-        if (min == null && max == null) return dbFiltered;
-
-        int minVal = min == null ? 0 : Math.max(0, min);
-        int maxVal = max == null ? 100 : Math.min(100, max);
-
-        return dbFiltered.stream()
-                .filter(p -> {
-                    int c = completionPercent(p);
-                    return c >= minVal && c <= maxVal;
-                })
-                .toList();
-    }
 
     private List<String> toStatusNames(List<ProjectStatus> statuses) {
         if (statuses == null) return List.of();

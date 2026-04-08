@@ -19,15 +19,17 @@ export class AdminNavbarComponent implements OnInit {
   }
 
   ngOnInit() {
-    const rawUser = localStorage.getItem('user');
-    if (rawUser) {
-      try {
-        const user = JSON.parse(rawUser);
-        const fName = user.firstName ? user.firstName.charAt(0).toUpperCase() : '';
-        const lName = user.lastName ? user.lastName.charAt(0).toUpperCase() : '';
-        this.initials = fName + lName || 'US';
-      } catch (e) {
-        this.initials = 'US';
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const rawUser = localStorage.getItem('user');
+      if (rawUser) {
+        try {
+          const user = JSON.parse(rawUser);
+          const fName = user.firstName ? user.firstName.charAt(0).toUpperCase() : '';
+          const lName = user.lastName ? user.lastName.charAt(0).toUpperCase() : '';
+          this.initials = fName + lName || 'US';
+        } catch (e) {
+          this.initials = 'US';
+        }
       }
     }
   }

@@ -9,9 +9,11 @@ import java.util.List;
 @Builder
 public class ProjectBasicInfoDTO {
     private Long projectId;
-    private String title;
+    private String projectName;   
     private String description;
-    private Long managerId;      // userId of manager
-    private Long teamId;         // team id
-    private List<Long> userIds;  // users in team
+    private String status;        
+    private String domain;        
+    private Long managerId;       
+    private Long teamId;          
+    private List<Long> userIds;  
 }

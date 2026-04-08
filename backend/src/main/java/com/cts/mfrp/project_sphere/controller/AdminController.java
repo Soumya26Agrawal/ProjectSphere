@@ -27,9 +27,6 @@ public class AdminController {
     @Autowired
     private ProjectService projectService;
 
-    @Autowired
-    private ProjectTeamService projectTeamService;
-
     @GetMapping
     public String homePage(){
         return "Admin DashBoard";
@@ -50,24 +47,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(projectManagers);
     }
 
-    @PostMapping("/projects/filter")
-    public ResponseEntity<List<ProjectBasicInfoDTO>> filterProjects(@RequestBody(required = false) ProjectFilterRequestDTO filter) {
-        List<ProjectBasicInfoDTO> result = projectService.filterProjects(filter).stream()
-                .map(project -> {
-                    Optional<ProjectTeam> teamOpt = projectTeamService.getProjectTeamByProjectId(project.getProjectId());
-                    Long teamId = teamOpt.map(ProjectTeam::getTeamId).orElse(null);
+    
 
-                    return ProjectBasicInfoDTO.builder()
-                            .projectId(project.getProjectId())
-                            .title(project.getProjectName())
-                            .description(project.getDescription())
-                            .managerId(project.getManager() != null ? project.getManager().getUserId() : null)
-                            .teamId(teamId)
-                            .userIds(List.of()) 
-                            .build();
-                })
-                .toList();
-
-        return ResponseEntity.ok(result);
-    }
 }
+

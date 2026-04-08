@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LandingFooterComponent } from '../../shared/components/landing-footer/landing-footer.component';
-import { Auth, LoginResponseDto } from '../../services/auth';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +23,7 @@ export class LoginComponent {
   isLoggedIn = false;
   jwtToken = '';
 
-  constructor(private auth: Auth, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
@@ -34,8 +34,8 @@ export class LoginComponent {
     this.isLoggedIn = false;
     this.loading = true;
 
-    this.auth.login(this.email, this.password).subscribe({
-      next: (res: LoginResponseDto) => {
+    this.authService.login({email: this.email, password: this.password}).subscribe({
+      next: (res: any) => {
         this.loading = false;
         this.jwtToken = res.token;
         this.isLoggedIn = true;

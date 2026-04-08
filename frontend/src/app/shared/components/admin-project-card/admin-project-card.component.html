@@ -1,4 +1,4 @@
-<div class="card" *ngIf="project">
+<div class="card" *ngIf="project" [ngClass]="project.status === 'COMPLETED' ? 'card-completed' : 'card-active'">
   <div class="card-header">
     <div class="header-badges">
       <span class="badge-id">PRJ-{{ project.projectId }}</span>

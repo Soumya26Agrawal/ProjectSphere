@@ -23,14 +23,16 @@ export class HomeComponent implements OnInit {
   user: UserDetailsDto | null = null;
 
   ngOnInit(): void {
-    this.jwtToken = localStorage.getItem('jwt') || '';
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      this.jwtToken = localStorage.getItem('jwt') || '';
 
-    const currUser = localStorage.getItem('user');
-    if (currUser) {
-      try {
-        this.user = JSON.parse(currUser) as UserDetailsDto;
-      } catch {
-        this.user = null;
+      const currUser = localStorage.getItem('user');
+      if (currUser) {
+        try {
+          this.user = JSON.parse(currUser) as UserDetailsDto;
+        } catch {
+          this.user = null;
+        }
       }
     }
   }

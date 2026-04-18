@@ -69,6 +69,7 @@ public class Ticket {
     private TicketType type;
     @OneToOne(mappedBy = "ticket", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Defect defect;
+
     @Enumerated(EnumType.STRING)
     private Status status;
     private Integer storyPoints;

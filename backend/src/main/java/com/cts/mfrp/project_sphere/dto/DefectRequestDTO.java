@@ -1,5 +1,6 @@
 package com.cts.mfrp.project_sphere.dto;
 
+import com.cts.mfrp.project_sphere.Enum.DefectStatus;
 import com.cts.mfrp.project_sphere.Enum.Reproducibility;
 import com.cts.mfrp.project_sphere.Enum.Severity;
 import lombok.AllArgsConstructor;
@@ -19,5 +20,6 @@ public class DefectRequestDTO {
     private Severity severity;
     private String expectedResult;
     private String actualResult;
+    private DefectStatus status;
     private List<String> steps;
 }

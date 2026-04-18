@@ -1,5 +1,6 @@
 package com.cts.mfrp.project_sphere.service;
 
+import com.cts.mfrp.project_sphere.dto.DefectSummaryDTO;
 import com.cts.mfrp.project_sphere.dto.TicketRequestDTO;
 import com.cts.mfrp.project_sphere.model.Project;
 import com.cts.mfrp.project_sphere.model.Ticket;
@@ -42,7 +43,7 @@ public class TicketService {
                 .build();
 
         return ticketRepository.save(newTicket);
-//        return ticketRepository.save(ticket);
+
     }
 
     public List<Long> getUnMappedTickets() {
@@ -51,5 +52,9 @@ public class TicketService {
 
     public List<Ticket> getBacklog() {
         return ticketRepository.getBacklog();
+    }
+
+    public List<DefectSummaryDTO> getDefectSummary() {
+        return ticketRepository.getDefectSummary();
     }
 }

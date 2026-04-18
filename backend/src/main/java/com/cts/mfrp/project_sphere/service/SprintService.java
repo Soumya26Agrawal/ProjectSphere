@@ -1,5 +1,8 @@
 package com.cts.mfrp.project_sphere.service;
 
+import com.cts.mfrp.project_sphere.dto.SprintRequestDTO;
+import com.cts.mfrp.project_sphere.dto.SprintResponseDTO;
+import com.cts.mfrp.project_sphere.model.Project;
 import com.cts.mfrp.project_sphere.model.Sprint;
 import com.cts.mfrp.project_sphere.repository.ProjectRepository;
 import com.cts.mfrp.project_sphere.repository.SprintRepository;
@@ -33,12 +36,20 @@ public class SprintService {
     }
 
     @Transactional
-    public Optional<Sprint> create(Sprint sprint, Long projectId) {
-        return projectRepository.findById(projectId)
-                .map(project -> {
-                    sprint.setProject(project);
-                    return sprintRepository.save(sprint);
-                });
+    public Sprint create(SprintRequestDTO sprint, Long projectId) {
+//        return projectRepository.findById(projectId)
+//                .map(project -> {
+//                    sprint.setProject(project);
+//                    return sprintRepository.save(sprint);
+//                });
+        Sprint s=Sprint.builder().sprintName(sprint.getSprintName())
+                .endDate(sprint.getEndDate())
+                .startDate(sprint.getStartDate())
+                .build();
+        Project project=projectRepository.getReferenceById(projectId);
+        s.setProject(project);
+        return sprintRepository.save(s);
+
     }
 
     @Transactional

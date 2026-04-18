@@ -4,34 +4,35 @@ package com.cts.mfrp.project_sphere.controller;
 import com.cts.mfrp.project_sphere.dto.DefectRequestDTO;
 import com.cts.mfrp.project_sphere.dto.DefectResponseDTO;
 import com.cts.mfrp.project_sphere.model.Defect;
-import com.cts.mfrp.project_sphere.service.BugService;
-import lombok.Getter;
+import com.cts.mfrp.project_sphere.service.DefectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/bug")
+@RequestMapping("/api/v1/defect")
 @RequiredArgsConstructor
-public class BugController {
+public class DefectController {
 
-    private final BugService bugService;
-    @PostMapping("/raiseDefect")
+    private final DefectService defectService;
+    @PostMapping
 
     public ResponseEntity<DefectResponseDTO> raiseDefect(@RequestBody DefectRequestDTO dto){
-        Defect defect=bugService.raiseDefect(dto);
+        Defect defect=defectService.raiseDefect(dto);
         DefectResponseDTO response=DefectResponseDTO.builder().defectId(defect.getDefectId())
-                .reproducible(defect.getReproducible().name())
-                .severity(defect.getSeverity().name())
+                .reproducible(defect.getReproducible())
+                .severity(defect.getSeverity())
                 .expectedResult(defect.getExpectedResult())
                 .actualResult(defect.getActualResult())
                 .stepsToReproduce(defect.getStepsToReproduce())
-//                .ticketId(defect.getTicket().getTicketId())
-//                .ticketStatus(defect.getTicket().getStatus().name())
-//                .ticketTitle(defect.getTicket().getTitle())
+                .status(defect.getStatus())
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
+
+
 }

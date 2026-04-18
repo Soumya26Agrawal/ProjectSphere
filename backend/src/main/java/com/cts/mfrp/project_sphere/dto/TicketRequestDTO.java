@@ -14,7 +14,7 @@ public class TicketRequestDTO {
     private Long project;    // ID of the Project
     private Long assignee;   // ID of the User assigned// ID of the User reporting
     private TicketType type;    // Changed from String to Enum
-    private Status status;   // Enum String (e.g., TO_DO)
+    private Status status=Status.TO_DO;   // Enum String (e.g., TO_DO)
     private Integer storyPoints;
     private String title;
     private String description;

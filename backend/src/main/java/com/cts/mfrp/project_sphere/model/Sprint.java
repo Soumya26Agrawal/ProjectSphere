@@ -1,5 +1,6 @@
 package com.cts.mfrp.project_sphere.model;
 
+import com.cts.mfrp.project_sphere.Enum.SprintStatus;
 import com.cts.mfrp.project_sphere.Enum.Status;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -40,17 +41,17 @@ public class Sprint {
     private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     @Builder.Default
-    private Status status = Status.IN_PROGRESS;
+    private SprintStatus status=SprintStatus.PLANNED;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false)
-    @JsonIgnore
+    @JoinColumn(name = "project_id")
+//    @JsonIgnore
     private Project project;
 
     @OneToMany(mappedBy = "sprint",fetch=FetchType.LAZY, orphanRemoval = true)
-//    @Builder.Default
+    @Builder.Default
     private List<Ticket> tickets=new ArrayList<>();
 }
 

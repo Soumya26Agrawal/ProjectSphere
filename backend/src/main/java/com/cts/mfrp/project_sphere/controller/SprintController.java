@@ -1,15 +1,19 @@
 package com.cts.mfrp.project_sphere.controller;
 
+import com.cts.mfrp.project_sphere.dto.SprintRequestDTO;
+import com.cts.mfrp.project_sphere.dto.SprintResponseDTO;
+import com.cts.mfrp.project_sphere.dto.TicketResponseDTO;
 import com.cts.mfrp.project_sphere.model.Sprint;
 import com.cts.mfrp.project_sphere.service.SprintService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/sprints")
+@RequestMapping("api/sprint")
 
 public class SprintController {
 
@@ -38,13 +42,27 @@ public class SprintController {
     }
 
     @PostMapping
-    public ResponseEntity<Sprint> createSprint(@RequestBody Sprint sprint, @RequestParam Long projectId) {
+    public ResponseEntity<SprintResponseDTO> createSprint(@RequestBody SprintRequestDTO sprint, @RequestParam Long projectId) {
         if (sprint == null || sprint.getSprintName() == null || sprint.getSprintName().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
-        return sprintService.create(sprint, projectId)
-                .map(created -> ResponseEntity.status(HttpStatus.CREATED).body(created))
-                .orElse(ResponseEntity.badRequest().build());
+//        return sprintService.create(sprint, projectId)
+//                .map(created -> ResponseEntity.status(HttpStatus.CREATED).body(created))
+//                .orElse(ResponseEntity.badRequest().build());
+        Sprint createdSprint=sprintService.create(sprint,projectId);
+        SprintResponseDTO dto = SprintResponseDTO.builder()
+                        .sprintId(createdSprint.getSprintId())
+                                .sprintName(createdSprint.getSprintName())
+                                        .startDate(createdSprint.getStartDate())
+                                                .endDate(createdSprint.getEndDate())
+                                                        .status(createdSprint.getStatus())
+                                                                .tickets(createdSprint.getTickets().stream().map(
+                                                                        (ticket)-> {
+                                                                            return TicketResponseDTO.builder().build();
+                                                                        }
+                                                                ).toList())
+        .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @PutMapping("/{id}")

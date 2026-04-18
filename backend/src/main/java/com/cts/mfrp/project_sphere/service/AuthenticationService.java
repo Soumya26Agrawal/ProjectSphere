@@ -1,12 +1,12 @@
 package com.cts.mfrp.project_sphere.service;
 
-import com.cts.mfrp.project_sphere.dto.LoginRequest;
-import com.cts.mfrp.project_sphere.dto.LoginResponse;
-import com.cts.mfrp.project_sphere.model.User;
+import com.cts.mfrp.project_sphere.dto.LoginRequestDTO;
+import com.cts.mfrp.project_sphere.dto.LoginResponseDTO;
 import com.cts.mfrp.project_sphere.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +17,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final UserRepository repository;
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponseDTO login(LoginRequestDTO request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -25,19 +25,12 @@ public class AuthenticationService {
                 )
         );
 
-        User user = repository.findByEmail(request.getEmail()).orElseThrow();
+        UserDetails user = repository.findByEmail(request.getEmail()).orElseThrow();
         String token = jwtService.generateToken(user);
 
-        return LoginResponse.builder()
+        return LoginResponseDTO.builder()
                 .message("Login successful")
                 .token(token)
-                .userId(user.getUserId())
-                .employeeId(user.getEmployeeId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .role(user.getRole())
                 .build();
     }
 }

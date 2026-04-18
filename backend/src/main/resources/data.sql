@@ -12,12 +12,12 @@ INSERT INTO users (employee_id, first_name, last_name, email, password, phone_nu
 (101, 'John', 'Doe', 'john.doe@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543210, 'ADMIN', true),
 (102, 'Jane', 'Smith', 'jane.smith@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543211, 'PROJECT_MANAGER', true),
 (103, 'Robert', 'Brown', 'robert.brown@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543212, 'PROJECT_MANAGER', true),
-(104, 'Emily', 'Davis', 'emily.davis@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543213, 'TEAM_MEMBER', true),
-(105, 'Michael', 'Wilson', 'michael.wilson@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543214, 'TEAM_MEMBER', true),
-(106, 'Sarah', 'Miller', 'sarah.miller@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543215, 'TEAM_MEMBER', true),
-(107, 'David', 'Garcia', 'david.garcia@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543216, 'TEAM_MEMBER', true),
-(108, 'Jessica', 'Taylor', 'jessica.taylor@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543217, 'TEAM_MEMBER', true),
-(109, 'Kevin', 'Anderson', 'kevin.anderson@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543218, 'TEAM_MEMBER', false),
+(104, 'Emily', 'Davis', 'emily.davis@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543213, 'DEVELOPER', true),
+(105, 'Michael', 'Wilson', 'michael.wilson@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543214, 'DEVELOPER', true),
+(106, 'Sarah', 'Miller', 'sarah.miller@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543215, 'DEVELOPER', true),
+(107, 'David', 'Garcia', 'david.garcia@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543216, 'DEVELOPER', true),
+(108, 'Jessica', 'Taylor', 'jessica.taylor@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543217, 'DEVELOPER', true),
+(109, 'Kevin', 'Anderson', 'kevin.anderson@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543218, 'DEVELOPER', false),
 (110, 'Laura', 'Thomas', 'laura.thomas@cts.com', '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876543219, 'PROJECT_MANAGER', true);
 -- Sample Data for Project Entity (Table: project)
 -- Assuming manager_id references the auto-generated user_id from the users table

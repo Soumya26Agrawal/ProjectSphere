@@ -3,16 +3,16 @@ package com.cts.mfrp.project_sphere.service;
 import com.cts.mfrp.project_sphere.dto.DefectRequestDTO;
 import com.cts.mfrp.project_sphere.model.Defect;
 import com.cts.mfrp.project_sphere.model.Ticket;
-import com.cts.mfrp.project_sphere.repository.BugRepository;
+import com.cts.mfrp.project_sphere.repository.DefectRepository;
 import com.cts.mfrp.project_sphere.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BugService {
+public class DefectService {
 
-    private final BugRepository bugRepository;
+    private final DefectRepository defectRepository;
     private final TicketRepository ticketRepository;
     public Defect raiseDefect(DefectRequestDTO dto){
         Ticket ticket= ticketRepository.getReferenceById(dto.getTicketId());
@@ -23,9 +23,10 @@ public class BugService {
                 .severity(dto.getSeverity())
                 .actualResult(dto.getActualResult())
                 .expectedResult(dto.getExpectedResult())
+                .status(dto.getStatus())
                 .stepsToReproduce(dto.getSteps())
                 .build();
-        return bugRepository.save(defect);
+        return defectRepository.save(defect);
 
     }
 }

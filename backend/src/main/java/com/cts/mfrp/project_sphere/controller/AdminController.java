@@ -1,7 +1,6 @@
 package com.cts.mfrp.project_sphere.controller;
 
 import com.cts.mfrp.project_sphere.dto.*;
-import com.cts.mfrp.project_sphere.model.ProjectTeam;
 import com.cts.mfrp.project_sphere.model.User;
 import com.cts.mfrp.project_sphere.service.ProjectService;
 import com.cts.mfrp.project_sphere.service.ProjectTeamService;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -63,8 +61,8 @@ public class AdminController {
     public ResponseEntity<List<ProjectBasicInfoDTO>> filterProjects(@RequestBody(required = false) ProjectFilterRequestDTO filter) {
         List<ProjectBasicInfoDTO> result = projectService.filterProjects(filter).stream()
                 .map(project -> {
-                    Optional<ProjectTeam> teamOpt = projectTeamService.getProjectTeamByProjectId(project.getProjectId());
-                    Long teamId = teamOpt.map(ProjectTeam::getTeamId).orElse(null);
+                    Long teamId = projectTeamService.getProjectTeamByProjectId(project.getProjectId())
+                            .map(ProjectTeamResponseDTO::getTeamId).orElse(null);
 
                     return ProjectBasicInfoDTO.builder()
                             .projectId(project.getProjectId())

@@ -3,11 +3,15 @@ package com.cts.mfrp.project_sphere.utils;
 
 import com.cts.mfrp.project_sphere.Enum.Role;
 import com.cts.mfrp.project_sphere.model.User;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellBase;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -16,33 +20,39 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+@Configuration
+@RequiredArgsConstructor
 public class UserUtil {
-    public static boolean checkExcelFormat(MultipartFile file){
-        String contentType=file.getContentType();
+
+
+    private final PasswordEncoder passwordEncoder;
+
+    public  boolean checkExcelFormat(MultipartFile file) {
+        String contentType = file.getContentType();
         return contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
-    public static List<User> convertExcelToList(InputStream is){
-        List<User> ls=new ArrayList<>();
-        try{
-            XSSFWorkbook workbook=new XSSFWorkbook(is);
-            XSSFSheet sheet=workbook.getSheet("Sheet1");
-            int rNum=0;
-            Iterator<Row> iterator=sheet.iterator();
-            while(iterator.hasNext()){
-                Row row= iterator.next();
-                if(rNum==0){
+    public  List<User> convertExcelToList(InputStream is) {
+        List<User> ls = new ArrayList<>();
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook(is);
+            XSSFSheet sheet = workbook.getSheet("Sheet1");
+            int rNum = 0;
+            Iterator<Row> iterator = sheet.iterator();
+            while (iterator.hasNext()) {
+                Row row = iterator.next();
+                if (rNum == 0) {
                     rNum++;
                     continue;
                 }
-                Iterator<Cell> cells=row.iterator();
-                int cid=0;
-                User user=new User();
-                while(cells.hasNext()){
-                    Cell cell=cells.next();
-                    switch(cid){
-                        case 0 :
-                            user.setEmployeeId((long)cell.getNumericCellValue());
+                Iterator<Cell> cells = row.iterator();
+                int cid = 0;
+                User user = new User();
+                while (cells.hasNext()) {
+                    Cell cell = cells.next();
+                    switch (cid) {
+                        case 0:
+                            user.setEmployeeId((long) cell.getNumericCellValue());
                             break;
                         case 1:
                             user.setRole(Role.valueOf(cell.getStringCellValue()));
@@ -57,10 +67,13 @@ public class UserUtil {
                             user.setEmail(cell.getStringCellValue());
                             break;
                         case 5:
-                            user.setPassword(cell.getStringCellValue());
+                            user.setPassword(passwordEncoder.encode(cell.getStringCellValue()));
                             break;
                         case 6:
-                            user.setPhoneNumber((long)cell.getNumericCellValue());
+                            user.setPhoneNumber((long) cell.getNumericCellValue());
+                            break;
+                        case 7:
+                            user.setIsActive(cell.getBooleanCellValue());
                             break;
                         default:
                             break;
@@ -71,8 +84,7 @@ public class UserUtil {
 
             }
 
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return ls;

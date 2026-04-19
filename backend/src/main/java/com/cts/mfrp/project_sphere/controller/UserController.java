@@ -1,48 +1,35 @@
 package com.cts.mfrp.project_sphere.controller;
 
-import com.cts.mfrp.project_sphere.dto.AuthRequest;
-import com.cts.mfrp.project_sphere.dto.LoginResponse;
+import com.cts.mfrp.project_sphere.dto.LoginRequestDTO;
+import com.cts.mfrp.project_sphere.dto.LoginResponseDTO;
 import com.cts.mfrp.project_sphere.model.User;
 import com.cts.mfrp.project_sphere.service.AuthenticationService;
 import com.cts.mfrp.project_sphere.service.UserService;
+import com.cts.mfrp.project_sphere.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@CrossOrigin(origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
     private final AuthenticationService authService;
+    private final UserUtil userUtil;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(service.register(request));
-    }
+
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createProfile(@RequestBody User user){
-        if(user.getEmployeeId() == null || user.getRole() == null){
-            return ResponseEntity.badRequest().body("Employee ID and Role are required");
-        }
-        try {
-            User savedUser = service.createUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body("An error occurred while creating the user profile: " + e.getMessage());
-        }
-    }
+
 
     @PutMapping("/{userId}")
     public ResponseEntity<?> fullUpdateProfile(@PathVariable Long userId, @RequestBody User userDetails){
@@ -50,7 +37,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("Need details to update");
         }
         try{
-            User updatedUser = service.fullUpdateUser(userId, userDetails);
+            User updatedUser = userService.fullUpdateUser(userId, userDetails);
             return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -65,7 +52,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("Need details to update");
         }
         try{
-            User updatedUser = service.partialUpdateUser(userId, userDetails);
+            User updatedUser = userService.partialUpdateUser(userId, userDetails);
             return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -74,27 +61,16 @@ public class UserController {
         }
     }
 
-    @PatchMapping("/deactivate/{userId}")
-    public ResponseEntity<?> deactivateProfile(@PathVariable Long userId){
-        try{
-            User deactivatedUser = service.deactivateUser(userId);
-            return ResponseEntity.status(HttpStatus.OK).body(deactivatedUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("An error occurred while deactivating the user profile");
+
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> registerViaExcelUpload(@RequestParam MultipartFile file){
+        if(userUtil.checkExcelFormat(file)){
+            userService.registerViaExcelUpload(file);
+            return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully");
         }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Upload in correct excel format");
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteProfile(@PathVariable Long userId){
-        try{
-            service.deleteUser(userId);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("An error occurred while deleting the user profile");
-        }
-    }
+
 }

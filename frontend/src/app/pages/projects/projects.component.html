@@ -1,0 +1,117 @@
+<div class="page-wrapper font-sans">
+  <app-admin-navbar></app-admin-navbar>
+
+  <main class="main-content">
+    
+    <!-- Header -->
+    <div class="header-row">
+      <div class="header-titles">
+        <h1>Projects Workspace</h1>
+        <p>Manage and track your organization's initiatives.</p>
+      </div>
+      <button class="btn-primary">
+        + New Project
+      </button>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon bg-blue text-blue-dark"><mat-icon>assessment</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-label">Total Projects</span>
+          <span class="stat-value">{{ totalProjects }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-amber text-amber-dark"><mat-icon>autorenew</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-label">Ongoing</span>
+          <span class="stat-value">{{ ongoingProjects }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-emerald text-emerald-dark"><mat-icon>done_all</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-label">Completed</span>
+          <span class="stat-value">{{ completedProjects }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-purple text-purple-dark"><mat-icon>trending_up</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-label">Avg Completion</span>
+          <span class="stat-value">{{ avgCompletion }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Row -->
+    <div class="controls-row">
+      <!-- Search Bar -->
+      <div class="search-box">
+        <span class="search-icon"><mat-icon>search</mat-icon></span>
+        <input 
+          type="text" 
+          placeholder="Search projects by name or ID..." 
+          [(ngModel)]="searchTerm" 
+          (ngModelChange)="onSearchChange()"
+        >
+      </div>
+
+      <!-- Filters & Tabs -->
+      <div class="filter-actions">
+        <div class="tabs">
+          <button 
+            *ngFor="let tab of statusTabs" 
+            class="tab-btn" 
+            [ngClass]="{'active': activeTab === tab}"
+            (click)="setTab(tab)">
+            {{ tab }}
+          </button>
+        </div>
+
+        <button 
+          class="btn-filter" 
+          [ngClass]="{'active': isAdvancedOpen}"
+          (click)="toggleAdvanced()">
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">tune</mat-icon> Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Advanced Filters Component -->
+    <app-advanced-filters 
+      *ngIf="isAdvancedOpen" 
+      (filtersChanged)="onAdvancedFiltersChanged($event)">
+    </app-advanced-filters>
+
+    <!-- Grid of Projects -->
+    <div class="projects-grid" [ngClass]="{'mt-small': isAdvancedOpen, 'mt-large': !isAdvancedOpen}">
+      <div *ngFor="let proj of paginatedProjects">
+        <!-- Modular Admin Project Card component -->
+        <app-admin-project-card [project]="proj"></app-admin-project-card>
+      </div>
+
+      <!-- No Results Handle -->
+      <div *ngIf="paginatedProjects.length === 0" class="no-results">
+        <p>No projects match your current filters.</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <div class="page-info">
+        Showing <strong>{{ paginatedProjects.length > 0 ? (currentPage - 1) * pageSize + 1 : 0 }}</strong> to 
+        <strong>{{ (currentPage - 1) * pageSize + paginatedProjects.length }}</strong> of 
+        <strong>{{ filteredProjects.length }}</strong> projects
+      </div>
+      <div class="page-controls">
+        <button [disabled]="currentPage === 1" (click)="changePage(-1)" class="btn-page"><mat-icon>chevron_left</mat-icon> Previous</button>
+        <span class="page-current">Page {{ currentPage }} of {{ totalPages === 0 ? 1 : totalPages }}</span>
+        <button [disabled]="currentPage === totalPages || totalPages === 0" (click)="changePage(1)" class="btn-page">Next <mat-icon>chevron_right</mat-icon></button>
+      </div>
+    </div>
+
+  </main>
+</div>

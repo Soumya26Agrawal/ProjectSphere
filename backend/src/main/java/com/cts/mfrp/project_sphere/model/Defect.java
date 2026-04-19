@@ -1,9 +1,12 @@
 package com.cts.mfrp.project_sphere.model;
+import com.cts.mfrp.project_sphere.Enum.DefectStatus;
 import com.cts.mfrp.project_sphere.Enum.Reproducibility;
 import com.cts.mfrp.project_sphere.Enum.Severity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.ArrayList;
@@ -13,6 +16,8 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Defect {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +35,10 @@ public class Defect {
     
     private String expectedResult;
     private String actualResult;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private DefectStatus status = DefectStatus.NEW;
     
     @ElementCollection
     @CollectionTable(joinColumns = @JoinColumn(name="defect_id"))

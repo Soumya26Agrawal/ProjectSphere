@@ -1,10 +1,11 @@
 package com.cts.mfrp.project_sphere.service;
 
 import com.cts.mfrp.project_sphere.Enum.Role;
-import com.cts.mfrp.project_sphere.dto.AuthRequest;
+import com.cts.mfrp.project_sphere.dto.RegisterRequestDTO;
+import com.cts.mfrp.project_sphere.dto.ManagedProjectDTO;
+import com.cts.mfrp.project_sphere.dto.ProManagerResponseDTO;
 import com.cts.mfrp.project_sphere.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,30 +22,25 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    public String register(AuthRequest request) {
-        // 1. Check if user already exists (Optional but recommended)
+    private final UserUtil userUtil;
+    public User register(RegisterRequestDTO request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("User already exists");
         }
-        // 2. Create the User entity
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .employeeId(request.getEmployeeId())// ENCRYPT THE PASSWORD
-                .role(Role.ADMIN) // Default role
+                .role(request.getRole())
+                .isActive(request.getIsActive())
+                .phoneNumber(request.getPhoneNumber())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
                 .build();
-        // 3. Save to Database
-        userRepository.save(user);
-        return "User registered successfully";
-
-    }
-
-    //create user(POST)
-    public User createUser(User user){
-        if (userRepository.existsByEmployeeId(user.getEmployeeId())) {
-            throw new IllegalArgumentException("Employee ID already exists");
-        }
         return userRepository.save(user);
+
+
     }
 
     // Full update (PUT)
@@ -85,31 +81,9 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    // Deactivate User
-    public User deactivateUser(Long id) {
-        User existingUser = userRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        
-        existingUser.setIsActive(false);
-        return userRepository.save(existingUser);
-    }
-
-    // Delete User
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("User not found");
-        }
-        userRepository.deleteById(id);
-    }
-
-    // Login by email for active users
-    public User login(String email) {
-        return userRepository.findByEmailAndIsActiveTrue(email)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
-    }
-    public void save(MultipartFile file){
+    public void registerViaExcelUpload(MultipartFile file){
         try{
-            List<User> users= UserUtil.convertExcelToList(file.getInputStream());
+            List<User> users= userUtil.convertExcelToList(file.getInputStream());
             userRepository.saveAll(users);
 
         }
@@ -117,5 +91,27 @@ public class UserService {
             e.printStackTrace();
         }
 
+    }
+
+    public List<ProManagerResponseDTO> getAllProjectManagers() {
+        List<User> managers= userRepository.findByRole(Role.PROJECT_MANAGER);
+        return managers.stream().map(user-> ProManagerResponseDTO.builder()
+                .userId(user.getUserId())
+                .employeeId(user.getEmployeeId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole().name())
+                .isActive(user.getIsActive())
+                .managedProjects(user.getManagedProjects().stream()
+                        .map(p -> ManagedProjectDTO.builder()
+                                .projectId(p.getProjectId())
+                                .projectName(p.getProjectName())
+                                .status(p.getStatus().name())
+                                .build())
+                        .toList())
+                .build())
+                .toList();
     }
 }

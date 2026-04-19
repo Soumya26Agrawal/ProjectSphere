@@ -25,43 +25,39 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(nullable = false, unique = true)
+
     private Long employeeId;
     private String firstName;
     private String lastName;
     private String email;
 
-    @JsonIgnore
     private String password;
 
     @Column(name = "phone_number")
     private Long phoneNumber;
 
     @OneToMany(mappedBy = "reporter", fetch=FetchType.LAZY, orphanRemoval = true)
-//    @JsonIgnore
-//    @Builder.Default
+
+    @Builder.Default
     private List<Ticket> reportedTickets = new ArrayList<>();
 
     @OneToMany(mappedBy = "assignee", fetch=FetchType.LAZY, orphanRemoval = true)
-//    @JsonIgnore
-//    @Builder.Default
+
+    @Builder.Default
     private List<Ticket> assignedTickets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "manager")
-    @JsonIgnore
+    @OneToMany(mappedBy = "manager", fetch=FetchType.LAZY)
+
     @Builder.Default
     private List<Project> managedProjects = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonIgnore
-//    @Builder.Default
-//    private List<ProjectTeam> teams = new ArrayList<>();
+
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+
     private Role role;
 
-    @Column(nullable = false)
+
     @Builder.Default
     private Boolean isActive = true;
 

@@ -1,0 +1,117 @@
+<div class="dash-header">
+  <div>
+    <div class="dash-breadcrumb">
+      <span class="mi">home</span> Developer Dashboard
+    </div>
+    <h1 class="dash-title">Welcome, {{ user()?.name }}</h1>
+    <p class="dash-sub">Sprint 3 · Your assigned work</p>
+  </div>
+  <div class="dash-actions">
+    <button class="btn-outline" routerLink="/board">
+      <span class="mi">view_kanban</span> Sprint Board
+    </button>
+    <button class="btn-danger" (click)="logout()">
+      <span class="mi">logout</span> Sign Out
+    </button>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-row">
+  <div class="stat-card" *ngFor="let s of stats">
+    <div class="stat-icon" [style.background]="s.color + '18'">
+      <span class="mi" [style.color]="s.color">{{ s.icon }}</span>
+    </div>
+    <div class="stat-body">
+      <div class="stat-val">{{ s.value }}</div>
+      <div class="stat-lbl">{{ s.label }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="dash-grid">
+
+  <!-- My Tickets -->
+  <div class="dash-card span-2">
+    <div class="card-head">
+      <h3><span class="mi">task</span> My Tickets</h3>
+      <button class="btn-sm" routerLink="/board">
+        <span class="mi">open_in_new</span> View Board
+      </button>
+    </div>
+    <div class="ticket-list">
+      <div class="ticket-row" *ngFor="let t of myTickets">
+        <div class="ticket-left">
+          <span class="tid">{{ t.id }}</span>
+          <span class="ticket-title">{{ t.title }}</span>
+        </div>
+        <div class="ticket-right">
+          <span class="pts-badge">{{ t.pts }} pts</span>
+          <span class="chip" [ngClass]="statusClass(t.status)">
+            {{ t.status === 'IN_PROGRESS' ? 'In Progress' : t.status === 'TO_DO' ? 'To Do' : 'Done' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Defects -->
+  <div class="dash-card">
+    <div class="card-head">
+      <h3><span class="mi">bug_report</span> My Defects</h3>
+      <button class="btn-sm" routerLink="/defects">
+        <span class="mi">open_in_new</span> All
+      </button>
+    </div>
+    <div class="defect-list">
+      <div class="defect-row" *ngFor="let d of myDefects">
+        <div class="defect-top">
+          <span class="tid">{{ d.id }}</span>
+          <span class="chip" [ngClass]="sevClass(d.sev)">{{ d.sev }}</span>
+          <span class="chip" [ngClass]="statusClass(d.status)">{{ d.status }}</span>
+        </div>
+        <p class="defect-title">{{ d.title }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Feed -->
+  <div class="dash-card">
+    <div class="card-head">
+      <h3><span class="mi">history</span> My Activity</h3>
+    </div>
+    <div class="activity-list">
+      <div class="activity-item" *ngFor="let a of activity">
+        <div class="activity-icon">
+          <span class="mi">{{ a.icon }}</span>
+        </div>
+        <div class="activity-body">
+          <p>{{ a.text }}</p>
+          <span>{{ a.time }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="dash-card span-2">
+    <div class="card-head">
+      <h3><span class="mi">bolt</span> Quick Access</h3>
+    </div>
+    <div class="quick-actions">
+      <button class="qa-btn" routerLink="/board">
+        <span class="mi">view_kanban</span><span>Sprint Board</span>
+      </button>
+      <button class="qa-btn" routerLink="/backlog">
+        <span class="mi">view_list</span><span>Backlog</span>
+      </button>
+      <button class="qa-btn" routerLink="/defects">
+        <span class="mi">bug_report</span><span>Log Defect</span>
+      </button>
+      <button class="qa-btn" routerLink="/timeline">
+        <span class="mi">timeline</span><span>Timeline</span>
+      </button>
+    </div>
+  </div>
+
+</div>

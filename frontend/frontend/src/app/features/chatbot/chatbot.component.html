@@ -1,0 +1,55 @@
+<!-- Floating Action Button -->
+<button class="chat-fab" (click)="toggle()" title="ProjectSphere AI">
+  <span class="mi">smart_toy</span>
+</button>
+
+<!-- Chat Window -->
+<div class="chat-win" [class.open]="open">
+  <div class="chat-win-hdr">
+    <div class="chat-win-hdr-info">
+      <div class="chat-win-av">AI</div>
+      <div>
+        <div class="chat-win-name">ProjectSphere AI</div>
+        <div class="chat-win-status">Online</div>
+      </div>
+    </div>
+    <button class="icon-btn" style="color:rgba(255,255,255,.75)" (click)="toggle()">
+      <span class="mi">close</span>
+    </button>
+  </div>
+
+  <div class="chat-msgs" #msgContainer>
+    <!-- Welcome state -->
+    <div class="chat-welcome" *ngIf="messages.length === 0">
+      <span class="mi">smart_toy</span>
+      Hi! I'm your AI assistant.<br/>Ask about sprints, defects,<br/>velocity or team workload.
+      <div class="sug-chips">
+        <span class="sug-chip" (click)="ask('Sprint 3 progress?')">Sprint progress</span>
+        <span class="sug-chip" (click)="ask('How many open bugs?')">Open bugs</span>
+        <span class="sug-chip" (click)="ask('Team velocity')">Velocity</span>
+        <span class="sug-chip" (click)="ask('Backlog count')">Backlog</span>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div *ngFor="let m of messages" class="chat-msg" [ngClass]="m.role">
+      <div class="chat-bubble" [innerHTML]="m.html"></div>
+      <div class="chat-time">{{ m.time }}</div>
+    </div>
+
+    <!-- Typing indicator -->
+    <div class="typing-dots" *ngIf="typing">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="chat-input-row">
+    <input
+      [(ngModel)]="inputText"
+      placeholder="Ask about your project…"
+      (keydown.enter)="send()"/>
+    <button class="chat-send" (click)="send()">
+      <span class="mi">send</span>
+    </button>
+  </div>
+</div>

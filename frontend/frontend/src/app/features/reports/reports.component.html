@@ -1,0 +1,83 @@
+<div class="rpt-header">
+  <div>
+    <div class="breadcrumb">
+      <span class="mi">assessment</span>
+      <span>Reports</span>
+      <span class="mi bc-sep">chevron_right</span>
+      <span class="bc-cur">Sprint Reports</span>
+    </div>
+    <h1 class="rpt-title">Sprint Reports</h1>
+    <p class="rpt-sub">Detailed performance data across all sprints</p>
+  </div>
+  <button class="btn-export">
+    <span class="mi">download</span> Export CSV
+  </button>
+</div>
+
+<!-- KPI Summary -->
+<div class="kpi-row">
+  <div class="kpi-card kpi-blue">
+    <span class="mi kpi-icon">assignment</span>
+    <div class="kpi-val">{{ totalPlanned }}</div>
+    <div class="kpi-lbl">Total Planned</div>
+  </div>
+  <div class="kpi-card kpi-green">
+    <span class="mi kpi-icon">task_alt</span>
+    <div class="kpi-val">{{ totalCompleted }}</div>
+    <div class="kpi-lbl">Total Completed</div>
+  </div>
+  <div class="kpi-card kpi-red">
+    <span class="mi kpi-icon">bug_report</span>
+    <div class="kpi-val">{{ totalDefects }}</div>
+    <div class="kpi-lbl">Total Defects</div>
+  </div>
+  <div class="kpi-card kpi-indigo">
+    <span class="mi kpi-icon">speed</span>
+    <div class="kpi-val">{{ avgVelocity }}%</div>
+    <div class="kpi-lbl">Avg Velocity</div>
+  </div>
+</div>
+
+<!-- Sprint Report Table -->
+<div class="sc">
+  <h3 class="sec-title"><span class="mi">bar_chart</span> Sprint Breakdown</h3>
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>SPRINT</th>
+        <th>START DATE</th>
+        <th>END DATE</th>
+        <th>PLANNED</th>
+        <th>COMPLETED</th>
+        <th>DEFECTS</th>
+        <th>VELOCITY</th>
+        <th>PROGRESS</th>
+        <th>STATUS</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of sprints">
+        <td><strong>{{ s.sprint }}</strong></td>
+        <td>{{ s.startDate }}</td>
+        <td>{{ s.endDate }}</td>
+        <td>{{ s.planned }}</td>
+        <td>{{ s.completed }}</td>
+        <td>
+          <span class="defect-badge" [class.no-defect]="s.defects === 0">{{ s.defects }}</span>
+        </td>
+        <td>
+          <span class="vel-badge" [ngClass]="velClass(s.velocity)">{{ s.velocity }}%</span>
+        </td>
+        <td class="prog-cell">
+          <div class="prog-track">
+            <div class="prog-fill" [style.width.%]="(s.completed / s.planned) * 100"></div>
+          </div>
+          <span class="prog-pct">{{ (s.completed / s.planned * 100) | number:'1.0-0' }}%</span>
+        </td>
+        <td>
+          <span class="status-badge" [ngClass]="statusClass(s)">{{ s.status }}</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

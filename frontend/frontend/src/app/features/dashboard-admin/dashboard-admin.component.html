@@ -1,0 +1,220 @@
+<!-- ── Page Header ── -->
+<div class="adm-header">
+  <div>
+    <h1 class="adm-title">Admin Dashboard</h1>
+    <p class="adm-sub">Welcome back, {{ user()?.name }}</p>
+  </div>
+  <button class="adm-logout" (click)="logout()">
+    <span class="mi">logout</span> Logout
+  </button>
+</div>
+<div class="adm-divider"></div>
+
+<!-- ── Register Modal ── -->
+<div class="modal-overlay" *ngIf="showRegisterModal" (click)="closeRegister()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title"><span class="mi">person_add</span> Register New User</h2>
+      <button class="modal-close" (click)="closeRegister()"><span class="mi">close</span></button>
+    </div>
+
+    <!-- Success state -->
+    <div class="reg-success" *ngIf="registerSuccess">
+      <span class="mi">check_circle</span>
+      User registered successfully!
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" novalidate *ngIf="!registerSuccess">
+      <div class="modal-grid">
+        <!-- Full Name -->
+        <div class="mfield span-2">
+          <label>Full Name</label>
+          <input formControlName="name" type="text" placeholder="e.g. John Smith" />
+          <div class="merr" *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.invalid">
+            Name must be at least 2 characters.
+          </div>
+        </div>
+        <!-- Email -->
+        <div class="mfield span-2">
+          <label>Email Address</label>
+          <input formControlName="email" type="email" placeholder="user@example.com" />
+          <div class="merr" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+            Enter a valid email address.
+          </div>
+        </div>
+        <!-- Password -->
+        <div class="mfield">
+          <label>Password</label>
+          <input formControlName="password" type="password" placeholder="Min 4 characters" />
+          <div class="merr" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+            Password must be at least 4 characters.
+          </div>
+        </div>
+        <!-- Role -->
+        <div class="mfield">
+          <label>Role</label>
+          <select formControlName="role">
+            <option *ngFor="let r of roles" [value]="r.value">{{ r.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Server error -->
+      <div class="reg-error" *ngIf="registerError">
+        <span class="mi">error_outline</span> {{ registerError }}
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeRegister()">Cancel</button>
+        <button type="submit" class="btn-submit">
+          <span class="mi">person_add</span> Register
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── 4 KPI Cards ── -->
+<div class="kpi-grid">
+  <div class="kpi-card" [ngClass]="s.cls" *ngFor="let s of stats">
+    <div class="kpi-top">
+      <span class="mi kpi-main">{{ s.icon }}</span>
+      <span class="mi kpi-trend">{{ s.trendIcon }}</span>
+    </div>
+    <div class="kpi-val">{{ s.value }}</div>
+    <div class="kpi-lbl">{{ s.label }}</div>
+    <button class="kpi-btn">{{ s.btnLabel }}</button>
+  </div>
+</div>
+
+<!-- ── Data Import ── -->
+<div class="sc data-import">
+  <div class="di-left">
+    <span class="mi di-icon">table_view</span>
+    <span class="di-title">Data Import</span>
+  </div>
+  <div class="di-actions">
+    <button class="btn-register" (click)="openRegister()">
+      <span class="mi">person_add</span> Register User
+    </button>
+    <button class="upload-btn">
+      <span class="mi">upload</span> Upload Excel File
+    </button>
+  </div>
+</div>
+
+<!-- ── Charts ── -->
+<div class="charts-row">
+
+  <!-- Bar chart: Projects by Domain -->
+  <div class="sc chart-card">
+    <h3 class="chart-title">Projects by Domain</h3>
+    <div class="bar-chart">
+      <div class="bar-yaxis">
+        <span>1</span><span>0.75</span><span>0.5</span><span>0.25</span><span>0</span>
+      </div>
+      <div class="bar-body">
+        <div class="bar-area">
+          <div class="bar-col" *ngFor="let d of domainChartData">
+            <div class="bar" [style.height.%]="(d.count / maxDomain) * 100"></div>
+          </div>
+        </div>
+        <div class="bar-xlabels">
+          <span *ngFor="let d of domainChartData">{{ d.label }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="bar-legend">
+      <span class="bar-leg-dot"></span> count
+    </div>
+  </div>
+
+  <!-- Pie chart: Project Status Distribution -->
+  <div class="sc chart-card">
+    <h3 class="chart-title">Project Status Distribution</h3>
+    <div class="pie-wrap">
+      <span class="pie-lbl pie-ongoing">Ongoing: {{ ongoingCount }}</span>
+      <div class="pie"
+           [style.background]="'conic-gradient(#4299E1 0deg ' + ongoingDeg + 'deg, #48BB78 ' + ongoingDeg + 'deg 360deg)'">
+      </div>
+      <span class="pie-lbl pie-completed">Completed: {{ completedCount }}</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Project Dashboard ── -->
+<div class="sc proj-section">
+  <h2 class="proj-title">Project Dashboard</h2>
+
+  <!-- Filter Row -->
+  <div class="filters">
+    <div class="filter-grp">
+      <label>Domain</label>
+      <select [(ngModel)]="domainFilter">
+        <option *ngFor="let d of domains">{{ d }}</option>
+      </select>
+    </div>
+    <div class="filter-grp">
+      <label>Status</label>
+      <select [(ngModel)]="statusFilter">
+        <option *ngFor="let s of statuses">{{ s }}</option>
+      </select>
+    </div>
+    <div class="filter-grp">
+      <label>Project Manager</label>
+      <select [(ngModel)]="pmFilter">
+        <option *ngFor="let m of pms">{{ m }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Project Cards -->
+  <div class="proj-card" *ngFor="let p of filteredProjects">
+    <div class="proj-card-top">
+      <div>
+        <h3 class="proj-name">{{ p.name }}</h3>
+        <p class="proj-desc">{{ p.description }}</p>
+      </div>
+      <span class="status-badge" [ngClass]="p.status === 'ONGOING' ? 'badge-ongoing' : 'badge-done'">
+        {{ p.status }}
+      </span>
+    </div>
+
+    <div class="proj-meta">
+      <div class="meta-item">
+        <span class="meta-lbl">Domain:</span>
+        <strong>{{ p.domain }}</strong>
+      </div>
+      <div class="meta-item">
+        <span class="meta-lbl">PM:</span>
+        <strong>{{ p.pm }}</strong>
+      </div>
+      <div class="meta-item">
+        <span class="meta-lbl">Team Lead:</span>
+        <strong>{{ p.teamLead }}</strong>
+      </div>
+      <div class="meta-item">
+        <span class="meta-lbl">Team Size:</span>
+        <strong>{{ p.teamSize }} members</strong>
+      </div>
+    </div>
+
+    <div class="proj-prog-row">
+      <div class="prog-track">
+        <div class="prog-fill" [style.width.%]="p.progress"></div>
+      </div>
+      <span class="prog-pct">{{ p.progress }}%</span>
+    </div>
+
+    <div class="proj-foot">
+      <div class="proj-stats">
+        <span class="s-stories">{{ p.activeStories }} Active Stories</span>
+        <span class="s-defects">{{ p.openDefects }} Open Defects</span>
+      </div>
+      <button class="view-btn" routerLink="/board">View Workspace</button>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,130 @@
+<!-- LEFT PANEL -->
+<div class="left">
+  <div class="logo">
+    <div class="logo-box">PS</div>
+    <span class="logo-name">ProjectSphere</span>
+  </div>
+
+  <div class="left-content">
+    <div class="left-tag">
+      <span class="mi">verified</span>
+      Trusted by agile teams
+    </div>
+    <h1 class="left-h">Manage sprints.<br/>Ship faster.<br/>Stay in sync.</h1>
+    <p class="left-sub">
+      A complete Jira-style project hub — boards, defects, analytics
+      and AI assistant all in one place.
+    </p>
+
+    <div class="features">
+      <div class="feat">
+        <div class="feat-ic"><span class="mi">view_kanban</span></div>
+        <div class="feat-text">
+          <b>Kanban Sprint Board</b>
+          <span>Drag-and-drop with live status updates</span>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-ic"><span class="mi">bug_report</span></div>
+        <div class="feat-text">
+          <b>Defect Tracker</b>
+          <span>Report, assign and resolve bugs fast</span>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-ic"><span class="mi">bar_chart</span></div>
+        <div class="feat-text">
+          <b>Analytics &amp; Velocity</b>
+          <span>KPIs, burndown and sprint reports</span>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-ic"><span class="mi">smart_toy</span></div>
+        <div class="feat-text">
+          <b>AI Project Assistant</b>
+          <span>Instant insights from your project data</span>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right">
+  <div class="login-box">
+    <div class="login-header">
+      <div class="ps-badge">PS</div>
+      <h2>Welcome back</h2>
+      <p>Sign in to your ProjectSphere workspace</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- Email -->
+      <div class="field" [class.has-error]="email.invalid && email.touched">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <span class="mi">mail_outline</span>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            formControlName="email"
+            autocomplete="email" />
+        </div>
+        <div class="error-msg" *ngIf="email.touched && email.errors">
+          <span *ngIf="email.errors?.['required']">Email is required.</span>
+          <span *ngIf="email.errors?.['email']">Please enter a valid email address.</span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field" [class.has-error]="password.invalid && password.touched">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="mi">lock_outline</span>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            placeholder="Enter your password"
+            formControlName="password"
+            autocomplete="current-password" />
+          <span class="mi toggle-pw" (click)="togglePassword()">
+            {{ showPassword ? 'visibility' : 'visibility_off' }}
+          </span>
+        </div>
+        <div class="error-msg" *ngIf="password.touched && password.errors">
+          <span *ngIf="password.errors?.['required']">Password is required.</span>
+          <span *ngIf="password.errors?.['minlength']">Password must be at least 3 characters.</span>
+        </div>
+      </div>
+
+      <!-- Remember + Forgot -->
+      <div class="row">
+        <label class="chk">
+          <input type="checkbox" formControlName="rememberMe" />
+          Remember me for 30 days
+        </label>
+        <span class="forgot">Forgot password?</span>
+      </div>
+
+      <!-- Server-side error -->
+      <div class="login-error" *ngIf="loginError">
+        <span class="mi">error_outline</span>
+        {{ loginError }}
+      </div>
+
+      <button type="submit" class="btn-sign" [disabled]="loading">
+        <span class="mi" *ngIf="!loading">login</span>
+        <span class="mi spin" *ngIf="loading">sync</span>
+        {{ loading ? 'Signing in…' : 'Sign In' }}
+      </button>
+
+    </form>
+
+    <div class="bottom-note">
+      New to ProjectSphere?
+      <a routerLink="/landing">Contact your admin</a> to get access.
+    </div>
+  </div>
+</div>

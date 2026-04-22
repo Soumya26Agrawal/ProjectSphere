@@ -13,8 +13,12 @@ import java.util.List;
 @Builder
 public class ProjectTeamResponseDTO {
     private Long teamId;
+    private String teamName;
     private Long projectId;
     private String projectName;
+    private String projectStatus;
+    private Long scrumMasterId;
+    private String scrumMasterName;
     private List<TeamMemberDTO> members;
     private int memberCount;
 }

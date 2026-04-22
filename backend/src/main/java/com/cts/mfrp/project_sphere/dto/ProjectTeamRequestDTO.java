@@ -12,6 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectTeamRequestDTO {
+    private String teamName;
     private Long projectId;
     private List<Long> userIds;
+    private Long scrumMasterId;
 }

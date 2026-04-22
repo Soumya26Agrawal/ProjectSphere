@@ -1,0 +1,278 @@
+<!-- Breadcrumb (matches other admin pages for vertical alignment) -->
+<div class="ax-breadcrumb">
+  <a routerLink="/admin">Admin</a>
+  <span class="mi">chevron_right</span>
+  <span>Dashboard</span>
+</div>
+
+<!-- Page header -->
+<div class="ax-page-head">
+  <div>
+    <h1 class="ax-page-title">Admin Dashboard</h1>
+    <p class="ax-page-sub">Welcome back, {{ user()?.name }}. Manage your organisation here.</p>
+  </div>
+  <button class="ax-btn ghost" (click)="refreshAll()">
+    <span class="mi">refresh</span> Refresh
+  </button>
+</div>
+
+<!-- 4 KPI cards (clickable) -->
+<div class="ax-kpi-grid">
+  <button class="ax-kpi" (click)="goTo('/admin/project-managers')">
+    <span class="ax-kpi-icon blue"><span class="mi">badge</span></span>
+    <span>
+      <span class="ax-kpi-label">Project Managers</span>
+      <div class="ax-kpi-value">{{ stats?.projectManagers ?? '—' }}</div>
+    </span>
+  </button>
+  <button class="ax-kpi" (click)="goTo('/admin/teams')">
+    <span class="ax-kpi-icon purple"><span class="mi">groups</span></span>
+    <span>
+      <span class="ax-kpi-label">Teams</span>
+      <div class="ax-kpi-value">{{ stats?.teams ?? '—' }}</div>
+    </span>
+  </button>
+  <button class="ax-kpi" (click)="goTo('/admin/projects')">
+    <span class="ax-kpi-icon amber"><span class="mi">schedule</span></span>
+    <span>
+      <span class="ax-kpi-label">Ongoing Projects</span>
+      <div class="ax-kpi-value">{{ stats?.ongoingProjects ?? '—' }}</div>
+    </span>
+  </button>
+  <button class="ax-kpi" (click)="goTo('/admin/projects')">
+    <span class="ax-kpi-icon green"><span class="mi">check_circle</span></span>
+    <span>
+      <span class="ax-kpi-label">Completed Projects</span>
+      <div class="ax-kpi-value">{{ stats?.completedProjects ?? '—' }}</div>
+    </span>
+  </button>
+</div>
+
+<div class="ax-err" *ngIf="statsError"><span class="mi">error_outline</span> {{ statsError }}</div>
+<div class="ax-info" *ngIf="statsLoading">Loading stats…</div>
+
+<!-- Quick-action cards -->
+<h2 class="qa-h">Quick actions</h2>
+<div class="qa-row">
+
+  <button class="qa-card" (click)="openModal('team')">
+    <span class="ax-kpi-icon purple"><span class="mi">group_add</span></span>
+    <span class="qa-text">
+      <span class="qa-title">Add Team Member</span>
+      <span class="qa-sub">Register one or bulk-upload</span>
+    </span>
+    <span class="mi qa-arrow">arrow_forward</span>
+  </button>
+
+  <button class="qa-card" (click)="openModal('pm')">
+    <span class="ax-kpi-icon blue"><span class="mi">badge</span></span>
+    <span class="qa-text">
+      <span class="qa-title">Add Project Manager</span>
+      <span class="qa-sub">Create a new PM account</span>
+    </span>
+    <span class="mi qa-arrow">arrow_forward</span>
+  </button>
+
+  <button class="qa-card" (click)="openModal('project')">
+    <span class="ax-kpi-icon green"><span class="mi">add_box</span></span>
+    <span class="qa-text">
+      <span class="qa-title">Add Project</span>
+      <span class="qa-sub">Start tracking a new project</span>
+    </span>
+    <span class="mi qa-arrow">arrow_forward</span>
+  </button>
+
+</div>
+
+<!-- Analytics -->
+<h2 class="qa-h">Analytics</h2>
+<div class="ax-info" *ngIf="analyticsLoading">Loading charts…</div>
+<div class="ax-err"  *ngIf="analyticsError"><span class="mi">error_outline</span> {{ analyticsError }}</div>
+
+<div class="charts-grid">
+  <div class="chart-card">
+    <h4>Project Status</h4>
+    <div class="ch-sub">Ongoing vs completed breakdown</div>
+    <div class="chart-box"><canvas #cProjStatus></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Projects by Domain</h4>
+    <div class="ch-sub">Distribution across business domains</div>
+    <div class="chart-box"><canvas #cProjDomain></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>User Mix</h4>
+    <div class="ch-sub">Admins · Project Managers · Developers</div>
+    <div class="chart-box"><canvas #cUserMix></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Active vs Inactive Users</h4>
+    <div class="ch-sub">Status split per role</div>
+    <div class="chart-box"><canvas #cRoleActive></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Manager Workload</h4>
+    <div class="ch-sub">Top managers by project count</div>
+    <div class="chart-box"><canvas #cManagerLoad></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Team Size Distribution</h4>
+    <div class="ch-sub">Number of projects per team-size bucket</div>
+    <div class="chart-box"><canvas #cTeamSize></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Projects Created (last 6 months)</h4>
+    <div class="ch-sub">New project creation trend</div>
+    <div class="chart-box"><canvas #cCreated></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Completion Trend (last 6 months)</h4>
+    <div class="ch-sub">Projects marked completed over time</div>
+    <div class="chart-box"><canvas #cCompleted></canvas></div>
+  </div>
+</div>
+
+<!-- ── Modals ──────────────────────────────────────────────────── -->
+
+<!-- Add Team Member -->
+<div class="ax-modal-backdrop" *ngIf="activeModal === 'team'" (click)="closeModal()">
+  <div class="ax-modal wide" (click)="$event.stopPropagation()">
+    <header class="ax-modal-head">
+      <span class="ax-kpi-icon purple"><span class="mi">group_add</span></span>
+      <div class="ax-modal-title">Add Team Member</div>
+      <button class="ax-modal-close" (click)="closeModal()"><span class="mi">close</span></button>
+    </header>
+
+    <div class="ax-modal-body">
+      <div class="modal-group">
+        <div class="modal-group-title"><span class="mi">upload_file</span> Bulk upload (.xlsx)</div>
+        <div class="ax-upload-row">
+          <input id="team-excel-input" type="file" accept=".xlsx,.xls" (change)="onTeamFile($event)" />
+          <button class="ax-btn primary" type="button"
+                  [disabled]="!teamFile || uploading" (click)="submitTeamUpload()">
+            <span class="mi" *ngIf="!uploading">upload</span>
+            <span class="mi spin" *ngIf="uploading">sync</span>
+            {{ uploading ? 'Uploading…' : 'Upload' }}
+          </button>
+        </div>
+        <div class="ax-ok"  *ngIf="uploadMessage"><span class="mi">check_circle</span> {{ uploadMessage }}</div>
+        <div class="ax-err" *ngIf="uploadError"><span class="mi">error_outline</span> {{ uploadError }}</div>
+      </div>
+
+      <div class="modal-divider"><span>or register one</span></div>
+
+      <form [formGroup]="teamForm" (ngSubmit)="submitTeamForm()" novalidate class="ax-form">
+        <label class="ax-field"><span>Employee ID</span>
+          <input type="number" formControlName="employeeId" placeholder="e.g. 2001" /></label>
+        <label class="ax-field"><span>Phone Number</span>
+          <input type="number" formControlName="phoneNumber" /></label>
+        <label class="ax-field"><span>First Name</span>
+          <input type="text" formControlName="firstName" /></label>
+        <label class="ax-field"><span>Last Name</span>
+          <input type="text" formControlName="lastName" /></label>
+        <label class="ax-field span2"><span>Email</span>
+          <input type="email" formControlName="email" /></label>
+        <label class="ax-field span2"><span>Password</span>
+          <input type="password" formControlName="password" /></label>
+      </form>
+      <div class="ax-ok"  *ngIf="teamMessage"><span class="mi">check_circle</span> {{ teamMessage }}</div>
+      <div class="ax-err" *ngIf="teamError"><span class="mi">error_outline</span> {{ teamError }}</div>
+    </div>
+
+    <footer class="ax-modal-foot">
+      <button class="ax-btn ghost" (click)="closeModal()">Close</button>
+      <button class="ax-btn primary" (click)="submitTeamForm()" [disabled]="teamSubmitting">
+        <span class="mi" *ngIf="!teamSubmitting">person_add</span>
+        <span class="mi spin" *ngIf="teamSubmitting">sync</span>
+        {{ teamSubmitting ? 'Saving…' : 'Register Member' }}
+      </button>
+    </footer>
+  </div>
+</div>
+
+<!-- Add Project Manager -->
+<div class="ax-modal-backdrop" *ngIf="activeModal === 'pm'" (click)="closeModal()">
+  <div class="ax-modal wide" (click)="$event.stopPropagation()">
+    <header class="ax-modal-head">
+      <span class="ax-kpi-icon blue"><span class="mi">badge</span></span>
+      <div class="ax-modal-title">Add Project Manager</div>
+      <button class="ax-modal-close" (click)="closeModal()"><span class="mi">close</span></button>
+    </header>
+
+    <div class="ax-modal-body">
+      <form [formGroup]="pmForm" (ngSubmit)="submitPmForm()" novalidate class="ax-form">
+        <label class="ax-field"><span>Employee ID</span>
+          <input type="number" formControlName="employeeId" /></label>
+        <label class="ax-field"><span>Phone Number</span>
+          <input type="number" formControlName="phoneNumber" /></label>
+        <label class="ax-field"><span>First Name</span>
+          <input type="text" formControlName="firstName" /></label>
+        <label class="ax-field"><span>Last Name</span>
+          <input type="text" formControlName="lastName" /></label>
+        <label class="ax-field span2"><span>Email</span>
+          <input type="email" formControlName="email" /></label>
+        <label class="ax-field span2"><span>Password</span>
+          <input type="password" formControlName="password" /></label>
+      </form>
+      <div class="ax-ok"  *ngIf="pmMessage"><span class="mi">check_circle</span> {{ pmMessage }}</div>
+      <div class="ax-err" *ngIf="pmError"><span class="mi">error_outline</span> {{ pmError }}</div>
+    </div>
+
+    <footer class="ax-modal-foot">
+      <button class="ax-btn ghost" (click)="closeModal()">Close</button>
+      <button class="ax-btn primary" (click)="submitPmForm()" [disabled]="pmSubmitting">
+        <span class="mi" *ngIf="!pmSubmitting">badge</span>
+        <span class="mi spin" *ngIf="pmSubmitting">sync</span>
+        {{ pmSubmitting ? 'Saving…' : 'Register Manager' }}
+      </button>
+    </footer>
+  </div>
+</div>
+
+<!-- Add Project -->
+<div class="ax-modal-backdrop" *ngIf="activeModal === 'project'" (click)="closeModal()">
+  <div class="ax-modal wide" (click)="$event.stopPropagation()">
+    <header class="ax-modal-head">
+      <span class="ax-kpi-icon green"><span class="mi">add_box</span></span>
+      <div class="ax-modal-title">Add Project</div>
+      <button class="ax-modal-close" (click)="closeModal()"><span class="mi">close</span></button>
+    </header>
+
+    <div class="ax-modal-body">
+      <form [formGroup]="projectForm" (ngSubmit)="submitProjectForm()" novalidate class="ax-form">
+        <label class="ax-field span2"><span>Project Name</span>
+          <input type="text" formControlName="projectName" /></label>
+        <label class="ax-field span2"><span>Description</span>
+          <textarea formControlName="description" rows="3"></textarea></label>
+        <label class="ax-field"><span>Status</span>
+          <select formControlName="status">
+            <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+          </select></label>
+        <label class="ax-field"><span>Domain</span>
+          <select formControlName="domain">
+            <option *ngFor="let d of domainOptions" [value]="d">{{ d }}</option>
+          </select></label>
+        <label class="ax-field span2"><span>Project Manager</span>
+          <select formControlName="managerId">
+            <option [ngValue]="null">— None —</option>
+            <option *ngFor="let m of managers" [ngValue]="m.userId">
+              {{ m.firstName }} {{ m.lastName }} ({{ m.email }})
+            </option>
+          </select>
+          <small *ngIf="loadingManagers">Loading managers…</small>
+        </label>
+      </form>
+      <div class="ax-ok"  *ngIf="projectMessage"><span class="mi">check_circle</span> {{ projectMessage }}</div>
+      <div class="ax-err" *ngIf="projectError"><span class="mi">error_outline</span> {{ projectError }}</div>
+    </div>
+
+    <footer class="ax-modal-foot">
+      <button class="ax-btn ghost" (click)="closeModal()">Close</button>
+      <button class="ax-btn primary" (click)="submitProjectForm()" [disabled]="projectSubmitting">
+        <span class="mi" *ngIf="!projectSubmitting">add_box</span>
+        <span class="mi spin" *ngIf="projectSubmitting">sync</span>
+        {{ projectSubmitting ? 'Creating…' : 'Create Project' }}
+      </button>
+    </footer>
+  </div>
+</div>

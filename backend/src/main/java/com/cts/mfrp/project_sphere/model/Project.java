@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -56,5 +57,19 @@ public class Project {
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="manager_id")
     private User manager;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
+    @PrePersist
+    void onCreate() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
+        if (status == ProjectStatus.COMPLETED && completedAt == null) {
+            completedAt = LocalDateTime.now();
+        }
+    }
 }
 

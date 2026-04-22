@@ -20,9 +20,18 @@ public class ProjectTeam {
     @Column(name = "team_id")
     private Long teamId;
 
+    // Nullable at the DB layer so `ddl-auto=update` can ADD the column on an
+    // existing project_team table. Required-ness is enforced by the service.
+    @Column(name = "team_name", length = 255)
+    private String teamName;
+
     @OneToOne
     @JoinColumn(name = "project_id", nullable = false, unique = true)
     private Project project;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "scrum_master_id")
+    private User scrumMaster;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

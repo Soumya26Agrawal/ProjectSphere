@@ -1,11 +1,14 @@
 package com.cts.mfrp.project_sphere.config;
 
 
+import com.cts.mfrp.project_sphere.Enum.Role;
+import com.cts.mfrp.project_sphere.model.User;
 import com.cts.mfrp.project_sphere.repository.UserRepository;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -67,6 +70,25 @@ public class ApplicationConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // Apply to all API paths
         return source;
+    }
+
+    @Bean
+    public CommandLineRunner bootstrapAdmin(UserRepository repo, PasswordEncoder encoder) {
+        return args -> {
+            String email = "admin@projectsphere.com";
+            if (repo.findByEmail(email).isEmpty()) {
+                repo.save(User.builder()
+                        .email(email)
+                        .password(encoder.encode("admin123"))
+                        .firstName("System")
+                        .lastName("Admin")
+                        .employeeId(1000L)
+                        .phoneNumber(9999999999L)
+                        .role(Role.ADMIN)
+                        .isActive(true)
+                        .build());
+            }
+        };
     }
 
     @Bean

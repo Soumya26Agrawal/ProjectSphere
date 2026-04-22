@@ -48,7 +48,17 @@ public class TicketController {
     @GetMapping("/backlog")
     public ResponseEntity<List<TicketWithDefectResponseDTO>> getBacklog(){
         List<Ticket> tickets=ticketService.getBacklog();
-        List<TicketWithDefectResponseDTO> list=tickets.stream().map((ticket)-> {
+        List<TicketWithDefectResponseDTO> list=tickets.stream().map(ticket -> {
+            DefectResponseDTO defectDTO = null;
+            if(ticket.getDefect() != null) {
+                defectDTO = DefectResponseDTO.builder()
+                        .defectId(ticket.getDefect().getDefectId())
+                        .reproducible(ticket.getDefect().getReproducible())
+                        .severity(ticket.getDefect().getSeverity())
+                        .status(ticket.getDefect().getStatus())
+                        .stepsToReproduce(ticket.getDefect().getStepsToReproduce())
+                        .build();
+            }
             return TicketWithDefectResponseDTO.builder()
                     .ticketId(ticket.getTicketId())
                     .title(ticket.getTitle())
@@ -56,17 +66,8 @@ public class TicketController {
                     .storyPoints(ticket.getStoryPoints())
                     .status(ticket.getStatus())
                     .type(ticket.getType())
-                    .defect(ticket.getDefect()!=null ? DefectResponseDTO.builder()
-                            .defectId(ticket.getDefect().getDefectId())
-                            .reproducible(ticket.getDefect().getReproducible())
-                            .severity(ticket.getDefect().getSeverity())
-                            .actualResult(ticket.getDefect().getActualResult())
-                            .expectedResult(ticket.getDefect().getExpectedResult())
-                            .status(ticket.getDefect().getStatus())
-                            .stepsToReproduce(ticket.getDefect().getStepsToReproduce())
-                            .build():null
-                    )
-            .build();
+                    .defect(defectDTO)
+                    .build();
         }).toList();
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }
@@ -80,7 +81,17 @@ public class TicketController {
     public ResponseEntity<List<TicketWithDefectResponseDTO>> getDefectsInActiveSprints(){
         List<Long> activeSprintIds=sprintService.getActiveSprints();
         List<Ticket> activeTickets=ticketService.getDefectsInActiveSprints(activeSprintIds);
-        List<TicketWithDefectResponseDTO> result=activeTickets.stream().map((t)->{
+        List<TicketWithDefectResponseDTO> result=activeTickets.stream().map(t -> {
+            DefectResponseDTO defectDTO = null;
+            if(t.getDefect() != null) {
+                defectDTO = DefectResponseDTO.builder()
+                        .defectId(t.getDefect().getDefectId())
+                        .status(t.getDefect().getStatus())
+                        .reproducible(t.getDefect().getReproducible())
+                        .severity(t.getDefect().getSeverity())
+                        .stepsToReproduce(t.getDefect().getStepsToReproduce())
+                        .build();
+            }
             return TicketWithDefectResponseDTO.builder()
                     .ticketId(t.getTicketId())
                     .type(t.getType())
@@ -88,15 +99,8 @@ public class TicketController {
                     .storyPoints(t.getStoryPoints())
                     .description(t.getDescription())
                     .status(t.getStatus())
-                    .defect(t.getDefect()!=null?(DefectResponseDTO.builder()
-                            .defectId(t.getDefect().getDefectId())
-                            .status(t.getDefect().getStatus())
-                            .actualResult(t.getDefect().getActualResult())
-                            .expectedResult(t.getDefect().getExpectedResult())
-                            .reproducible(t.getDefect().getReproducible())
-                         .severity(t.getDefect().getSeverity())
-                            .stepsToReproduce(t.getDefect().getStepsToReproduce())
-                            .build()):null).build();
+                    .defect(defectDTO)
+                    .build();
         }).toList();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

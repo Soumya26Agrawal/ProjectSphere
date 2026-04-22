@@ -41,10 +41,10 @@ INSERT INTO sprint (sprint_name, start_date, end_date, status, project_id) VALUE
 ('Sprint 2 - API Dev', '2026-04-15', '2026-04-28', 'ACTIVE', 1),
 ('Sprint 1 - Discovery', '2026-04-05', '2026-04-18', 'COMPLETED', 2),
 ('Sprint 2 - UI Prototype', '2026-04-19', '2026-05-02', 'PLANNED', 2),
-('Sprint 1 - Final Review', '2026-03-01', '2026-03-15', 'COMPLETED', 3),
-('Sprint 1 - Core Engine', '2026-04-10', '2026-04-24', 'PLANNED', 4),
+('Sprint 1 - Final Review', '2026-03-01', '2026-03-15', 'COMPLETED', 4),
+('Sprint 1 - Core Engine', '2026-04-10', '2026-04-24', 'PLANNED', 1),
 ('Sprint 1 - Beta Launch', '2026-03-20', '2026-04-03', 'COMPLETED', 6),
-('Sprint 1 - Migration Prep', '2026-04-12', '2026-04-26', 'ACTIVE', 7),
+('Sprint 1 - Migration Prep', '2026-04-12', '2026-04-26', 'ACTIVE', 1),
 ('Sprint 3 - Deployment', '2026-03-10', '2026-03-24', 'COMPLETED', 9),
 ('Sprint 1 - Planning', '2026-04-25', '2026-05-08', 'PLANNED', 10);
 

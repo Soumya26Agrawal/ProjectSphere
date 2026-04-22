@@ -1,5 +1,6 @@
 package com.cts.mfrp.project_sphere.controller;
 
+import com.cts.mfrp.project_sphere.dto.SprintCompletionResponseDTO;
 import com.cts.mfrp.project_sphere.dto.SprintRequestDTO;
 import com.cts.mfrp.project_sphere.dto.SprintResponseDTO;
 import com.cts.mfrp.project_sphere.dto.TicketResponseDTO;
@@ -29,12 +30,26 @@ public class SprintController {
         return ResponseEntity.ok(sprints);
     }
 
+    @GetMapping("/incomplete")
+    public ResponseEntity<List<SprintResponseDTO>> getNonCompletedSprints(@RequestParam Long projectId) {
+        List<SprintResponseDTO> sprints = sprintService.getNonCompletedSprints(projectId).stream().map((s)->{
+            return SprintResponseDTO.builder().sprintId(s.getSprintId())
+                    .sprintName(s.getSprintName())
+                    .endDate(s.getEndDate())
+                    .startDate(s.getStartDate())
+                    .status(s.getStatus())
+                    .build();
+        }).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(sprints);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Sprint> getSprintById(@PathVariable Long id) {
         return sprintService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
     @GetMapping("/project/{projectId}")
     public ResponseEntity<List<Sprint>> getSprintsByProjectId(@PathVariable Long projectId) {
         List<Sprint> sprints = sprintService.findByProjectId(projectId);
@@ -43,25 +58,15 @@ public class SprintController {
 
     @PostMapping
     public ResponseEntity<SprintResponseDTO> createSprint(@RequestBody SprintRequestDTO sprint, @RequestParam Long projectId) {
-        if (sprint == null || sprint.getSprintName() == null || sprint.getSprintName().isBlank()) {
-            return ResponseEntity.badRequest().build();
-        }
-//        return sprintService.create(sprint, projectId)
-//                .map(created -> ResponseEntity.status(HttpStatus.CREATED).body(created))
-//                .orElse(ResponseEntity.badRequest().build());
-        Sprint createdSprint=sprintService.create(sprint,projectId);
+
+        Sprint createdSprint = sprintService.create(sprint, projectId);
         SprintResponseDTO dto = SprintResponseDTO.builder()
-                        .sprintId(createdSprint.getSprintId())
-                                .sprintName(createdSprint.getSprintName())
-                                        .startDate(createdSprint.getStartDate())
-                                                .endDate(createdSprint.getEndDate())
-                                                        .status(createdSprint.getStatus())
-                                                                .tickets(createdSprint.getTickets().stream().map(
-                                                                        (ticket)-> {
-                                                                            return TicketResponseDTO.builder().build();
-                                                                        }
-                                                                ).toList())
-        .build();
+                .sprintId(createdSprint.getSprintId())
+                .sprintName(createdSprint.getSprintName())
+                .startDate(createdSprint.getStartDate())
+                .endDate(createdSprint.getEndDate())
+                .status(createdSprint.getStatus())
+                .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
@@ -82,9 +87,40 @@ public class SprintController {
     }
 
     @GetMapping("/active")
-    public List<Long> getActiveSprints(){
+    public List<Long> getActiveSprints() {
         return sprintService.getActiveSprints();
     }
 
+    @PatchMapping("/activate/{sprintId}")
+    public ResponseEntity<String> startSprint(@PathVariable("sprintId") Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(sprintService.activateSprint(id));
+    }
+
+    @PatchMapping("/complete/{sprintId}")
+    public ResponseEntity<SprintCompletionResponseDTO> completeSprint(@PathVariable("sprintId") Long id){
+        SprintCompletionResponseDTO response=sprintService.completeSprint(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PatchMapping("/force-complete")
+    public ResponseEntity<String> forcedCompleteSprint(@RequestParam Long from, @RequestParam Long to){
+        String response=sprintService.forcedCompleteSprint(from,to);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }
+
+//
+
+
+
+//}
+//
+//{
+//        "sprintName": "Q2 Feature Alpha",
+//        "startDate": "2026-05-01",
+//        "endDate": "2026-05-14",
+//        "status": "PLANNED",
+//        "projectId": 101
+//        }
 

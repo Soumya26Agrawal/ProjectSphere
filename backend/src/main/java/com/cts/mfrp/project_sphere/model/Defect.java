@@ -33,8 +33,8 @@ public class Defect {
     @Enumerated(EnumType.STRING)
     private Severity severity;
     
-    private String expectedResult;
-    private String actualResult;
+//    private String expectedResult;
+//    private String actualResult;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -42,5 +42,12 @@ public class Defect {
     
     @ElementCollection
     @CollectionTable(joinColumns = @JoinColumn(name="defect_id"))
+    @Builder.Default
     private List<String> stepsToReproduce=new ArrayList<>();  // by default Element Collection uses Lazy loaded
+
+    @OneToOne
+    @JoinColumn(name="test_case_id")
+    private TestCase testCase;
+
+
 }

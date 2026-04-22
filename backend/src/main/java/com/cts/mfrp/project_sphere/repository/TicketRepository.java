@@ -18,4 +18,7 @@ public interface TicketRepository extends JpaRepository<Ticket,Long> {
 
     @Query("select new com.cts.mfrp.project_sphere.dto.DefectSummaryDTO(t.status,count(t.ticketId)) from Ticket t where t.type = 'DEFECT' group by t.status")
     public List<DefectSummaryDTO> getDefectSummary();
+
+    @Query("select t from Ticket t where t.sprint.sprintId in :ids and t.type=com.cts.mfrp.project_sphere.Enum.TicketType.DEFECT")
+    List<Ticket> findDefectsInActiveSprints(@Param("ids") List<Long> activeSprintIds);
 }

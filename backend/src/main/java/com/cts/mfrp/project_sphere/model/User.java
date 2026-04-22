@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.beans.PropertyEditor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -60,6 +61,14 @@ public class User implements UserDetails {
 
     @Builder.Default
     private Boolean isActive = true;
+
+    @ManyToMany(mappedBy = "users")
+    @Builder.Default
+    private List<ProjectTeam> projectTeams=new ArrayList<>();
+
+    @OneToMany(mappedBy = "designer")
+    @Builder.Default
+    private List<TestCase> testCasesDesigned=new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

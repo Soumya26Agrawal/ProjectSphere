@@ -76,6 +76,9 @@ public class Ticket {
     private String title;
     private String description;
 
+    @ManyToMany(mappedBy = "userStories") // Matches the variable name in Student class
+    private List<TestCase> testCases;
+
 //    @CreatedDate
 //    private OffsetDateTime createdAt;
 //

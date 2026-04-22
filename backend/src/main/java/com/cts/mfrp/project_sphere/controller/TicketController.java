@@ -2,6 +2,7 @@ package com.cts.mfrp.project_sphere.controller;
 
 import com.cts.mfrp.project_sphere.dto.*;
 import com.cts.mfrp.project_sphere.model.Ticket;
+import com.cts.mfrp.project_sphere.service.SprintService;
 import com.cts.mfrp.project_sphere.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +20,7 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService ticketService;
+    private final SprintService sprintService;
 
 //    @Operation(summary="")
     @PostMapping
@@ -36,7 +38,7 @@ public class TicketController {
 
     }
 
-    @GetMapping("/unmappedTickets")
+    @GetMapping("/unmapped")
     public ResponseEntity<List<Long>> getUnMappedTickets(){
         List<Long> ticketIds=ticketService.getUnMappedTickets();
         return ResponseEntity.status(HttpStatus.OK).body(ticketIds);
@@ -52,8 +54,8 @@ public class TicketController {
                     .title(ticket.getTitle())
                     .description(ticket.getDescription())
                     .storyPoints(ticket.getStoryPoints())
-                    .status(ticket.getStatus().name())
-                    .type(ticket.getType().name())
+                    .status(ticket.getStatus())
+                    .type(ticket.getType())
                     .defect(ticket.getDefect()!=null ? DefectResponseDTO.builder()
                             .defectId(ticket.getDefect().getDefectId())
                             .reproducible(ticket.getDefect().getReproducible())
@@ -72,6 +74,31 @@ public class TicketController {
     @GetMapping
     public ResponseEntity<List<DefectSummaryDTO>> getDefectSummary(){
         return ResponseEntity.status(HttpStatus.OK).body(ticketService.getDefectSummary());
+    }
+
+    @GetMapping("/defects")
+    public ResponseEntity<List<TicketWithDefectResponseDTO>> getDefectsInActiveSprints(){
+        List<Long> activeSprintIds=sprintService.getActiveSprints();
+        List<Ticket> activeTickets=ticketService.getDefectsInActiveSprints(activeSprintIds);
+        List<TicketWithDefectResponseDTO> result=activeTickets.stream().map((t)->{
+            return TicketWithDefectResponseDTO.builder()
+                    .ticketId(t.getTicketId())
+                    .type(t.getType())
+                    .title(t.getTitle())
+                    .storyPoints(t.getStoryPoints())
+                    .description(t.getDescription())
+                    .status(t.getStatus())
+                    .defect(t.getDefect()!=null?(DefectResponseDTO.builder()
+                            .defectId(t.getDefect().getDefectId())
+                            .status(t.getDefect().getStatus())
+                            .actualResult(t.getDefect().getActualResult())
+                            .expectedResult(t.getDefect().getExpectedResult())
+                            .reproducible(t.getDefect().getReproducible())
+                         .severity(t.getDefect().getSeverity())
+                            .stepsToReproduce(t.getDefect().getStepsToReproduce())
+                            .build()):null).build();
+        }).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 //    @GetMapping("/getTicketsBySprint")

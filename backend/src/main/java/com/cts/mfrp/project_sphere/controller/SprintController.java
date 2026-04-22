@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/sprint")
+@RequestMapping("api/v1/sprint")
 
 public class SprintController {
 
@@ -80,5 +80,11 @@ public class SprintController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/active")
+    public List<Long> getActiveSprints(){
+        return sprintService.getActiveSprints();
+    }
+
 }
 

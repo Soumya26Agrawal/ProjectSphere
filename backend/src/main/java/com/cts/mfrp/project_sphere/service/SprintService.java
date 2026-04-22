@@ -1,5 +1,6 @@
 package com.cts.mfrp.project_sphere.service;
 
+import com.cts.mfrp.project_sphere.Enum.SprintStatus;
 import com.cts.mfrp.project_sphere.dto.SprintRequestDTO;
 import com.cts.mfrp.project_sphere.dto.SprintResponseDTO;
 import com.cts.mfrp.project_sphere.model.Project;
@@ -71,5 +72,11 @@ public class SprintService {
 
     public long count() {
         return sprintRepository.count();
+    }
+
+
+
+    public List<Long> getActiveSprints() {
+        return sprintRepository.findActiveSprints(SprintStatus.ACTIVE);
     }
 }

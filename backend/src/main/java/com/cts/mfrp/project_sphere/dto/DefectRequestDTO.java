@@ -18,8 +18,9 @@ public class DefectRequestDTO {
     private Long ticketId; // To link the Defect to an existing Ticket
     private Reproducibility reproducible;
     private Severity severity;
-    private String expectedResult;
-    private String actualResult;
+//    private String expectedResult;
+//    private String actualResult;
     private DefectStatus status;
     private List<String> steps;
+    private Long testCaseId;
 }

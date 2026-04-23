@@ -15,4 +15,9 @@ public interface SprintRepository extends JpaRepository<Sprint, Long> {
 
     @Query("select s.sprintId from Sprint s where s.status=:status")
     List<Long> findActiveSprints(@Param("status") SprintStatus status);
+
+    @Query("select s from Sprint s where s.project.projectId=:projectId and (s.status=:status1 or s.status=:status2) ")
+    List<Sprint> findInCompleteSprints(@Param("status1") SprintStatus status1, @Param("status2") SprintStatus status2, @Param("projectId") Long projectId);
+
+
 }

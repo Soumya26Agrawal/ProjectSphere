@@ -1,0 +1,99 @@
+<div class="eval-header">
+  <div>
+    <div class="breadcrumb">
+      <span class="mi">supervisor_account</span>
+      <span>Project Manager</span>
+      <span class="mi bc-sep">chevron_right</span>
+      <span class="bc-cur">Evaluation</span>
+    </div>
+    <h1 class="eval-title">Sprint Evaluation</h1>
+    <p class="eval-sub">Performance review across all sprints</p>
+  </div>
+  <button class="btn-back" routerLink="/pm">
+    <span class="mi">arrow_back</span> Back to Dashboard
+  </button>
+</div>
+
+<!-- Summary KPIs -->
+<div class="kpi-row">
+  <div class="kpi-card kpi-blue">
+    <span class="mi kpi-icon">speed</span>
+    <div class="kpi-val">{{ avgVelocity }}%</div>
+    <div class="kpi-lbl">Avg Velocity</div>
+  </div>
+  <div class="kpi-card kpi-green">
+    <span class="mi kpi-icon">task_alt</span>
+    <div class="kpi-val">{{ sprints[sprints.length-1].completed }}/{{ sprints[sprints.length-1].planned }}</div>
+    <div class="kpi-lbl">Latest Sprint</div>
+  </div>
+  <div class="kpi-card kpi-red">
+    <span class="mi kpi-icon">bug_report</span>
+    <div class="kpi-val">{{ totalDefects }}</div>
+    <div class="kpi-lbl">Total Defects</div>
+  </div>
+</div>
+
+<!-- Sprint Performance Table -->
+<div class="sc">
+  <h3 class="sec-title"><span class="mi">bar_chart</span> Sprint Performance</h3>
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>SPRINT</th>
+        <th>PLANNED</th>
+        <th>COMPLETED</th>
+        <th>DEFECTS</th>
+        <th>VELOCITY</th>
+        <th>PROGRESS</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of sprints">
+        <td><strong>{{ s.sprint }}</strong></td>
+        <td>{{ s.planned }}</td>
+        <td>{{ s.completed }}</td>
+        <td>
+          <span class="defect-badge" [class.no-defect]="s.defects === 0">{{ s.defects }}</span>
+        </td>
+        <td>
+          <span class="vel-badge" [ngClass]="scoreClass(s.velocity)">{{ s.velocity }}%</span>
+        </td>
+        <td class="prog-cell">
+          <div class="prog-track">
+            <div class="prog-fill" [style.width.%]="(s.completed / s.planned) * 100"></div>
+          </div>
+          <span class="prog-pct">{{ (s.completed / s.planned * 100) | number:'1.0-0' }}%</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Team Performance -->
+<div class="sc">
+  <h3 class="sec-title"><span class="mi">group</span> Team Performance</h3>
+  <div class="team-grid">
+    <div class="member-card" *ngFor="let m of teamMetrics">
+      <div class="member-info">
+        <div class="av">{{ m.name | initials }}</div>
+        <div>
+          <div class="mem-name">{{ m.name }}</div>
+          <div class="mem-role">{{ m.role }}</div>
+        </div>
+      </div>
+      <div class="mem-stats">
+        <div class="mem-stat">
+          <span class="stat-lbl">Tasks</span>
+          <span class="stat-val">{{ m.done }}/{{ m.tasks }}</span>
+        </div>
+        <div class="mem-stat">
+          <span class="stat-lbl">Score</span>
+          <span class="score-chip" [ngClass]="scoreClass(m.score)">{{ m.score }}%</span>
+        </div>
+      </div>
+      <div class="mem-bar-track">
+        <div class="mem-bar-fill" [style.width.%]="(m.done / m.tasks) * 100"></div>
+      </div>
+    </div>
+  </div>
+</div>

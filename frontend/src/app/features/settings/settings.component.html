@@ -1,0 +1,72 @@
+<div class="pg-header">
+  <h1 class="pg-title">Project Settings</h1>
+  <p class="pg-sub">Manage your project configuration and preferences</p>
+</div>
+
+<div class="sc">
+  <h3 class="sec-title"><span class="mi">folder_open</span> General</h3>
+  <div class="form-grid">
+    <div class="field">
+      <label>Project Name</label>
+      <input [(ngModel)]="projectName" type="text" />
+    </div>
+    <div class="field">
+      <label>Project Key</label>
+      <input [(ngModel)]="projectKey" type="text" />
+    </div>
+    <div class="field span-2">
+      <label>Description</label>
+      <textarea [(ngModel)]="description" rows="3"></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="sc">
+  <h3 class="sec-title"><span class="mi">settings</span> Sprint Settings</h3>
+  <div class="form-grid">
+    <div class="field">
+      <label>Sprint Duration (days)</label>
+      <input [(ngModel)]="sprintDuration" type="number" min="7" max="30" />
+    </div>
+    <div class="field">
+      <label>Timezone</label>
+      <select [(ngModel)]="timezone">
+        <option>Asia/Kolkata</option>
+        <option>America/New_York</option>
+        <option>Europe/London</option>
+        <option>UTC</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="sc">
+  <h3 class="sec-title"><span class="mi">tune</span> Preferences</h3>
+  <div class="toggle-row">
+    <div class="toggle-info">
+      <div class="toggle-lbl">Email Notifications</div>
+      <div class="toggle-sub">Receive alerts for ticket updates and sprint events</div>
+    </div>
+    <label class="toggle-sw">
+      <input type="checkbox" [(ngModel)]="notifications" />
+      <span class="sw-track"></span>
+    </label>
+  </div>
+  <div class="toggle-row">
+    <div class="toggle-info">
+      <div class="toggle-lbl">Auto-assign Tickets</div>
+      <div class="toggle-sub">Automatically assign new tickets to least-loaded member</div>
+    </div>
+    <label class="toggle-sw">
+      <input type="checkbox" [(ngModel)]="autoAssign" />
+      <span class="sw-track"></span>
+    </label>
+  </div>
+</div>
+
+<div class="save-row">
+  <button class="btn-save" (click)="save()">
+    <span class="mi">{{ saved ? 'check_circle' : 'save' }}</span>
+    {{ saved ? 'Saved!' : 'Save Settings' }}
+  </button>
+</div>

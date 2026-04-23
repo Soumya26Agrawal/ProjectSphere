@@ -1,0 +1,88 @@
+<!-- ── Page Header ── -->
+<div class="pm-header">
+  <div>
+    <h1 class="pm-title">Project Manager Dashboard</h1>
+    <p class="pm-sub">Welcome back, {{ user()?.name }}</p>
+  </div>
+  <button class="pm-logout" (click)="logout()">
+    <span class="mi">logout</span> Logout
+  </button>
+</div>
+<div class="pm-divider"></div>
+
+<!-- ── 3 KPI Cards ── -->
+<div class="kpi-row">
+  <div class="kpi-card" [ngClass]="s.cls" *ngFor="let s of stats">
+    <span class="mi kpi-icon">{{ s.icon }}</span>
+    <div class="kpi-val">{{ s.value }}</div>
+    <div class="kpi-lbl">{{ s.label }}</div>
+  </div>
+</div>
+
+<!-- ── Your Projects ── -->
+<h2 class="your-title">Your Projects</h2>
+
+<div class="proj-card" *ngFor="let p of projects">
+
+  <!-- Card Top: Name + Status Badge -->
+  <div class="proj-top">
+    <div>
+      <h3 class="proj-name">{{ p.name }}</h3>
+      <p class="proj-desc">{{ p.description }}</p>
+    </div>
+    <span class="status-badge"
+          [ngClass]="p.status === 'ONGOING' ? 'badge-ongoing' : 'badge-done'">
+      {{ p.status }}
+    </span>
+  </div>
+
+  <!-- Meta Row: Team Lead / Absentees / Active Stories / Open Defects -->
+  <div class="proj-meta">
+    <div class="meta-item">
+      <span class="mi meta-icon tl-ic">person</span>
+      <div>
+        <span class="meta-lbl">Team Lead</span>
+        <div class="meta-val">{{ p.teamLead }}</div>
+      </div>
+    </div>
+    <div class="meta-item">
+      <span class="mi meta-icon ab-ic">group</span>
+      <div>
+        <span class="meta-lbl">Absentees</span>
+        <div class="meta-val red">{{ p.absentees }} members</div>
+      </div>
+    </div>
+    <div class="meta-item">
+      <span class="mi meta-icon st-ic">check_circle</span>
+      <div>
+        <span class="meta-lbl">Active Stories</span>
+        <div class="meta-val">{{ p.activeStories }}</div>
+      </div>
+    </div>
+    <div class="meta-item">
+      <span class="mi meta-icon df-ic">error</span>
+      <div>
+        <span class="meta-lbl">Open Defects</span>
+        <div class="meta-val">{{ p.openDefects }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="prog-row">
+    <span class="prog-label">Progress</span>
+    <div class="prog-track">
+      <div class="prog-fill" [style.width.%]="p.progress"></div>
+    </div>
+    <span class="prog-pct">{{ p.progress }}%</span>
+  </div>
+
+  <div class="card-divider"></div>
+
+  <!-- Action Buttons -->
+  <div class="proj-actions">
+    <button class="btn-eval" routerLink="/evaluation">Evaluation</button>
+    <button class="btn-workspace" routerLink="/board">See Workspace</button>
+  </div>
+
+</div>

@@ -1,0 +1,136 @@
+<div>
+  <div class="breadcrumb">
+    <span class="bc-link" routerLink="/summary">ProjectSphere</span>
+    <span class="bc-sep mi">chevron_right</span>Backlog
+  </div>
+
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Backlog</div>
+      <div class="page-sub">Sprint and backlog issue management</div>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-secondary" (click)="ui.toast('Epic management')">
+        <span class="mi">auto_awesome</span>Epics
+      </button>
+      <button class="btn btn-primary" (click)="ui.openCreateIssue()">
+        <span class="mi">add</span>Create Issue
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Sprints -->
+  <div *ngFor="let sp of activeSprints">
+    <ng-container [ngTemplateOutlet]="sprintTpl" [ngTemplateOutletContext]="{sp: sp}"></ng-container>
+  </div>
+
+  <!-- Done Sprints -->
+  <div *ngFor="let sp of doneSprints">
+    <ng-container [ngTemplateOutlet]="sprintTpl" [ngTemplateOutletContext]="{sp: sp}"></ng-container>
+  </div>
+
+  <!-- Backlog Section -->
+  <div class="sprint-section">
+    <div class="sprint-hdr" (click)="toggleSection('backlog')">
+      <span class="mi sprint-toggle" [class.open]="!collapsed['backlog']">chevron_right</span>
+      <span class="sprint-name">Backlog</span>
+      <span class="sprint-meta">
+        <span class="lozenge loz-backlog">{{ backlogTickets.length }} issues</span>
+      </span>
+      <div class="sprint-actions">
+        <button class="btn btn-secondary btn-sm" (click)="$event.stopPropagation(); ui.openCreateIssue()">
+          <span class="mi">add</span>Create Issue
+        </button>
+      </div>
+    </div>
+    <div class="sprint-section-body" [style.display]="collapsed['backlog'] ? 'none' : ''">
+      <table class="jira-table">
+        <thead>
+          <tr><th></th><th>Summary</th><th>Type</th><th>Priority</th><th>Assignee</th><th>Pts</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of backlogTickets" (click)="ui.openTicket(t)">
+            <td width="30">
+              <div class="issue-type" [ngClass]="ds.itClass(t.type)">
+                <span class="mi" style="font-size:10px">{{ ds.itIcon(t.type) }}</span>
+              </div>
+            </td>
+            <td style="font-weight:500">{{ t.sum }}</td>
+            <td><span class="lozenge" style="background:var(--surface3);color:var(--text2)">{{ t.type }}</span></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:4px">
+                <span class="mi pri-icon" [ngClass]="ds.priClass(t.pri)" style="font-size:14px">{{ ds.priIcon(t.pri) }}</span>
+                {{ t.pri }}
+              </div>
+            </td>
+            <td>
+              <div style="display:flex;align-items:center;gap:5px" *ngIf="t.ass; else unassigned">
+                <div class="k-card-av" [style.background]="ds.avColor(t.ass)" style="width:20px;height:20px;font-size:.54rem">{{ ds.ini(t.ass) }}</div>
+                <span>{{ t.ass }}</span>
+              </div>
+              <ng-template #unassigned><span style="color:var(--text3)">Unassigned</span></ng-template>
+            </td>
+            <td style="color:var(--jira-blue);font-weight:700">{{ t.pts || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sprint row template -->
+  <ng-template #sprintTpl let-sp="sp">
+    <div class="sprint-section">
+      <div class="sprint-hdr" (click)="toggleSection(sp.name)">
+        <span class="mi sprint-toggle" [class.open]="!collapsed[sp.name]">chevron_right</span>
+        <span class="sprint-name">{{ sp.name }}</span>
+        <span class="sprint-meta">
+          <span class="lozenge" [ngClass]="sp.status === 'ACTIVE' ? 'loz-active' : 'loz-done2'">{{ sp.status }}</span>
+          <span style="font-size:12px">{{ sp.start }} – {{ sp.end }}</span>
+          <div class="sprint-progress-bar">
+            <div class="sprint-progress-fill" [style.width.%]="sprintPct(sp.name)"></div>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:var(--jira-blue)">
+            {{ sprintDone(sp.name) }}/{{ sprintTotal(sp.name) }} done
+          </span>
+        </span>
+        <div class="sprint-actions">
+          <button *ngIf="sp.status === 'ACTIVE'" class="btn btn-secondary btn-sm"
+            (click)="$event.stopPropagation(); ui.toast('Complete Sprint dialog')">
+            Complete sprint
+          </button>
+          <button class="btn btn-secondary btn-sm"
+            (click)="$event.stopPropagation(); ui.openCreateIssue()">
+            <span class="mi">add</span>Create
+          </button>
+        </div>
+      </div>
+      <div class="sprint-section-body" [style.display]="collapsed[sp.name] ? 'none' : ''">
+        <table class="jira-table">
+          <thead>
+            <tr><th></th><th>Summary</th><th>Type</th><th>Status</th><th>Assignee</th><th>Pts</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of getSprintTickets(sp.name)" (click)="ui.openTicket(t)">
+              <td width="30">
+                <div class="issue-type" [ngClass]="ds.itClass(t.type)">
+                  <span class="mi" style="font-size:10px">{{ ds.itIcon(t.type) }}</span>
+                </div>
+              </td>
+              <td style="font-weight:500">{{ t.sum }}</td>
+              <td><span class="lozenge" style="background:var(--surface3);color:var(--text2)">{{ t.type }}</span></td>
+              <td><span class="lozenge" [ngClass]="ds.lozClass(t.status)">{{ ds.sl(t.status) }}</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:5px" *ngIf="t.ass">
+                  <div class="k-card-av" [style.background]="ds.avColor(t.ass)" style="width:20px;height:20px;font-size:.54rem">{{ ds.ini(t.ass) }}</div>
+                  <span>{{ t.ass }}</span>
+                </div>
+                <span *ngIf="!t.ass" style="color:var(--text3)">—</span>
+              </td>
+              <td style="color:var(--jira-blue);font-weight:700">{{ t.pts || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-template>
+</div>

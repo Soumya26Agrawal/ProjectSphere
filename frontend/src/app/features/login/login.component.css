@@ -1,0 +1,355 @@
+/* ── HOST: full-viewport split grid ── */
+:host {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* ─── LEFT PANEL ─── */
+.left {
+  background: linear-gradient(145deg, #0747a6 0%, #0052cc 60%, #0065ff 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.left::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  top: -150px;
+  right: -150px;
+}
+.left::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  bottom: -80px;
+  left: -60px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1;
+  margin-bottom: auto;
+}
+.logo-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #fff;
+}
+.logo-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.left-content {
+  z-index: 1;
+  margin-bottom: auto;
+  padding: 40px 0 20px;
+}
+.left-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 20px;
+}
+.left-h {
+  font-size: 34px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+  margin-bottom: 14px;
+}
+.left-sub {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.feat-ic {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.feat-ic .mi {
+  font-size: 19px;
+  color: #fff;
+}
+.feat-text b {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+.feat-text span {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+
+/* ─── RIGHT PANEL ─── */
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: linear-gradient(160deg, #fff 70%, #f0f4ff 100%);
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.ps-badge {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #0747a6, #0065ff);
+  border-radius: 12px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fff;
+}
+.login-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #172b4d;
+  margin-bottom: 5px;
+}
+.login-header p {
+  font-size: 13px;
+  color: #5e6c84;
+}
+
+/* Fields */
+.field {
+  margin-bottom: 18px;
+}
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5e6c84;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-wrap .mi {
+  position: absolute;
+  left: 12px;
+  color: #97a0af;
+  font-size: 18px;
+  pointer-events: none;
+}
+.input-wrap input {
+  width: 100%;
+  padding: 11px 12px 11px 40px;
+  border: 2px solid #dfe1e6;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  color: #172b4d;
+  background: #f8f9fa;
+  transition: all 0.15s;
+}
+.input-wrap input:focus {
+  outline: none;
+  border-color: #0052cc;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.12);
+}
+.input-wrap input::placeholder {
+  color: #97a0af;
+}
+.toggle-pw {
+  position: absolute;
+  right: 12px;
+  color: #97a0af;
+  cursor: pointer;
+  font-size: 18px !important;
+  pointer-events: all;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+.chk {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #5e6c84;
+  cursor: pointer;
+}
+.chk input {
+  accent-color: #0052cc;
+  width: 15px;
+  height: 15px;
+}
+.forgot {
+  font-size: 13px;
+  color: #0052cc;
+  font-weight: 600;
+  cursor: pointer;
+}
+.forgot:hover {
+  text-decoration: underline;
+}
+
+.btn-sign {
+  width: 100%;
+  padding: 13px;
+  background: #0052cc;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.01em;
+}
+.btn-sign:hover {
+  background: #0065ff;
+  box-shadow: 0 6px 16px rgba(0, 82, 204, 0.35);
+}
+
+.bottom-note {
+  text-align: center;
+  font-size: 12px;
+  color: #97a0af;
+  margin-top: 22px;
+}
+.bottom-note a {
+  color: #0052cc;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+.bottom-note a:hover {
+  text-decoration: underline;
+}
+
+/* ── Validation error ── */
+.field.has-error .input-wrap input {
+  border-color: #ff5630;
+  background: #fff8f6;
+}
+.field.has-error .input-wrap input:focus {
+  box-shadow: 0 0 0 3px rgba(255, 86, 48, 0.12);
+}
+.error-msg {
+  margin-top: 5px;
+  font-size: 11.5px;
+  color: #ff5630;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Login server error ── */
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffebe6;
+  border: 1px solid #ffbdad;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #bf2600;
+  margin-bottom: 16px;
+}
+.login-error .mi {
+  font-size: 17px;
+  color: #ff5630;
+}
+
+/* ── Loading spin ── */
+.btn-sign:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin {
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+}
+
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  :host {
+    grid-template-columns: 1fr;
+  }
+  .left {
+    display: none;
+  }
+}

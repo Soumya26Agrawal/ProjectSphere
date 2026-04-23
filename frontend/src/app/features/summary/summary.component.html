@@ -1,0 +1,109 @@
+<div>
+  <div class="breadcrumb">
+    <span class="bc-link" (click)="navigate('summary')">Projects</span>
+    <span class="bc-sep mi">chevron_right</span>
+    <span class="bc-link">ProjectSphere</span>
+    <span class="bc-sep mi">chevron_right</span>
+    Summary
+  </div>
+
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Project Summary</div>
+      <div class="page-sub">Sprint 3 active · Last updated just now</div>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-secondary" (click)="ui.toast('Edit project settings')">
+        <span class="mi">edit</span>Edit Project
+      </button>
+      <button class="btn btn-primary" (click)="ui.openCreateIssue()">
+        <span class="mi">add</span>Create Issue
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="summary-stats">
+    <div class="sstat sstat-blue" (click)="navigate('board')">
+      <div class="sstat-val">{{ totalActive }}</div>
+      <div class="sstat-label">Active Issues</div>
+      <div class="sstat-sub">{{ doneCount }} done · {{ inProgCount }} in progress</div>
+    </div>
+    <div class="sstat sstat-green" (click)="navigate('analytics')">
+      <div class="sstat-val">{{ sprintPct }}%</div>
+      <div class="sstat-label">Sprint Completion</div>
+      <div class="sstat-sub">Sprint 3 progress</div>
+    </div>
+    <div class="sstat sstat-red" (click)="navigate('defects')">
+      <div class="sstat-val">{{ openDefects }}</div>
+      <div class="sstat-label">Open Defects</div>
+      <div class="sstat-sub">{{ criticalDefects }} critical</div>
+    </div>
+    <div class="sstat sstat-orange" (click)="navigate('backlog')">
+      <div class="sstat-val">{{ backlogCount }}</div>
+      <div class="sstat-label">Backlog Items</div>
+      <div class="sstat-sub">Unscheduled issues</div>
+    </div>
+  </div>
+
+  <div class="summary-cols">
+    <div>
+      <!-- Sprint Progress -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-hdr">
+          <span class="card-title">Sprint 3 Progress</span>
+          <button class="btn btn-link btn-sm" (click)="navigate('board')">View board →</button>
+        </div>
+        <div class="card-body">
+          <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px">
+            <div style="flex:1;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;display:flex">
+              <div style="height:100%;background:#E3FCEF" [style.width.%]="doneWidth"></div>
+              <div style="height:100%;background:#EAE6FF" [style.width.%]="testedWidth"></div>
+              <div style="height:100%;background:#DEEBFF" [style.width.%]="inProgWidth"></div>
+            </div>
+            <span style="font-size:13px;font-weight:600;color:var(--jira-blue)">{{ doneWidth }}%</span>
+          </div>
+          <div *ngFor="let col of statusRows"
+            style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+            <span class="lozenge" [ngClass]="ds.lozClass(col.key)">{{ ds.sl(col.key) }}</span>
+            <span style="font-size:13px;font-weight:600;color:var(--text)">{{ col.count }} issue{{ col.count !== 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Quick Actions</span></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:6px">
+          <div *ngFor="let q of quickActions"
+            class="qa-item"
+            (click)="router.navigate([q.route])">
+            <span class="mi" [style.color]="q.color" style="font-size:20px">{{ q.icon }}</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text)">{{ q.text }}</div>
+              <div style="font-size:11px;color:var(--text3)">{{ q.sub }}</div>
+            </div>
+            <span class="mi" style="margin-left:auto;color:var(--text3);font-size:16px">chevron_right</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Recent Activity</span>
+        <button class="btn btn-link btn-sm" (click)="ui.toast('Full activity log')">View all</button>
+      </div>
+      <div class="card-body" style="padding:0 16px">
+        <div *ngFor="let a of activities" class="activity-item">
+          <div class="activity-av" [style.background]="a.color">{{ a.av }}</div>
+          <div>
+            <div class="activity-text" [innerHTML]="a.text"></div>
+            <div class="activity-time">{{ a.time }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

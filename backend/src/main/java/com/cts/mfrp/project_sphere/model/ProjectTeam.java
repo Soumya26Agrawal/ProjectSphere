@@ -1,49 +1,44 @@
 package com.cts.mfrp.project_sphere.model;
-import jakarta.persistence.*;
-import lombok.Builder;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.ArrayList;
 import java.util.List;
+
 @Entity
 @Table(name = "project_team")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ProjectTeam {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "team_id")
     private Long teamId;
+
+    // Nullable at the DB layer so `ddl-auto=update` can ADD the column on an
+    // existing project_team table. Required-ness is enforced by the service.
+    @Column(name = "team_name", length = 255)
+    private String teamName;
+
     @OneToOne
-    @JoinColumn(name = "project_id", nullable = false)
-    private Project projectId;
+    @JoinColumn(name = "project_id", nullable = false, unique = true)
+    private Project project;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "scrum_master_id")
+    private User scrumMaster;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "project_team_users",
             joinColumns = @JoinColumn(name = "team_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> users;
-    public ProjectTeam() {}
-    public ProjectTeam(Project projectId, List<User> users) {
-        this.projectId = projectId;
-        this.users = users;
-    }
-    public Long getTeamId() {
-        return teamId;
-    }
-    public void setTeamId(Long teamId) {
-        this.teamId = teamId;
-    }
-    public Project getProjectId() {
-        return projectId;
-    }
-    public void setProjectId(Project projectId) {
-        this.projectId = projectId;
-    }
-    public List<User> getUsers() {
-        return users;
-    }
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
-
+    @Builder.Default
+    private List<User> users = new ArrayList<>();
 }

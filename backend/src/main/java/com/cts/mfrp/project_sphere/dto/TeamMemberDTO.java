@@ -1,20 +1,21 @@
 package com.cts.mfrp.project_sphere.dto;
 
 import com.cts.mfrp.project_sphere.Enum.Role;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoginResponseDTO {
-
-    private String token;
-    private String message;
+public class TeamMemberDTO {
     private Long userId;
-    private String email;
+    private Long employeeId;
     private String firstName;
     private String lastName;
+    private String email;
     private Role role;
+    private Boolean isActive;
 }

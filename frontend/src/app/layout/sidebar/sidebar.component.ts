@@ -25,4 +25,9 @@ export class SidebarComponent {
   get defectCount(): number {
     return this.data.defects.length;
   }
+  get testCaseCount(): number {
+    // For now, return a static count; integrate with data service later
+    return 4; // Mock count
+  }
+  
 }

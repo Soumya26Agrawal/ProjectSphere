@@ -1,0 +1,215 @@
+<div>
+  <div class="breadcrumb">
+    <span class="bc-link" routerLink="/dev">ProjectSphere</span>
+    <span class="bc-sep mi">chevron_right</span>Test Cases
+  </div>
+
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Test Cases</div>
+      <div class="page-sub">Manage and track test cases with traceability and repository</div>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <span class="mi">add</span>Create Test Case
+      </button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon green">
+        <span class="mi">check_circle</span>
+      </div>
+      <div class="kpi-content">
+        <div class="kpi-value">{{ passRate }}%</div>
+        <div class="kpi-label">Test Pass Rate</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon blue">
+        <span class="mi">science</span>
+      </div>
+      <div class="kpi-content">
+        <div class="kpi-value">{{ totalTestCases }}</div>
+        <div class="kpi-label">Total Test Cases</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon amber">
+        <span class="mi">pending</span>
+      </div>
+      <div class="kpi-content">
+        <div class="kpi-value">{{ untestedItems }}</div>
+        <div class="kpi-label">Untested Items</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sprint Traceability Matrix -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Sprint Traceability Matrix</h2>
+    </div>
+    <div class="traceability-matrix">
+      <div *ngFor="let item of traceabilityMatrix" class="traceability-row">
+        <div class="user-story-card">
+          <h3>{{ item.userStory.title }}</h3>
+          <p>Ticket ID: {{ item.userStory.ticketId }}</p>
+        </div>
+        <div class="test-cases-grid">
+          <div *ngFor="let tc of item.testCases" class="test-case-status"
+               [ngClass]="{'passed': tc.status === 'PASSED', 'failed': tc.status === 'FAILED', 'new': tc.status === 'NEW'}">
+            <span class="mi" [class]="tc.status === 'PASSED' ? 'check_circle' : tc.status === 'FAILED' ? 'cancel' : 'schedule'"></span>
+            <div class="tc-info">
+              <div class="tc-id">TC-{{ tc.testCaseId }}</div>
+              <div class="tc-desc">{{ tc.description }}</div>
+              <div *ngIf="tc.defect" class="bug-id">Bug: {{ tc.defect.defectId }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Case Repository -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Test Case Repository</h2>
+    </div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Designer</th>
+            <th>Type</th>
+            <th>Test Data</th>
+            <th>Complexity</th>
+            <th>Expected Result</th>
+            <th>Actual Result</th>
+            <th>Status</th>
+            <th>User Stories</th>
+            <th>Defect</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tc of testCases">
+            <td>{{ tc.testCaseId }}</td>
+            <td>{{ tc.description }}</td>
+            <td>{{ tc.designer.firstName }} {{ tc.designer.lastName }}</td>
+            <td><span class="badge" [ngClass]="tc.type.toLowerCase()">{{ tc.type }}</span></td>
+            <td>{{ tc.testData || '-' }}</td>
+            <td><span class="badge" [ngClass]="tc.complexity.toLowerCase()">{{ tc.complexity }}</span></td>
+            <td>{{ tc.expectedResult }}</td>
+            <td>{{ tc.actualResult || '-' }}</td>
+            <td><span class="status-badge" [ngClass]="tc.status.toLowerCase()">{{ tc.status }}</span></td>
+            <td>
+              <div *ngFor="let us of tc.userStories">{{ us.title }} ({{ us.ticketId }})</div>
+            </td>
+            <td>{{ tc.defect?.defectId || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Create Test Case Modal -->
+  <div class="overlay" [class.open]="showCreateModal" (click)="onOverlayClick($event)">
+    <div class="dialog form-dialog" (click)="$event.stopPropagation()">
+      <div class="dialog-hdr">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="form-head-icon"><span class="mi">science</span></span>
+          <div>
+            <h2 style="margin:0">Create Test Case</h2>
+            <small style="color:var(--text3);font-size:12px">Add a new test case to the project.</small>
+          </div>
+        </div>
+        <button class="icon-btn" (click)="closeCreateModal()"><span class="mi">close</span></button>
+      </div>
+
+      <div class="dialog-body">
+        <div class="form-field">
+          <label>Description *</label>
+          <div class="form-input">
+            <textarea [(ngModel)]="form.description" rows="3" placeholder="Detailed description of the test case…"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Test Type *</label>
+            <div class="form-input">
+              <select [(ngModel)]="form.type">
+                <option value="FUNCTIONAL">Functional</option>
+                <option value="UI">UI</option>
+                <option value="POSITIVE">Positive</option>
+                <option value="NEGATIVE">Negative</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Complexity *</label>
+            <div class="form-input">
+              <select [(ngModel)]="form.complexity">
+                <option value="SIMPLE">Simple</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="COMPLEX">Complex</option>
+                <option value="CRITICAL">Critical</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Test Data</label>
+          <div class="form-input">
+            <input [(ngModel)]="form.testData" placeholder="Input data for the test…"/>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Expected Result *</label>
+          <div class="form-input">
+            <textarea [(ngModel)]="form.expectedResult" rows="2" placeholder="What should happen when test is executed…"></textarea>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Actual Result</label>
+          <div class="form-input">
+            <textarea [(ngModel)]="form.actualResult" rows="2" placeholder="Actual result after execution (leave blank for new tests)…"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Status *</label>
+            <div class="form-input">
+              <select [(ngModel)]="form.status">
+                <option value="NEW">New</option>
+                <option value="PASSED">Passed</option>
+                <option value="FAILED">Failed</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>User Story IDs</label>
+            <div class="form-input">
+              <input [(ngModel)]="form.userStoryIds" placeholder="e.g. 101,102,103"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <button class="btn btn-secondary" (click)="closeCreateModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="submitTestCase()">
+          <span class="mi">add</span>Create Test Case
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

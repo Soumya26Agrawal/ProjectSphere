@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DataService } from '../../core/services/data.service';
 import { UiService } from '../../core/services/ui.service';
-import { Defect } from '../../core/models/models';
+import { Defect, DefectStatus } from '../../core/models/models';
 
 /** Mock linked-artifact shape — stands in until we wire the backend. */
 interface LinkedTestCase { id: string; title: string; result: 'PASSED' | 'FAILED' | 'NEW'; }
@@ -57,6 +57,53 @@ export class DefectsComponent {
   get openCount():     number { return this.ds.defects.filter(d => this.bucketFor(d) === 'OPEN').length; }
   get inProgCount():   number { return this.ds.defects.filter(d => this.bucketFor(d) === 'IN_PROGRESS').length; }
   get resolvedCount(): number { return this.ds.defects.filter(d => this.bucketFor(d) === 'RESOLVED').length; }
+
+  countByStatus(status: DefectStatus): number {
+    return this.ds.defects.filter(d => d.status === status).length;
+  }
+
+  readonly kanbanStates = [
+    { id: 'NEW' as DefectStatus, label: 'New', statusText: 'Just reported', icon: 'note_add', bg: '#E9F4FF', fg: '#0052CC' },
+    { id: 'OPEN' as DefectStatus, label: 'Open', statusText: 'Triaged and awaiting work', icon: 'warning', bg: '#FFF4E5', fg: '#7F5F01' },
+    { id: 'IN_PROGRESS' as DefectStatus, label: 'In Progress', statusText: 'Work underway', icon: 'hourglass_top', bg: '#EEE5FF', fg: '#403294' },
+    { id: 'FIXED' as DefectStatus, label: 'Fixed', statusText: 'Fix completed', icon: 'check_circle', bg: '#E3FCEF', fg: '#006644' },
+    { id: 'RETEST' as DefectStatus, label: 'Retest', statusText: 'Ready for validation', icon: 'science', bg: '#E6FCFF', fg: '#00687D' },
+    { id: 'CLOSED' as DefectStatus, label: 'Closed', statusText: 'Verified and closed', icon: 'lock', bg: '#E8EAED', fg: '#42526E' },
+  ] as const;
+
+  statusCount(status: DefectStatus): number {
+    return this.ds.defects.filter(d => d.status === status).length;
+  }
+
+  defectsByState(status: DefectStatus): Defect[] {
+    return this.ds.defects.filter(d => d.status === status);
+  }
+
+  allowDrop(event: DragEvent): void {
+    event.preventDefault();
+  }
+
+  onDragStart(event: DragEvent, defect: Defect): void {
+    const dataTransfer = event.dataTransfer;
+    if (!dataTransfer) {
+      return;
+    }
+    dataTransfer.setData('text/plain', String(defect.id));
+    dataTransfer.effectAllowed = 'move';
+  }
+
+  onDrop(event: DragEvent, targetStatus: DefectStatus): void {
+    event.preventDefault();
+    const payload = event.dataTransfer?.getData('text/plain');
+    const defectId = payload ? Number(payload) : NaN;
+    if (isNaN(defectId)) return;
+
+    const defect = this.ds.defects.find(d => d.id === defectId);
+    if (!defect || defect.status === targetStatus) return;
+
+    this.ds.updateDefectStatus(defectId, targetStatus);
+    this.ui.toast(`${defect.bid} moved to ${this.ds.sl(targetStatus)}`);
+  }
 
   /** Resolution rate — percentage of defects that have been closed out. */
   get resolutionPct(): number {

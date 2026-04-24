@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Defect, Engineer, HistoryItem, KanbanColumn, Sprint, Ticket } from '../models/models';
+import { Defect, DefectStatus, Engineer, HistoryItem, KanbanColumn, Sprint, Ticket } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
@@ -198,4 +198,14 @@ export class DataService {
   deleteDefect(id: number): void {
     this._defects.next(this.defects.filter(d => d.id !== id));
   }
+
+  updateDefect(id: number, changes: Partial<Defect>): void {
+    const defects = this.defects.map(d => d.id === id ? {...d, ...changes} : d);
+    this._defects.next(defects);
+  }
+
+  updateDefectStatus(id: number, status: DefectStatus): void {
+    this.updateDefect(id, { status });
+  }
 }
+

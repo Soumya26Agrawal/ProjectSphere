@@ -14,11 +14,13 @@ import { UiService } from '../../core/services/ui.service';
 export class SidebarComponent {
   constructor(public ui: UiService, private data: DataService) {}
 
+  /** Board shows tickets that are assigned to a sprint. */
   get boardCount(): number {
-    return this.data.tickets.filter(t => t.status !== 'BACKLOG').length;
+    return this.data.tickets.filter(t => !!t.sprint).length;
   }
+  /** Backlog shows tickets that are not in any sprint. */
   get backlogCount(): number {
-    return this.data.tickets.filter(t => t.status === 'BACKLOG').length;
+    return this.data.tickets.filter(t => !t.sprint).length;
   }
   get defectCount(): number {
     return this.data.defects.length;

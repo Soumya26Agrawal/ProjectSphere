@@ -1,51 +1,66 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { DataService } from '../../core/services/data.service';
 
 @Component({
   selector: 'app-dashboard-dev',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './dashboard-dev.component.html',
-  styleUrl: './dashboard-dev.component.css',
+  styleUrls: ['../admin/admin-theme.css', './dashboard-dev.component.css'],
 })
-export class DashboardDevComponent {
+export class DashboardDevComponent implements OnInit {
   readonly user = this.auth.currentUser;
 
-  stats = [
-    { label: 'My Open Tasks',    value: '3',  icon: 'task',         color: '#0052cc' },
-    { label: 'Done Today',       value: '1',  icon: 'task_alt',     color: '#36b37e' },
-    { label: 'Defects Assigned', value: '2',  icon: 'bug_report',   color: '#ff5630' },
-    { label: 'Days Left',        value: '3',  icon: 'timer',        color: '#ff991f' },
-  ];
+  /* Single-project model (mock). Matches the shape we'd get from /api/projects later. */
+  readonly project = {
+    name: 'ProjectSphere',
+    description: 'Jira-style project management platform with tickets, sprints, defect tracking and analytics.',
+    domain: 'TECHNOLOGY',
+    manager: 'Rajesh Kumar',
+    activeSprint: 'Sprint 3',
+  };
 
-  myTickets = [
-    { id: 'PS-010', title: 'Kanban Dashboard UI',   status: 'IN_PROGRESS', pri: 'HIGH',   pts: 5 },
-    { id: 'PS-009', title: 'Fix Login Redirect',    status: 'IN_PROGRESS', pri: 'MEDIUM', pts: 3 },
-    { id: 'PS-011', title: 'Setup CI/CD Pipeline',  status: 'TO_DO',       pri: 'HIGH',   pts: 8 },
-  ];
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    public ds: DataService,
+  ) {}
 
-  myDefects = [
-    { id: 'BUG-007', title: 'Sidebar collapse glitch', sev: 'HIGH',   status: 'IN_PROGRESS' },
-    { id: 'BUG-009', title: 'Sprint chart not loading', sev: 'CRITICAL', status: 'OPEN'     },
-  ];
+  ngOnInit(): void { /* no-op; mock only */ }
 
-  activity = [
-    { icon: 'edit',         text: 'Updated PS-010 status to In Progress', time: '1h ago'  },
-    { icon: 'comment',      text: 'Commented on PS-007 — "JWT done"',     time: '3h ago'  },
-    { icon: 'check_circle', text: 'Closed PS-006 — MySQL Schema',         time: '1d ago'  },
-    { icon: 'add_task',     text: 'PS-011 assigned to you',               time: '2d ago'  },
-  ];
+  /* ── Stats computed from the mock DataService ── */
+  get totalTickets(): number { return this.ds.tickets.length; }
+  get openTickets():  number { return this.ds.tickets.filter(t => t.status !== 'COMPLETED').length; }
+  get doneTickets():  number { return this.ds.tickets.filter(t => t.status === 'COMPLETED').length; }
+  get progressPct():  number {
+    return this.totalTickets ? Math.round(this.doneTickets / this.totalTickets * 100) : 0;
+  }
+  get openDefects():  number {
+    const resolved = ['FIXED','CLOSED','DEFERRED','REJECTED','DUPLICATE'];
+    return this.ds.defects.filter(d => !resolved.includes(d.status)).length;
+  }
+  get teamSize(): number { return this.ds.engineers.length; }
+  get myOpenTickets() {
+    const me = this.user()?.name;
+    return this.ds.tickets.filter(t => t.ass === me && t.status !== 'COMPLETED').slice(0, 4);
+  }
+  get recentActivity() {
+    // Derive a simple "latest tickets" list from mock data.
+    return [...this.ds.tickets]
+      .sort((a, b) => b.id - a.id)
+      .slice(0, 5);
+  }
 
-  constructor(private auth: AuthService) {}
-
+  enter(): void { this.router.navigate(['/board']); }
   logout(): void { this.auth.logout(); }
 
-  statusClass(s: string): string {
-    return { TO_DO:'chip-todo', IN_PROGRESS:'chip-progress', DONE:'chip-done', OPEN:'chip-todo', RESOLVED:'chip-done' }[s] ?? '';
-  }
-  sevClass(s: string): string {
-    return { CRITICAL:'sev-critical', HIGH:'sev-high', MEDIUM:'sev-medium', LOW:'sev-low' }[s] ?? '';
-  }
+  statusClass(s: string): string { return this.ds.lozClass(s); }
+  typeClass(t: string):   string { return this.ds.itClass(t); }
+  typeIcon(t: string):    string { return this.ds.itIcon(t); }
+  priIcon(p: string):     string { return this.ds.priIcon(p); }
+  priClass(p: string):    string { return this.ds.priClass(p); }
+  sl(s: string):          string { return this.ds.sl(s); }
 }

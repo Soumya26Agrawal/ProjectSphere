@@ -68,8 +68,9 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .btn-primary:active { background: var(--jira-blue-dark); }
 .btn-secondary { background: var(--surface3); color: var(--text); border: none; }
 .btn-secondary:hover { background: #DFE1E6; }
-.btn-danger { background: var(--surface3); color: #DE350B; border: none; }
-.btn-danger:hover { background: #FFEBE6; color: #BF2600; }
+.btn-danger { background: #DE350B; color: #fff; border: none; }
+.btn-danger:hover { background: #BF2600; }
+.btn-danger:active { background: #97180E; }
 .btn-link { background: none; color: var(--jira-blue); padding: 0; font-size: 13px; }
 .btn-link:hover { color: var(--jira-blue-hover); text-decoration: underline; }
 .btn-sm { padding: 4px 8px; font-size: 12px; }
@@ -187,6 +188,143 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .dropdown-item:hover .mi { color: var(--jira-blue); }
 .dropdown-item.danger:hover { background: #FFEBE6; color: #BF2600; }
 .dropdown-sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* ══ POLISHED FORMS ══
+   White inputs with a leading icon. Used in Create Issue and Report Defect
+   dialogs so both forms share a consistent, friendly look. */
+.form-dialog { max-width: 640px; }
+
+.form-head-icon {
+  width: 38px; height: 38px; border-radius: 8px;
+  background: #DEEBFF; color: #0052CC;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.form-head-icon .mi { font-size: 22px; }
+.form-head-icon.red { background: #FFEBE6; color: #BF2600; }
+
+.form-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.form-field {
+  margin-bottom: 14px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.form-field > label {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 700; color: var(--text2);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.form-field > label .mi { font-size: 15px; color: var(--text3); }
+
+.form-input {
+  display: block;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.form-input:hover { border-color: var(--border2); }
+.form-input:focus-within {
+  border-color: var(--jira-blue);
+  box-shadow: 0 0 0 2px rgba(0,82,204,.18);
+}
+.form-input.disabled { background: #F4F5F7; opacity: .7; }
+
+.form-input input,
+.form-input select,
+.form-input textarea {
+  width: 100%;
+  background: transparent; border: 0; outline: 0;
+  padding: 9px 12px;
+  font-family: inherit; font-size: 13.5px;
+  color: var(--text);
+}
+.form-input textarea {
+  resize: vertical; min-height: 72px;
+  line-height: 1.5;
+  padding: 10px 12px;
+}
+/* Custom chevron on dropdowns */
+.form-input select {
+  cursor: pointer;
+  appearance: none;
+  padding-right: 34px;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%2397A0AF' d='M5 6L0 0h10z'/></svg>")
+    no-repeat right 12px center;
+  background-size: 10px;
+}
+.form-input input::placeholder,
+.form-input textarea::placeholder { color: #97A0AF; }
+
+/* Expected = subtle green, Actual = subtle red */
+.form-input.expected { border-color: #ABF5D1; background: #F4FEF7; }
+.form-input.actual   { border-color: #FFBDAD; background: #FFF7F4; }
+
+/* Upload + attachments list (Report Defect) */
+.rd-upload {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  background: #F4F8FF;
+  border: 2px dashed #B3D4FF;
+  border-radius: 6px;
+  padding: 14px;
+  cursor: pointer;
+  font-size: 13px; color: #0052CC; font-weight: 600;
+  transition: background .12s, border-color .12s;
+}
+.rd-upload:hover { background: #DEEBFF; border-color: #0052CC; }
+.rd-upload .mi { font-size: 20px; }
+
+.rd-attach-list {
+  margin-top: 8px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.rd-attach {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.rd-attach > .mi { color: var(--jira-blue); font-size: 18px; flex-shrink: 0; }
+.rd-attach-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rd-attach-body strong {
+  font-size: 13px; color: var(--text); font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rd-attach-body small { font-size: 11px; color: var(--text3); }
+.rd-attach-remove {
+  background: none; border: 0; cursor: pointer;
+  color: var(--text3); padding: 4px; border-radius: 4px;
+}
+.rd-attach-remove:hover { color: #BF2600; background: #FFEBE6; }
+.rd-attach-remove .mi { font-size: 16px; }
+
+@media (max-width: 680px) {
+  .form-row { grid-template-columns: 1fr; }
+}
+
+/* ══ SHARED TICKET-TYPE CHIP ══
+   Used wherever a ticket is rendered (dev dashboard, board, backlog,
+   ticket detail, history). Icon + label in a coloured pill. */
+.ticket-type-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 700; letter-spacing: .02em;
+  padding: 2px 8px 2px 6px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.ticket-type-chip .mi { font-size: 13px; }
+.ticket-type-chip.it-epic    { background: #EAE6FF; color: #403294; border-color: #C0B6F2; }
+.ticket-type-chip.it-story   { background: #E3FCEF; color: #006644; border-color: #ABF5D1; }
+.ticket-type-chip.it-task    { background: #DEEBFF; color: #0052CC; border-color: #B3D4FF; }
+.ticket-type-chip.it-subtask { background: #DDF4F7; color: #00687D; border-color: #ABF0F8; }
+.ticket-type-chip.it-bug     { background: #FFEBE6; color: #BF2600; border-color: #FFBDAD; }
 
 /* ══ ANIMATIONS ══ */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }

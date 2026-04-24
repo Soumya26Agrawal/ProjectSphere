@@ -1,81 +1,145 @@
 <div class="overlay" [class.open]="open" (click)="onOverlayClick($event)">
-  <div class="dialog">
+  <div class="dialog form-dialog">
     <div class="dialog-hdr">
-      <h2>Create Issue</h2>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="form-head-icon"><span class="mi">add_task</span></span>
+        <div>
+          <h2 style="margin:0">Create Issue</h2>
+          <small style="color:var(--text3);font-size:12px">Add a new story, task or sub-task to the project.</small>
+        </div>
+      </div>
       <button class="icon-btn" (click)="close.emit()"><span class="mi">close</span></button>
     </div>
 
     <div class="dialog-body">
-      <div class="field-row">
-        <div class="field">
+      <div class="form-row">
+        <div class="form-field">
           <label>Project *</label>
-          <select><option>ProjectSphere</option></select>
+          <div class="form-input">
+            <select><option>ProjectSphere</option></select>
+          </div>
         </div>
-        <div class="field">
+        <div class="form-field">
           <label>Issue Type *</label>
-          <select [(ngModel)]="form.type">
-            <option>STORY</option><option>TASK</option><option>BUG</option><option>SUBTASK</option>
-          </select>
+          <div class="form-input">
+            <select [(ngModel)]="form.type" (ngModelChange)="onTypeChange()">
+              <option value="EPIC">Epic</option>
+              <option value="USER_STORY">User Story</option>
+              <option value="TASK">Task</option>
+              <option value="SUB_TASK">Sub-task</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div class="field">
+      <div class="form-field">
         <label>Summary *</label>
-        <input [(ngModel)]="form.sum" placeholder="Brief summary of the issue…"/>
+        <div class="form-input">
+          <input [(ngModel)]="form.sum" placeholder="Brief summary of the issue…"/>
+        </div>
       </div>
 
-      <div class="field">
+      <div class="form-field">
         <label>Description</label>
-        <textarea [(ngModel)]="form.desc" rows="3" placeholder="Add more detail…"></textarea>
+        <div class="form-input">
+          <textarea [(ngModel)]="form.desc" rows="3" placeholder="Add more detail…"></textarea>
+        </div>
       </div>
 
-      <div class="field-row">
-        <div class="field">
+      <div class="form-row">
+        <div class="form-field">
           <label>Assignee</label>
-          <select [(ngModel)]="form.ass">
-            <option value="">Unassigned</option>
-            <option>Arjun Kumar</option><option>Priya Sharma</option>
-            <option>Ravi Patel</option><option>Sneha Iyer</option><option>Mohan Tej</option>
-          </select>
+          <div class="form-input">
+            <select [(ngModel)]="form.ass">
+              <option value="">Unassigned</option>
+              <option>Arjun Kumar</option><option>Priya Sharma</option>
+              <option>Ravi Patel</option><option>Sneha Iyer</option><option>Mohan Tej</option>
+            </select>
+          </div>
         </div>
-        <div class="field">
+        <div class="form-field">
           <label>Reporter *</label>
-          <select><option>Arjun Kumar</option></select>
+          <div class="form-input">
+            <select><option>Arjun Kumar</option></select>
+          </div>
         </div>
       </div>
 
-      <div class="field-row">
-        <div class="field">
+      <div class="form-row">
+        <div class="form-field">
           <label>Priority</label>
-          <select [(ngModel)]="form.pri">
-            <option>MEDIUM</option><option>LOW</option><option>HIGH</option><option>CRITICAL</option>
-          </select>
+          <div class="form-input">
+            <select [(ngModel)]="form.pri">
+              <option>MEDIUM</option><option>LOW</option><option>HIGH</option><option>CRITICAL</option>
+            </select>
+          </div>
         </div>
-        <div class="field">
+        <div class="form-field">
           <label>Story Points</label>
-          <input [(ngModel)]="form.pts" type="number" placeholder="e.g. 5" min="1" max="100"/>
+          <div class="form-input">
+            <input [(ngModel)]="form.pts" type="number" placeholder="e.g. 5" min="1" max="100"/>
+          </div>
         </div>
       </div>
 
-      <div class="field-row">
-        <div class="field">
-          <label>Epic Link</label>
-          <select [(ngModel)]="form.epic">
-            <option value="">None</option>
-            <option>Authentication</option><option>Chat System</option>
-            <option>Analytics</option><option>Defect Engine</option>
-          </select>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Sprint</label>
+          <div class="form-input">
+            <select [(ngModel)]="form.sprint" [disabled]="form.type === 'EPIC'">
+              <option value="">Backlog</option>
+              <option *ngFor="let s of ds.sprints" [value]="s.name">{{ s.name }}</option>
+            </select>
+          </div>
         </div>
-        <div class="field">
+        <div class="form-field">
+          <label>{{ parentLabel }}</label>
+          <!-- USER_STORY / TASK → pick from Epics -->
+          <div class="form-input" *ngIf="form.type === 'USER_STORY' || form.type === 'TASK'">
+            <select [(ngModel)]="form.parentId">
+              <option value="">No parent epic</option>
+              <option *ngFor="let e of epicTickets" [value]="e.id">
+                {{ e.sum }}
+              </option>
+            </select>
+          </div>
+          <!-- SUB_TASK → pick from Stories -->
+          <div class="form-input" *ngIf="form.type === 'SUB_TASK'">
+            <select [(ngModel)]="form.parentId">
+              <option value="">No parent story</option>
+              <option *ngFor="let s of storyTickets" [value]="s.id">
+                {{ s.sum }}
+              </option>
+            </select>
+          </div>
+          <!-- EPIC → no parent allowed -->
+          <div class="form-input disabled" *ngIf="form.type === 'EPIC'">
+            <input disabled value="Epics have no parent"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>Epic Name</label>
+          <div class="form-input">
+            <input [(ngModel)]="form.epic" placeholder="e.g. Authentication"/>
+          </div>
+        </div>
+        <div class="form-field">
           <label>Labels</label>
-          <input [(ngModel)]="form.labels" placeholder="frontend, backend, api…"/>
+          <div class="form-input">
+            <input [(ngModel)]="form.labels" placeholder="frontend, backend, api…"/>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="dialog-footer">
       <button class="btn btn-secondary" (click)="close.emit()">Cancel</button>
-      <button class="btn btn-primary" (click)="submit()">Create</button>
+      <button class="btn btn-primary" (click)="submit()">
+        <span class="mi">add</span>Create Issue
+      </button>
     </div>
   </div>
 </div>

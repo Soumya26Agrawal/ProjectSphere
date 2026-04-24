@@ -35,7 +35,37 @@
   padding: 0 28px; height: 56px;
   box-shadow: 0 1px 3px rgba(0,0,0,.25);
 }
-.ax-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; cursor: pointer; }
+.ax-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; cursor: pointer; flex-shrink: 0; }
+
+/* Shared header search bar — used in admin/PM/workspace topbars */
+.ax-search-top {
+  flex: 1;
+  max-width: 460px;
+  margin: 0 auto;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 6px;
+  padding: 6px 12px;
+  height: 34px;
+  transition: background .15s, border-color .15s;
+}
+.ax-search-top:hover,
+.ax-search-top:focus-within {
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.35);
+}
+.ax-search-top .mi { color: rgba(255,255,255,.75); font-size: 18px; }
+.ax-search-top input {
+  flex: 1; min-width: 0;
+  background: transparent; border: 0; outline: 0;
+  color: #fff; font-family: inherit; font-size: 13px;
+}
+.ax-search-top input::placeholder { color: rgba(255,255,255,.65); }
+
+@media (max-width: 720px) {
+  .ax-search-top { display: none; }
+}
 .ax-logo {
   width: 30px; height: 30px; border-radius: 8px;
   background: linear-gradient(135deg, #4C9AFF, #0052CC);

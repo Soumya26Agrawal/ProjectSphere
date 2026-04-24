@@ -1,0 +1,5 @@
+/* Styles for the report-defect dialog live in global styles.css
+   (so the same look is shared with Create Issue). This file only
+   holds anything specific. */
+
+.rd-dialog { max-width: 680px; }

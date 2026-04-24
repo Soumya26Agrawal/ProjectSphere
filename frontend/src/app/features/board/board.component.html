@@ -1,6 +1,6 @@
 <div>
   <div class="breadcrumb">
-    <span class="bc-link" routerLink="/summary">ProjectSphere</span>
+    <span class="bc-link" routerLink="/board">ProjectSphere</span>
     <span class="bc-sep mi">chevron_right</span>Board
   </div>
 
@@ -13,6 +13,7 @@
       <button class="btn btn-secondary" (click)="ui.toast('Epics panel')"><span class="mi">auto_awesome</span>Epics</button>
       <button class="btn btn-secondary" (click)="ui.toast('Insights panel')"><span class="mi">insights</span>Insights</button>
       <button class="btn btn-primary" (click)="ui.openCreateIssue()"><span class="mi">add</span>Create Issue</button>
+      <button class="btn btn-danger" (click)="ui.openReportDefect()"><span class="mi">bug_report</span>Report Defect</button>
     </div>
   </div>
 
@@ -32,7 +33,11 @@
     </div>
     <select class="jira-select" [(ngModel)]="filterType">
       <option value="">All Types</option>
-      <option>STORY</option><option>TASK</option><option>BUG</option><option>SUBTASK</option>
+      <option value="EPIC">Epic</option>
+      <option value="USER_STORY">User Story</option>
+      <option value="TASK">Task</option>
+      <option value="SUB_TASK">Sub-task</option>
+      <option value="DEFECT">Defect</option>
     </select>
     <select class="jira-select" [(ngModel)]="filterPri">
       <option value="">All Priorities</option>
@@ -73,13 +78,16 @@
             (dragstart)="onDragStart($event, t.id)"
             (dragend)="onDragEnd()"
             (click)="ui.openTicket(t)">
+            <div class="k-card-head">
+              <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
+                <span class="mi">{{ ds.itIcon(t.type) }}</span>
+                {{ ds.itLabel(t.type) }}
+              </span>
+              <span class="k-card-id">PS-{{ t.id }}</span>
+            </div>
             <span class="k-card-title">{{ t.sum }}</span>
             <div class="k-card-meta">
-              <div class="issue-type" [ngClass]="ds.itClass(t.type)" [title]="t.type">
-                <span class="mi" style="font-size:10px">{{ ds.itIcon(t.type) }}</span>
-              </div>
               <span class="mi pri-icon" [ngClass]="ds.priClass(t.pri)" [title]="t.pri + ' priority'">{{ ds.priIcon(t.pri) }}</span>
-              <span class="k-card-id">{{ t.type.substring(0,1) }}-{{ t.id }}</span>
               <span class="k-card-pts" *ngIf="t.pts">{{ t.pts }}</span>
               <div *ngIf="t.ass" class="k-card-av" [style.background]="ds.avColor(t.ass)" [title]="t.ass">{{ ds.ini(t.ass) }}</div>
             </div>

@@ -5,13 +5,13 @@ import { filter } from 'rxjs/operators';
 import { TopnavComponent }              from './layout/topnav/topnav.component';
 import { SidebarComponent }             from './layout/sidebar/sidebar.component';
 import { NotificationPanelComponent }   from './layout/notification-panel/notification-panel.component';
-import { ChatbotComponent }             from './features/chatbot/chatbot.component';
 import { TicketDetailComponent }        from './features/ticket-detail/ticket-detail.component';
 import { CreateIssueComponent }         from './features/create-issue/create-issue.component';
+import { ReportDefectComponent }        from './features/report-defect/report-defect.component';
 import { UiService }                    from './core/services/ui.service';
 
 /** Routes that render WITHOUT the app shell (no topnav / sidebar). */
-const PUBLIC_ROUTES = ['/landing', '/login', '/admin'];
+const PUBLIC_ROUTES = ['/landing', '/login', '/admin', '/pm', '/dev'];
 
 @Component({
   selector: 'app-root',
@@ -22,9 +22,9 @@ const PUBLIC_ROUTES = ['/landing', '/login', '/admin'];
     TopnavComponent,
     SidebarComponent,
     NotificationPanelComponent,
-    ChatbotComponent,
     TicketDetailComponent,
     CreateIssueComponent,
+    ReportDefectComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',

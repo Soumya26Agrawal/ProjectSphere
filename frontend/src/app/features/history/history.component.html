@@ -1,6 +1,6 @@
 <div>
   <div class="breadcrumb">
-    <span class="bc-link" routerLink="/summary">ProjectSphere</span>
+    <span class="bc-link" routerLink="/board">ProjectSphere</span>
     <span class="bc-sep mi">chevron_right</span>Sprint History
   </div>
 
@@ -31,7 +31,7 @@
     </select>
     <select class="jira-select" [(ngModel)]="filterStatus">
       <option value="">All Status</option>
-      <option>DONE</option><option>CANCELLED</option>
+      <option>COMPLETED</option><option>CANCELLED</option>
     </select>
     <input type="date" class="jira-select" [(ngModel)]="dateFrom" title="From"/>
     <input type="date" class="jira-select" [(ngModel)]="dateTo"   title="To"/>
@@ -62,7 +62,7 @@
             </div>
           </td>
           <td>
-            <span class="lozenge" [ngClass]="h.status === 'DONE' ? 'loz-done' : 'loz-cancelled'">{{ h.status }}</span>
+            <span class="lozenge" [ngClass]="h.status === 'COMPLETED' ? 'loz-done' : 'loz-cancelled'">{{ h.status }}</span>
           </td>
           <td style="color:var(--text3);font-size:12px">{{ h.start }}</td>
           <td style="color:var(--text3);font-size:12px">{{ h.end }}</td>

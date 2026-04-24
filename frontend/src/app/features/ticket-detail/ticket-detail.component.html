@@ -1,19 +1,27 @@
 <div class="overlay" [class.open]="!!ticket" (click)="onOverlayClick($event)">
-  <div class="dialog dialog-wide" *ngIf="ticket">
-    <div class="dialog-hdr">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <div class="issue-type" [ngClass]="ds.itClass(ticket.type)">
-          <span class="mi" style="font-size:10px">{{ ds.itIcon(ticket.type) }}</span>
+  <aside class="td-drawer" *ngIf="ticket">
+
+    <!-- Header -->
+    <header class="td-drawer-hdr">
+      <div class="td-drawer-heading">
+        <div class="td-drawer-chips">
+          <span class="ticket-type-chip" [ngClass]="ds.itClass(ticket.type)">
+            <span class="mi">{{ ds.itIcon(ticket.type) }}</span>
+            {{ ds.itLabel(ticket.type) }}
+          </span>
+          <span class="td-drawer-id">PS-{{ ticket.id }}</span>
         </div>
-        <span style="font-size:13px;font-weight:600;color:var(--jira-blue)">{{ ticket.type }}-{{ ticket.id }}</span>
+        <h2 class="td-drawer-title">{{ ticket.sum }}</h2>
       </div>
-      <div style="display:flex;gap:6px;align-items:center">
+      <div class="td-drawer-actions">
         <button class="btn btn-secondary btn-sm" (click)="ui.toast('Share link copied!')">
           <span class="mi">share</span>Share
         </button>
         <div class="dropdown" style="position:relative">
-          <button class="icon-btn" (click)="moreOpen = !moreOpen"><span class="mi">more_horiz</span></button>
-          <div class="dropdown-menu" [class.open]="moreOpen">
+          <button class="icon-btn" (click)="moreOpen = !moreOpen; $event.stopPropagation()">
+            <span class="mi">more_horiz</span>
+          </button>
+          <div class="dropdown-menu" [class.open]="moreOpen" style="right:0;top:40px">
             <button class="dropdown-item" (click)="ui.toast('Linked to another issue'); moreOpen=false">
               <span class="mi">link</span>Link issue
             </button>
@@ -28,125 +36,124 @@
         </div>
         <button class="icon-btn" (click)="close.emit()"><span class="mi">close</span></button>
       </div>
-    </div>
+    </header>
 
-    <div class="dialog-body">
-      <div class="td-layout">
-        <!-- Left column -->
-        <div>
-          <div class="td-title">{{ ticket.sum }}</div>
-          <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-            <button class="btn btn-secondary btn-sm" (click)="ui.toast('Attach file')">
-              <span class="mi">attach_file</span>Attach
-            </button>
-            <button class="btn btn-secondary btn-sm" (click)="ui.toast('Link issue')">
-              <span class="mi">link</span>Link issue
-            </button>
-            <button class="btn btn-secondary btn-sm" (click)="ui.toast('Create child issue')">
-              <span class="mi">add_circle_outline</span>Child issue
-            </button>
-          </div>
+    <!-- Body -->
+    <div class="td-drawer-body">
 
-          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">
-            Description
-          </div>
-          <div class="td-desc-box" (click)="ui.toast('Edit description')">
-            {{ ticket.desc || 'Click to add a description…' }}
-          </div>
+      <!-- Quick action row -->
+      <div class="td-quick-actions">
+        <button class="btn btn-secondary btn-sm" (click)="ui.toast('Attach file')">
+          <span class="mi">attach_file</span>Attach
+        </button>
+        <button class="btn btn-secondary btn-sm" (click)="ui.toast('Link issue')">
+          <span class="mi">link</span>Link
+        </button>
+        <button class="btn btn-secondary btn-sm" (click)="ui.toast('Create child issue')">
+          <span class="mi">add_circle_outline</span>Child issue
+        </button>
+      </div>
 
-          <!-- Tabs -->
-          <div class="act-tabs" style="margin-top:16px">
-            <button class="act-tab" [class.active]="activeTab==='all'"      (click)="activeTab='all'">All</button>
-            <button class="act-tab" [class.active]="activeTab==='comments'" (click)="activeTab='comments'">Comments</button>
-            <button class="act-tab" [class.active]="activeTab==='history'"  (click)="activeTab='history'; ui.toast('History tracking coming soon')">History</button>
-          </div>
-
-          <!-- Comments -->
-          <div class="cmt-list">
-            <div class="cmt" *ngFor="let c of ticket.comments">
-              <div class="cmt-av" [style.background]="ds.avColor(c.user)">{{ ds.ini(c.user) }}</div>
-              <div>
-                <div>
-                  <span class="cmt-author">{{ c.user }}</span>
-                  <span class="cmt-time">{{ c.time }}</span>
-                </div>
-                <div class="cmt-text">{{ c.text }}</div>
-              </div>
-            </div>
-            <div *ngIf="ticket.comments.length === 0" style="font-size:13px;color:var(--text3);padding:4px 0">
-              No comments yet.
-            </div>
-          </div>
-
-          <div class="cmt-input-row">
-            <div class="cmt-av" style="margin-top:2px">AK</div>
-            <textarea [(ngModel)]="commentText" rows="2" placeholder="Add a comment… (Enter to save)"></textarea>
-            <button class="btn btn-primary btn-sm" (click)="addComment()" style="align-self:flex-end">Save</button>
-          </div>
-        </div>
-
-        <!-- Right column – Meta -->
-        <div class="td-meta">
-          <div class="meta-section">
-            <div class="meta-label">Status</div>
+      <!-- Meta grid (status / assignee / priority / points / sprint / epic / labels / reporter) -->
+      <section class="td-section">
+        <h4>Details</h4>
+        <div class="td-meta-grid">
+          <div class="td-meta-item">
+            <small>Status</small>
             <select class="td-status-select" [(ngModel)]="currentStatus" (change)="updateStatus()">
-              <option value="TO_DO">TO DO</option>
-              <option value="IN_PROGRESS">IN PROGRESS</option>
-              <option value="TESTED">TESTED</option>
-              <option value="DONE">DONE</option>
+              <option value="TO_DO">To Do</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="REVIEW">In Review</option>
+              <option value="COMPLETED">Done</option>
             </select>
           </div>
-          <hr/>
-          <div class="meta-section">
-            <div class="meta-label">Assignee</div>
-            <div class="meta-val">
-              <div *ngIf="ticket.ass" class="k-card-av" [style.background]="ds.avColor(ticket.ass)" style="width:24px;height:24px;font-size:.62rem">
-                {{ ds.ini(ticket.ass) }}
-              </div>
-              <span>{{ ticket.ass || 'Unassigned' }}</span>
-              <button class="btn btn-link btn-xs" style="margin-left:4px" (click)="ui.toast('Reassign ticket')">Assign</button>
-            </div>
+          <div class="td-meta-item">
+            <small>Assignee</small>
+            <strong *ngIf="ticket.ass">
+              <span class="k-card-av" [style.background]="ds.avColor(ticket.ass)">{{ ds.ini(ticket.ass) }}</span>
+              {{ ticket.ass }}
+            </strong>
+            <span class="td-meta-muted" *ngIf="!ticket.ass">Unassigned</span>
           </div>
-          <hr/>
-          <div class="meta-section">
-            <div class="meta-label">Reporter</div>
-            <div class="meta-val">{{ ticket.rep }}</div>
+          <div class="td-meta-item">
+            <small>Reporter</small>
+            <strong>{{ ticket.rep || '—' }}</strong>
           </div>
-          <hr/>
-          <div class="meta-section">
-            <div class="meta-label">Priority</div>
-            <div class="meta-val">
+          <div class="td-meta-item">
+            <small>Priority</small>
+            <strong>
               <span class="mi pri-icon" [ngClass]="ds.priClass(ticket.pri)">{{ ds.priIcon(ticket.pri) }}</span>
-              <span>{{ ticket.pri }}</span>
-            </div>
+              {{ ticket.pri }}
+            </strong>
           </div>
-          <hr/>
-          <div class="meta-section">
-            <div class="meta-label">Story Points</div>
-            <div class="meta-val">
-              <span style="font-weight:700;color:var(--jira-blue)">{{ ticket.pts || 'None' }}</span>
-              <button class="btn btn-link btn-xs" style="margin-left:4px" (click)="ui.toast('Edit story points')">Edit</button>
-            </div>
+          <div class="td-meta-item">
+            <small>Story Points</small>
+            <strong>
+              <span *ngIf="ticket.pts" style="color: var(--jira-blue)">{{ ticket.pts }}</span>
+              <span class="td-meta-muted" *ngIf="!ticket.pts">—</span>
+            </strong>
           </div>
-          <hr/>
-          <div class="meta-section">
-            <div class="meta-label">Epic Link</div>
-            <div class="meta-val">
-              <span style="color:var(--tested-text);font-weight:600">{{ ticket.epic || 'None' }}</span>
-            </div>
+          <div class="td-meta-item">
+            <small>Sprint</small>
+            <strong>{{ ticket.sprint || 'Backlog' }}</strong>
           </div>
-          <hr/>
-          <div class="meta-section">
-            <div class="meta-label">Sprint</div>
-            <div class="meta-val">{{ ticket.sprint || 'Backlog' }}</div>
+          <div class="td-meta-item">
+            <small>Epic</small>
+            <strong *ngIf="ticket.epic" style="color: #403294">{{ ticket.epic }}</strong>
+            <span class="td-meta-muted" *ngIf="!ticket.epic">None</span>
           </div>
-          <hr/>
-          <div class="meta-section">
-            <div class="meta-label">Labels</div>
-            <div class="meta-val" style="color:var(--text2)">{{ ticket.labels || 'None' }}</div>
+          <div class="td-meta-item">
+            <small>Labels</small>
+            <strong *ngIf="ticket.labels">{{ ticket.labels }}</strong>
+            <span class="td-meta-muted" *ngIf="!ticket.labels">None</span>
           </div>
         </div>
-      </div>
+      </section>
+
+      <!-- Description -->
+      <section class="td-section">
+        <h4>Description</h4>
+        <div class="td-desc-box" (click)="ui.toast('Edit description')">
+          {{ ticket.desc || 'Click to add a description…' }}
+        </div>
+      </section>
+
+      <!-- Activity / Comments -->
+      <section class="td-section">
+        <h4>Activity</h4>
+        <div class="act-tabs">
+          <button class="act-tab" [class.active]="activeTab==='all'"      (click)="activeTab='all'">All</button>
+          <button class="act-tab" [class.active]="activeTab==='comments'" (click)="activeTab='comments'">Comments</button>
+          <button class="act-tab" [class.active]="activeTab==='history'"  (click)="activeTab='history'">History</button>
+        </div>
+
+        <div class="cmt-list" *ngIf="activeTab !== 'history'">
+          <div class="cmt" *ngFor="let c of ticket.comments">
+            <div class="cmt-av" [style.background]="ds.avColor(c.user)">{{ ds.ini(c.user) }}</div>
+            <div>
+              <div>
+                <span class="cmt-author">{{ c.user }}</span>
+                <span class="cmt-time">{{ c.time }}</span>
+              </div>
+              <div class="cmt-text">{{ c.text }}</div>
+            </div>
+          </div>
+          <div *ngIf="ticket.comments.length === 0" class="td-meta-muted" style="padding:8px 0">
+            No comments yet.
+          </div>
+        </div>
+
+        <div *ngIf="activeTab === 'history'" class="td-meta-muted" style="padding:8px 0">
+          History tracking coming soon.
+        </div>
+
+        <div class="cmt-input-row" *ngIf="activeTab !== 'history'">
+          <div class="cmt-av" style="margin-top:2px">AK</div>
+          <textarea [(ngModel)]="commentText" rows="2" placeholder="Add a comment…"></textarea>
+          <button class="btn btn-primary btn-sm" (click)="addComment()" style="align-self:flex-end">Save</button>
+        </div>
+      </section>
+
     </div>
-  </div>
+  </aside>
 </div>

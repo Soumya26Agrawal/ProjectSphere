@@ -1,129 +1,21 @@
-.topnav {
-  display: flex;
-  align-items: center;
-  height: 56px;
-  background: var(--jira-nav);
-  padding: 0 16px;
-  gap: 8px;
-  position: sticky;
-  top: 0;
-  z-index: 300;
-  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+/* Workspace topnav — the Jira-blue bar.
+
+   NOTE: we pull in admin-theme.css for the ax-topbar / ax-brand / ax-avatar
+   styles so the three shells look identical. But admin-theme.css also sets
+   a `:host { min-height: 100vh; background: gradient; ... }` rule for the
+   full-page admin/PM shells, and under Angular's Emulated encapsulation
+   that gets re-scoped to THIS component too — pushing 100vh of empty
+   space above our real layout. Override it here. */
+:host {
+  display: block !important;
+  min-height: 0 !important;
+  background: transparent !important;
 }
 
-.tn-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-  text-decoration: none;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.tn-logo-icon {
-  width: 28px; height: 28px;
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, #4C9AFF, #0052CC);
-  display: flex; align-items: center; justify-content: center;
-  font-size: .7rem; font-weight: 800; color: #fff;
-}
-.tn-divider { width: 1px; height: 20px; background: rgba(255,255,255,.15); margin: 0 4px; }
-
-.tn-project {
-  display: flex; align-items: center; gap: 4px;
-  color: rgba(255,255,255,.7);
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--radius);
-  transition: background .12s;
-}
-.tn-project:hover { background: rgba(255,255,255,.1); }
-
-.tn-nav {
-  display: flex;
-  gap: 2px;
-  margin-left: 8px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+/* Force the top bar to be TRULY fixed — it should never scroll off-screen. */
+:host .ax-topbar {
+  position: fixed !important;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
 }
 
-.tn-btn {
-  display: flex; align-items: center; gap: 4px;
-  padding: 6px 10px;
-  color: rgba(255,255,255,.7);
-  font-size: 13px; font-weight: 500;
-  border-radius: var(--radius);
-  cursor: pointer;
-  white-space: nowrap;
-  background: none; border: none;
-  font-family: 'Inter', sans-serif;
-  transition: all .12s;
-}
-.tn-btn .mi { font-size: 16px; }
-.tn-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
-.tn-btn.active { background: rgba(255,255,255,.18); color: #fff; font-weight: 600; }
-
-.tn-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.tn-icon-btn {
-  position: relative;
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(255,255,255,.7);
-  cursor: pointer;
-  background: none; border: none;
-  transition: all .12s;
-}
-.tn-icon-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
-.tn-icon-btn .mi { font-size: 18px; }
-
-.notif-badge {
-  position: absolute;
-  top: 1px; right: 1px;
-  min-width: 14px; height: 14px;
-  background: #FF5630;
-  border-radius: 7px;
-  font-size: 10px; font-weight: 700;
-  color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 3px;
-  line-height: 1;
-}
-
-.tn-user {
-  display: flex; align-items: center; gap: 6px;
-  padding: 4px 8px 4px 4px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  margin-left: 4px;
-  transition: background .12s;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 500;
-}
-.tn-user:hover { background: rgba(255,255,255,.1); }
-
-.tn-avatar {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.25);
-  display: flex; align-items: center; justify-content: center;
-  font-size: .62rem; font-weight: 700; color: #fff;
-}
-
-.tn-logout { color: rgba(255,255,255,.65); }
-.tn-logout:hover { color: #ff8f73; background: rgba(255,86,48,.15); }
-
-@media (max-width: 900px) {
-  .tn-nav { display: none; }
-  .tn-user span { display: none; }
-}

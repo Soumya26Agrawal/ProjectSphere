@@ -1,55 +1,190 @@
-.dash-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
-.dash-breadcrumb { display:flex; align-items:center; gap:5px; font-size:12px; color:#97a0af; margin-bottom:6px; }
-.dash-breadcrumb .mi { font-size:14px; }
-.dash-title { font-size:22px; font-weight:800; color:#172b4d; margin-bottom:2px; }
-.dash-sub   { font-size:13px; color:#5e6c84; }
-.dash-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.btn-outline { display:flex; align-items:center; gap:6px; padding:8px 14px; font-size:13px; font-weight:600; border:2px solid #dfe1e6; border-radius:4px; background:#fff; color:#172b4d; cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; }
-.btn-outline:hover { border-color:#0052cc; color:#0052cc; }
-.btn-danger { display:flex; align-items:center; gap:6px; padding:8px 14px; font-size:13px; font-weight:600; border:none; border-radius:4px; background:#ff5630; color:#fff; cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; }
-.btn-danger:hover { background:#de350b; }
-.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
-.stat-card { background:#fff; border:1px solid #ebecf0; border-radius:8px; padding:16px; display:flex; align-items:center; gap:14px; }
-.stat-icon { width:44px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.stat-icon .mi { font-size:22px; }
-.stat-val  { font-size:22px; font-weight:800; color:#172b4d; line-height:1; }
-.stat-lbl  { font-size:12px; color:#5e6c84; margin-top:2px; }
-.dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.dash-card { background:#fff; border:1px solid #ebecf0; border-radius:8px; padding:20px; }
-.span-2 { grid-column:span 2; }
-.card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-.card-head h3 { font-size:14px; font-weight:700; color:#172b4d; display:flex; align-items:center; gap:6px; }
-.card-head h3 .mi { font-size:17px; color:#5e6c84; }
-.btn-sm { display:flex; align-items:center; gap:4px; padding:5px 10px; font-size:11px; font-weight:600; border:1px solid #dfe1e6; border-radius:4px; background:#fff; color:#5e6c84; cursor:pointer; font-family:'Inter',sans-serif; }
-.btn-sm:hover { border-color:#0052cc; color:#0052cc; }
-/* Ticket list */
-.ticket-list { display:flex; flex-direction:column; gap:10px; }
-.ticket-row { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border:1px solid #f4f5f7; border-radius:6px; background:#fafbfc; }
-.ticket-left { display:flex; align-items:center; gap:10px; }
-.ticket-right { display:flex; align-items:center; gap:8px; }
-.tid { font-size:11px; font-weight:700; color:#5e6c84; font-family:monospace; }
-.ticket-title { font-size:13px; color:#172b4d; font-weight:500; }
-.pts-badge { background:#e3fcef; color:#006644; font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; }
-/* Defects */
-.defect-list { display:flex; flex-direction:column; gap:12px; }
-.defect-row { padding:12px 14px; border:1px solid #f4f5f7; border-radius:6px; }
-.defect-top { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
-.defect-title { font-size:13px; color:#172b4d; }
-/* Chips */
-.chip { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
-.chip-todo{background:#f4f5f7;color:#5e6c84;} .chip-progress{background:#deebff;color:#0052cc;} .chip-done{background:#e3fcef;color:#006644;} .chip-open{background:#ffebe6;color:#bf2600;}
-.sev-critical{background:#ffebe6;color:#bf2600;} .sev-high{background:#fff0e6;color:#974f0c;} .sev-medium{background:#fffae6;color:#8a6c00;} .sev-low{background:#f4f5f7;color:#5e6c84;}
-/* Activity */
-.activity-list { display:flex; flex-direction:column; gap:12px; }
-.activity-item { display:flex; align-items:flex-start; gap:12px; }
-.activity-icon { width:32px; height:32px; border-radius:8px; background:#f4f5f7; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-.activity-icon .mi { font-size:16px; color:#5e6c84; }
-.activity-body p    { font-size:13px; color:#172b4d; margin-bottom:2px; }
-.activity-body span { font-size:11px; color:#97a0af; }
-/* Quick actions */
-.quick-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-.qa-btn { display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 6px; border:1px solid #ebecf0; border-radius:8px; background:#fafbfc; cursor:pointer; font-family:'Inter',sans-serif; font-size:11px; font-weight:600; color:#172b4d; transition:all .15s; }
-.qa-btn:hover { border-color:#0052cc; color:#0052cc; background:#deebff; }
-.qa-btn .mi { font-size:22px; color:#5e6c84; }
-.qa-btn:hover .mi { color:#0052cc; }
-@media (max-width:900px) { .stats-row{grid-template-columns:1fr 1fr;} .dash-grid{grid-template-columns:1fr;} .span-2{grid-column:span 1;} .quick-actions{grid-template-columns:repeat(2,1fr);} }
+/* ═══════════════════════════════════════════════════════════════
+   Developer "Project Overview" landing — compact layout that fits
+   above the fold, matching the admin / PM visual language.
+   ═══════════════════════════════════════════════════════════════ */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background:
+    radial-gradient(1000px 600px at 100% -200px, rgba(0,82,204,.06), transparent 60%),
+    radial-gradient(800px 500px at -200px 100%, rgba(101,84,192,.05), transparent 60%),
+    #F4F5F7;
+  color: #172B4D;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Topbar (mirrors admin-shell) ── */
+.dev-topbar {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: space-between;
+  background: #0747A6; padding: 0 28px; height: 56px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.dev-brand { display: flex; align-items: center; gap: 10px; color: #fff; }
+.dev-logo {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(135deg, #0052CC, #2684FF);
+  display: flex; align-items: center; justify-content: center;
+}
+.dev-logo .mi { color: #fff; font-size: 18px; }
+.dev-brand-name { font-size: 16px; font-weight: 700; letter-spacing: .2px; }
+.dev-user { display: flex; align-items: center; gap: 12px; color: #fff; }
+.dev-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: #DEEBFF; color: #0052CC;
+  font-size: 11.5px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.dev-user-name { font-size: 13px; font-weight: 600; }
+.dev-icon-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: transparent; border: 0; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.dev-icon-btn:hover { background: rgba(255,255,255,.12); }
+
+/* ── Page container (compact padding) ── */
+.dev-page { padding: 14px 28px 32px; max-width: 1280px; margin: 0 auto; }
+
+/* ── Hero (compact) ── */
+.dev-hero {
+  background: #fff;
+  border: 1px solid #DFE1E6;
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 22px;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(9,30,66,.05);
+}
+.dev-hero-main { min-width: 0; }
+.dev-hero-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #E3FCEF; color: #006644;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .06em;
+  padding: 3px 9px; border-radius: 999px; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.dev-hero-pill .mi { font-size: 13px; }
+.dev-hero-title {
+  font-size: 22px; font-weight: 800; color: #172B4D;
+  margin: 0 0 4px; line-height: 1.2;
+}
+.dev-hero-sub {
+  font-size: 13px; color: #5E6C84; margin: 0 0 10px;
+  line-height: 1.45; max-width: 680px;
+}
+.dev-hero-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.dev-meta-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #F4F5F7; color: #5E6C84;
+  border: 1px solid #DFE1E6; border-radius: 999px;
+  padding: 3px 9px; font-size: 11.5px; font-weight: 600;
+}
+.dev-meta-chip .mi { font-size: 13px; }
+
+.dev-hero-cta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.dev-go-btn { padding: 8px 18px !important; font-size: 13.5px !important; }
+.dev-cta-hint { font-size: 12px; color: #97A0AF; }
+
+/* ── Progress ring (compact) ── */
+.dev-hero-progress {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.dev-progress-ring {
+  width: 120px; height: 120px; border-radius: 50%;
+  padding: 10px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .4s ease;
+}
+.dev-progress-inner {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 0 1px #DFE1E6;
+}
+.dev-progress-value { font-size: 20px; font-weight: 800; color: #172B4D; line-height: 1; }
+.dev-progress-label { font-size: 10px; color: #5E6C84; text-transform: uppercase; letter-spacing: .08em; margin-top: 3px; }
+.dev-progress-meta { font-size: 11.5px; color: #5E6C84; }
+.dev-progress-meta strong { color: #172B4D; font-weight: 700; }
+
+/* ── Two-column layout ── */
+.dev-cols {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-top: 14px;
+}
+.dev-card {
+  background: #fff;
+  border: 1px solid #DFE1E6; border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(9,30,66,.05);
+  overflow: hidden;
+}
+.dev-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid #F4F5F7;
+}
+.dev-card-head h3 { margin: 0; font-size: 13.5px; font-weight: 700; color: #172B4D; }
+.dev-card-body { padding: 4px 16px 12px; }
+
+/* ── Ticket rows ── */
+.dev-ticket-row, .dev-activity-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid #F4F5F7;
+}
+.dev-ticket-row:last-child, .dev-activity-row:last-child { border-bottom: 0; }
+.dev-ticket-title {
+  flex: 1; font-size: 13px; color: #172B4D; font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* (.ticket-type-chip lives in global styles.css so every component can use it.) */
+
+.dev-pri { display: inline-flex; align-items: center; }
+.dev-pri .mi { font-size: 18px; }
+.dev-pri.pri-critical { color: #FF5630; }
+.dev-pri.pri-high     { color: #FF7452; }
+.dev-pri.pri-medium   { color: #FFA500; }
+.dev-pri.pri-low      { color: #36B37E; }
+
+.dev-pts {
+  background: #F4F5F7; color: #5E6C84;
+  border-radius: 3px; padding: 2px 7px;
+  font-size: 10.5px; font-weight: 600;
+}
+
+.dev-activity-text {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.dev-activity-text strong {
+  font-size: 13px; color: #172B4D; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dev-activity-text small { font-size: 11px; color: #97A0AF; }
+
+.dev-empty {
+  text-align: center; padding: 18px 0; color: #97A0AF;
+}
+.dev-empty .mi { font-size: 26px; display: block; margin-bottom: 4px; }
+.dev-empty p { margin: 0; font-size: 12.5px; }
+
+/* ── Status lozenges (reuse the workspace palette) ── */
+.lozenge {
+  display: inline-flex; align-items: center;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+  padding: 2px 7px; border-radius: 3px; white-space: nowrap;
+}
+.lozenge.loz-todo   { background: #DFE1E6; color: #42526E; }
+.lozenge.loz-inprog { background: #DEEBFF; color: #0052CC; }
+.lozenge.loz-tested { background: #EAE6FF; color: #403294; }
+.lozenge.loz-done   { background: #E3FCEF; color: #006644; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .dev-hero { grid-template-columns: 1fr; }
+  .dev-cols { grid-template-columns: 1fr; }
+}

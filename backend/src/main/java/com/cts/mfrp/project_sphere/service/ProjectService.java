@@ -1,10 +1,9 @@
 package com.cts.mfrp.project_sphere.service;
 
-import com.cts.mfrp.project_sphere.Enum.Domain;
 import com.cts.mfrp.project_sphere.Enum.ProjectStatus;
-import com.cts.mfrp.project_sphere.Enum.Status;
 import com.cts.mfrp.project_sphere.dto.AdminProjectDTO;
-import com.cts.mfrp.project_sphere.dto.ProjectFilterRequestDTO;
+import com.cts.mfrp.project_sphere.dto.CreateProjectRequestDTO;
+import com.cts.mfrp.project_sphere.dto.PmStatsDTO;
 import com.cts.mfrp.project_sphere.dto.UpdateProjectRequestDTO;
 import com.cts.mfrp.project_sphere.model.Project;
 import com.cts.mfrp.project_sphere.model.ProjectTeam;
@@ -19,8 +18,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ProjectService {
@@ -98,6 +99,74 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
     }
 
+    /* ── PM-scoped helpers ──────────────────────────────────────────── */
+
+    // Paginated list of projects that belong to a given manager.
+    @Transactional
+    public Page<AdminProjectDTO> findByManagerAsAdminDTOPaged(Long managerId, Pageable pageable) {
+        Page<Project> page = projectRepository.findByManager_UserId(managerId, pageable);
+        return page.map(this::toAdminProjectDTO);
+    }
+
+    // Dashboard counts for one Project Manager.
+    @Transactional
+    public PmStatsDTO getPmStats(Long managerId) {
+        List<Project> myProjects = projectRepository.findByManager_UserId(managerId);
+
+        long ongoing = 0;
+        long completed = 0;
+        Set<Long> memberIds = new HashSet<>();
+
+        for (Project project : myProjects) {
+            if (project.getStatus() == ProjectStatus.IN_PROGRESS) {
+                ongoing++;
+            } else if (project.getStatus() == ProjectStatus.COMPLETED) {
+                completed++;
+            }
+
+            ProjectTeam team = projectTeamRepository.findByProject_ProjectId(project.getProjectId());
+            if (team != null && team.getUsers() != null) {
+                for (User user : team.getUsers()) {
+                    memberIds.add(user.getUserId());
+                }
+            }
+        }
+
+        PmStatsDTO stats = new PmStatsDTO();
+        stats.setMyProjects(myProjects.size());
+        stats.setOngoingProjects(ongoing);
+        stats.setCompletedProjects(completed);
+        stats.setTeamMembers(memberIds.size());
+        return stats;
+    }
+
+    // Create a project from a simple request DTO and return the admin DTO view.
+    @Transactional
+    public AdminProjectDTO createFromDTO(CreateProjectRequestDTO req) {
+        if (req.getProjectName() == null || req.getProjectName().isBlank()) {
+            throw new IllegalArgumentException("Project name is required");
+        }
+        if (req.getStatus() == null || req.getDomain() == null) {
+            throw new IllegalArgumentException("Status and domain are required");
+        }
+
+        User manager = null;
+        if (req.getManagerId() != null) {
+            manager = userRepository.findById(req.getManagerId())
+                    .orElseThrow(() -> new IllegalArgumentException("Manager not found"));
+        }
+
+        Project project = new Project();
+        project.setProjectName(req.getProjectName());
+        project.setDescription(req.getDescription());
+        project.setStatus(req.getStatus());
+        project.setDomain(req.getDomain());
+        project.setManager(manager);
+
+        Project saved = projectRepository.save(project);
+        return toAdminProjectDTO(saved);
+    }
+
     @Transactional
     public AdminProjectDTO updateFromDTO(Long id, UpdateProjectRequestDTO req) {
         Project p = projectRepository.findById(id)
@@ -170,88 +239,4 @@ public class ProjectService {
     }
 
     private String safe(String s) { return s == null ? "" : s; }
-
-    public List<Project> filterProjects(ProjectFilterRequestDTO filter) {
-        if (filter == null) return projectRepository.findAll();
-
-        String search = hasText(filter.getSearch()) ? filter.getSearch().trim() : null;
-        Long searchId = parseProjectId(search);
-
-        List<String> statuses = toStatusNames(filter.getStatuses());
-        boolean statusesEmpty = statuses.isEmpty();
-        if (statusesEmpty) statuses = List.of("__NONE__");
-
-        List<String> domains = toDomainNames(filter.getDomains());
-        boolean domainsEmpty = domains.isEmpty();
-        if (domainsEmpty) domains = List.of("__NONE__");
-
-        List<Long> managerIds = filter.getManagerIds() == null ? List.of() : filter.getManagerIds();
-        boolean managerIdsEmpty = managerIds.isEmpty();
-        if (managerIdsEmpty) managerIds = List.of(-1L);
-
-        List<Long> teamMemberIds = filter.getTeamMemberIds() == null ? List.of() : filter.getTeamMemberIds();
-        boolean teamMemberIdsEmpty = teamMemberIds.isEmpty();
-        if (teamMemberIdsEmpty) teamMemberIds = List.of(-1L);
-
-        String timelineContext = filter.getTimelineContext() == null ? null : filter.getTimelineContext().name();
-
-        List<Project> dbFiltered = projectRepository.filterProjectsRaw(
-                search, searchId,
-                statuses, statusesEmpty,
-                domains, domainsEmpty,
-                managerIds, managerIdsEmpty,
-                teamMemberIds, teamMemberIdsEmpty,
-                timelineContext,
-                filter.getFromDate(), filter.getToDate()
-        );
-
-        // completion slider filter in service
-        Integer min = filter.getCompletionMin();
-        Integer max = filter.getCompletionMax();
-        if (min == null && max == null) return dbFiltered;
-
-        int minVal = min == null ? 0 : Math.max(0, min);
-        int maxVal = max == null ? 100 : Math.min(100, max);
-
-        return dbFiltered.stream()
-                .filter(p -> {
-                    int c = completionPercent(p);
-                    return c >= minVal && c <= maxVal;
-                })
-                .toList();
-    }
-
-    private List<String> toStatusNames(List<ProjectStatus> statuses) {
-        if (statuses == null) return List.of();
-        return statuses.stream().map(Enum::name).toList();
-    }
-
-    private List<String> toDomainNames(List<Domain> domains) {
-        if (domains == null) return List.of();
-        return domains.stream().map(Enum::name).toList();
-    }
-
-    private int completionPercent(Project project) {
-        if (project.getTickets() == null || project.getTickets().isEmpty()) return 0;
-        long total = project.getTickets().size();
-        long completed = project.getTickets().stream()
-                .filter(t -> t.getStatus() == Status.COMPLETED)
-                .count();
-        return (int) Math.round((completed * 100.0) / total);
-    }
-
-    private boolean hasText(String s) {
-        return s != null && !s.trim().isEmpty();
-    }
-
-    private Long parseProjectId(String raw) {
-        if (!hasText(raw)) return null;
-        String value = raw.trim().toLowerCase();
-        try {
-            if (value.startsWith("prj-")) return Long.parseLong(value.substring(4));
-            return Long.parseLong(value);
-        } catch (Exception e) {
-            return null;
-        }
-    }
 }

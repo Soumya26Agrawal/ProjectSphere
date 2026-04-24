@@ -92,6 +92,44 @@ public class ApplicationConfig {
     }
 
     @Bean
+    public CommandLineRunner bootstrapPm(UserRepository repo, PasswordEncoder encoder) {
+        return args -> {
+            String email = "pm@projectsphere.com";
+            if (repo.findByEmail(email).isEmpty()) {
+                repo.save(User.builder()
+                        .email(email)
+                        .password(encoder.encode("pm123"))
+                        .firstName("Default")
+                        .lastName("Manager")
+                        .employeeId(1001L)
+                        .phoneNumber(9999999998L)
+                        .role(Role.PROJECT_MANAGER)
+                        .isActive(true)
+                        .build());
+            }
+        };
+    }
+
+    @Bean
+    public CommandLineRunner bootstrapDev(UserRepository repo, PasswordEncoder encoder) {
+        return args -> {
+            String email = "dev@projectsphere.com";
+            if (repo.findByEmail(email).isEmpty()) {
+                repo.save(User.builder()
+                        .email(email)
+                        .password(encoder.encode("dev123"))
+                        .firstName("Default")
+                        .lastName("Developer")
+                        .employeeId(1002L)
+                        .phoneNumber(9999999997L)
+                        .role(Role.DEVELOPER)
+                        .isActive(true)
+                        .build());
+            }
+        };
+    }
+
+    @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()

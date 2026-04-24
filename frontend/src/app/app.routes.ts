@@ -12,9 +12,13 @@ import { TeamsListComponent }      from './features/admin/teams-list.component';
 import { TeamEditComponent }       from './features/admin/team-edit.component';
 import { UserEditComponent }       from './features/admin/user-edit.component';
 
+import { PmShellComponent }        from './features/pm/pm-shell.component';
 import { DashboardPmComponent }    from './features/dashboard-pm/dashboard-pm.component';
+import { PmProjectsListComponent } from './features/pm/projects-list.component';
+import { PmProjectEditComponent }  from './features/pm/project-edit.component';
+import { PmTeamsListComponent }    from './features/pm/teams-list.component';
+import { PmTeamEditComponent }     from './features/pm/team-edit.component';
 import { DashboardDevComponent }   from './features/dashboard-dev/dashboard-dev.component';
-import { SummaryComponent }    from './features/summary/summary.component';
 import { BoardComponent }      from './features/board/board.component';
 import { BacklogComponent }    from './features/backlog/backlog.component';
 import { TimelineComponent }   from './features/timeline/timeline.component';
@@ -22,10 +26,7 @@ import { HistoryComponent }    from './features/history/history.component';
 import { DefectsComponent }    from './features/defects/defects.component';
 import { AnalyticsComponent }  from './features/analytics/analytics.component';
 import { TeamComponent }       from './features/team/team.component';
-import { EvaluationComponent } from './features/evaluation/evaluation.component';
-import { SettingsComponent }   from './features/settings/settings.component';
-import { ReportsComponent }    from './features/reports/reports.component';
-import { ReleasesComponent }   from './features/releases/releases.component';
+import { DocumentsComponent }  from './features/documents/documents.component';
 
 export const routes: Routes = [
   // ── Public routes (no shell, no auth required) ──────────────────────────
@@ -51,10 +52,22 @@ export const routes: Routes = [
     ],
   },
 
+  // ── Project Manager area: has its own navbar (PmShellComponent) ─────────
+  {
+    path: 'pm',
+    component: PmShellComponent,
+    children: [
+      { path: '',            component: DashboardPmComponent     },
+      { path: 'projects',    component: PmProjectsListComponent  },
+      { path: 'projects/:id',component: PmProjectEditComponent   },
+      { path: 'teams',       component: PmTeamsListComponent     },
+      { path: 'teams/:id',   component: PmTeamEditComponent      },
+    ],
+  },
+
   // ── Other role dashboards / feature routes (shell + auth) ──────────────
-  { path: 'pm',         component: DashboardPmComponent  },
   { path: 'dev',        component: DashboardDevComponent },
-  { path: 'summary',    component: SummaryComponent   },
+  { path: 'summary',    redirectTo: 'board', pathMatch: 'full' },
   { path: 'board',      component: BoardComponent     },
   { path: 'backlog',    component: BacklogComponent   },
   { path: 'timeline',   component: TimelineComponent  },
@@ -62,10 +75,7 @@ export const routes: Routes = [
   { path: 'defects',    component: DefectsComponent   },
   { path: 'analytics',  component: AnalyticsComponent },
   { path: 'team',       component: TeamComponent      },
-  { path: 'evaluation', component: EvaluationComponent},
-  { path: 'settings',   component: SettingsComponent  },
-  { path: 'reports',    component: ReportsComponent   },
-  { path: 'releases',   component: ReleasesComponent  },
+  { path: 'documents',  component: DocumentsComponent },
 
   { path: '**', redirectTo: 'landing' },
 ];

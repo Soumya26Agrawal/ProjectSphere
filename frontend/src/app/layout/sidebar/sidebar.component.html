@@ -1,9 +1,12 @@
 <aside class="sidebar">
   <div class="sb-section">
-    <div class="sb-title">Planning</div>
-    <button class="sb-item" routerLink="/summary" routerLinkActive="active">
-      <span class="mi">home</span>Summary
+    <button class="sb-item sb-home" routerLink="/dev">
+      <span class="mi">home</span>Home
     </button>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-title">Planning</div>
     <button class="sb-item" routerLink="/board" routerLinkActive="active">
       <span class="mi">view_kanban</span>Board
       <span class="sb-count">{{ boardCount }}</span>
@@ -32,20 +35,12 @@
   </div>
 
   <div class="sb-section">
-    <div class="sb-title">People</div>
+    <div class="sb-title">Resources</div>
+    <button class="sb-item" routerLink="/documents" routerLinkActive="active">
+      <span class="mi">folder</span>Documents
+    </button>
     <button class="sb-item" routerLink="/team" routerLinkActive="active">
       <span class="mi">group</span>Team Info
     </button>
   </div>
-
-  <div class="sb-divider"></div>
-  <button class="sb-item" routerLink="/settings" routerLinkActive="active">
-    <span class="mi">settings</span>Project Settings
-  </button>
-  <button class="sb-item" routerLink="/reports" routerLinkActive="active">
-    <span class="mi">assessment</span>Reports
-  </button>
-  <button class="sb-item" routerLink="/releases" routerLinkActive="active">
-    <span class="mi">rocket_launch</span>Releases
-  </button>
 </aside>

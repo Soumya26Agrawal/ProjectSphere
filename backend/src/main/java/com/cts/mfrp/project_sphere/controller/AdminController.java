@@ -200,24 +200,4 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved.getProjectId());
     }
 
-    @PostMapping("/projects/filter")
-    public ResponseEntity<List<ProjectBasicInfoDTO>> filterProjects(@RequestBody(required = false) ProjectFilterRequestDTO filter) {
-        List<ProjectBasicInfoDTO> result = projectService.filterProjects(filter).stream()
-                .map(project -> {
-                    Long teamId = projectTeamService.getProjectTeamByProjectId(project.getProjectId())
-                            .map(ProjectTeamResponseDTO::getTeamId).orElse(null);
-
-                    return ProjectBasicInfoDTO.builder()
-                            .projectId(project.getProjectId())
-                            .title(project.getProjectName())
-                            .description(project.getDescription())
-                            .managerId(project.getManager() != null ? project.getManager().getUserId() : null)
-                            .teamId(teamId)
-                            .userIds(List.of())
-                            .build();
-                })
-                .toList();
-
-        return ResponseEntity.ok(result);
-    }
 }

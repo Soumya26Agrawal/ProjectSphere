@@ -1,6 +1,6 @@
 <!-- Top bar -->
 <header class="ax-topbar">
-  <a class="ax-brand" routerLink="/admin">
+  <a class="ax-brand" routerLink="/pm">
     <span class="ax-logo">
       <span class="mi">dashboard</span>
     </span>
@@ -9,17 +9,17 @@
 
   <div class="ax-search-top">
     <span class="mi">search</span>
-    <input type="text" placeholder="Search users, teams, projects..." />
+    <input type="text" placeholder="Search projects, teams, members..." />
   </div>
 
   <div class="ax-topbar-right">
     <button class="ax-avatar-btn" (click)="toggleMenu(); $event.stopPropagation()" aria-label="Profile">
-      <span class="ax-avatar">{{ user()?.avatar || 'AD' }}</span>
+      <span class="ax-avatar">{{ user()?.avatar || 'PM' }}</span>
     </button>
 
     <div class="ax-menu" *ngIf="menuOpen">
       <div class="ax-menu-head">
-        <div class="ax-avatar lg">{{ user()?.avatar || 'AD' }}</div>
+        <div class="ax-avatar lg">{{ user()?.avatar || 'PM' }}</div>
         <div class="ax-menu-info">
           <div class="ax-menu-name">{{ user()?.name }}</div>
           <div class="ax-menu-mail">{{ user()?.email }}</div>

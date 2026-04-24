@@ -666,3 +666,23 @@
   .ax-pager-info { text-align: center; }
   .ax-pager-ctrls { justify-content: center; }
 }
+
+/* ══ Form validation — required marker + inline errors ══ */
+.ax-req {
+  color: #DE350B;
+  margin-left: 2px;
+  font-weight: 700;
+}
+.ax-field-err {
+  display: block;
+  color: #DE350B;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.3;
+}
+.ax-form input.ng-invalid.ng-touched,
+.ax-form select.ng-invalid.ng-touched,
+.ax-form textarea.ng-invalid.ng-touched {
+  border-color: #DE350B;
+  box-shadow: 0 0 0 2px rgba(222, 53, 11, 0.12);
+}

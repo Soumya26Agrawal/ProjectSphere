@@ -126,18 +126,25 @@
 
     <div class="ax-modal-body">
       <form [formGroup]="projectForm" (ngSubmit)="submitProject()" novalidate class="ax-form">
-        <label class="ax-field span2"><span>Project Name</span>
-          <input type="text" formControlName="projectName" /></label>
+        <label class="ax-field span2"><span>Project Name <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="text" formControlName="projectName" />
+          <small class="ax-field-err" *ngIf="projectForm.get('projectName')?.touched && projectForm.get('projectName')?.errors?.['required']">Project name is required.</small>
+          <small class="ax-field-err" *ngIf="projectForm.get('projectName')?.touched && projectForm.get('projectName')?.errors?.['minlength']">Project name must be at least 2 characters.</small>
+        </label>
         <label class="ax-field span2"><span>Description</span>
           <textarea formControlName="description" rows="3"></textarea></label>
-        <label class="ax-field"><span>Status</span>
+        <label class="ax-field"><span>Status <span class="ax-req" aria-hidden="true">*</span></span>
           <select formControlName="status">
             <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
-          </select></label>
-        <label class="ax-field"><span>Domain</span>
+          </select>
+          <small class="ax-field-err" *ngIf="projectForm.get('status')?.touched && projectForm.get('status')?.errors?.['required']">Status is required.</small>
+        </label>
+        <label class="ax-field"><span>Domain <span class="ax-req" aria-hidden="true">*</span></span>
           <select formControlName="domain">
             <option *ngFor="let d of domainOptions" [value]="d">{{ d }}</option>
-          </select></label>
+          </select>
+          <small class="ax-field-err" *ngIf="projectForm.get('domain')?.touched && projectForm.get('domain')?.errors?.['required']">Domain is required.</small>
+        </label>
         <div class="ax-field span2">
           <small class="ax-hint">This project will be created under your name. You can assign a team after creating it.</small>
         </div>
@@ -169,17 +176,20 @@
     <div class="ax-modal-body">
       <form [formGroup]="teamForm" (ngSubmit)="submitTeam()" novalidate class="ax-form">
         <label class="ax-field span2">
-          <span>Team Name</span>
+          <span>Team Name <span class="ax-req" aria-hidden="true">*</span></span>
           <input type="text" formControlName="teamName" placeholder="e.g. Phoenix Squad" />
+          <small class="ax-field-err" *ngIf="teamForm.get('teamName')?.touched && teamForm.get('teamName')?.errors?.['required']">Team name is required.</small>
+          <small class="ax-field-err" *ngIf="teamForm.get('teamName')?.touched && teamForm.get('teamName')?.errors?.['minlength']">Team name must be at least 2 characters.</small>
         </label>
         <label class="ax-field span2">
-          <span>Project</span>
+          <span>Project <span class="ax-req" aria-hidden="true">*</span></span>
           <select formControlName="projectId">
             <option [ngValue]="null" disabled>— Select one of your projects —</option>
             <option *ngFor="let p of projectsWithoutTeam" [ngValue]="p.projectId">
               {{ p.projectName }} ({{ p.status === 'IN_PROGRESS' ? 'Ongoing' : 'Completed' }})
             </option>
           </select>
+          <small class="ax-field-err" *ngIf="teamForm.get('projectId')?.touched && teamForm.get('projectId')?.errors?.['required']">Please select a project.</small>
           <small class="ax-hint" *ngIf="projectsWithoutTeam.length === 0">
             All your projects already have teams. Create a project first.
           </small>

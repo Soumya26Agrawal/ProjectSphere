@@ -162,18 +162,33 @@
       <div class="modal-divider"><span>or register one</span></div>
 
       <form [formGroup]="teamForm" (ngSubmit)="submitTeamForm()" novalidate class="ax-form">
-        <label class="ax-field"><span>Employee ID</span>
-          <input type="number" formControlName="employeeId" placeholder="e.g. 2001" /></label>
-        <label class="ax-field"><span>Phone Number</span>
-          <input type="number" formControlName="phoneNumber" /></label>
-        <label class="ax-field"><span>First Name</span>
-          <input type="text" formControlName="firstName" /></label>
-        <label class="ax-field"><span>Last Name</span>
-          <input type="text" formControlName="lastName" /></label>
-        <label class="ax-field span2"><span>Email</span>
-          <input type="email" formControlName="email" /></label>
-        <label class="ax-field span2"><span>Password</span>
-          <input type="password" formControlName="password" /></label>
+        <label class="ax-field"><span>Employee ID <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="number" formControlName="employeeId" placeholder="e.g. 2001" />
+          <small class="ax-field-err" *ngIf="teamForm.get('employeeId')?.touched && teamForm.get('employeeId')?.errors?.['required']">Employee ID is required.</small>
+        </label>
+        <label class="ax-field"><span>Phone Number <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="number" formControlName="phoneNumber" />
+          <small class="ax-field-err" *ngIf="teamForm.get('phoneNumber')?.touched && teamForm.get('phoneNumber')?.errors?.['required']">Phone number is required.</small>
+        </label>
+        <label class="ax-field"><span>First Name <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="text" formControlName="firstName" />
+          <small class="ax-field-err" *ngIf="teamForm.get('firstName')?.touched && teamForm.get('firstName')?.errors?.['required']">First name is required.</small>
+          <small class="ax-field-err" *ngIf="teamForm.get('firstName')?.touched && teamForm.get('firstName')?.errors?.['minlength']">First name must be at least 2 characters.</small>
+        </label>
+        <label class="ax-field"><span>Last Name <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="text" formControlName="lastName" />
+          <small class="ax-field-err" *ngIf="teamForm.get('lastName')?.touched && teamForm.get('lastName')?.errors?.['required']">Last name is required.</small>
+        </label>
+        <label class="ax-field span2"><span>Email <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="email" formControlName="email" />
+          <small class="ax-field-err" *ngIf="teamForm.get('email')?.touched && teamForm.get('email')?.errors?.['required']">Email is required.</small>
+          <small class="ax-field-err" *ngIf="teamForm.get('email')?.touched && teamForm.get('email')?.errors?.['email']">Enter a valid email address.</small>
+        </label>
+        <label class="ax-field span2"><span>Password <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="password" formControlName="password" />
+          <small class="ax-field-err" *ngIf="teamForm.get('password')?.touched && teamForm.get('password')?.errors?.['required']">Password is required.</small>
+          <small class="ax-field-err" *ngIf="teamForm.get('password')?.touched && teamForm.get('password')?.errors?.['minlength']">Password must be at least 4 characters.</small>
+        </label>
       </form>
       <div class="ax-ok"  *ngIf="teamMessage"><span class="mi">check_circle</span> {{ teamMessage }}</div>
       <div class="ax-err" *ngIf="teamError"><span class="mi">error_outline</span> {{ teamError }}</div>
@@ -201,18 +216,33 @@
 
     <div class="ax-modal-body">
       <form [formGroup]="pmForm" (ngSubmit)="submitPmForm()" novalidate class="ax-form">
-        <label class="ax-field"><span>Employee ID</span>
-          <input type="number" formControlName="employeeId" /></label>
-        <label class="ax-field"><span>Phone Number</span>
-          <input type="number" formControlName="phoneNumber" /></label>
-        <label class="ax-field"><span>First Name</span>
-          <input type="text" formControlName="firstName" /></label>
-        <label class="ax-field"><span>Last Name</span>
-          <input type="text" formControlName="lastName" /></label>
-        <label class="ax-field span2"><span>Email</span>
-          <input type="email" formControlName="email" /></label>
-        <label class="ax-field span2"><span>Password</span>
-          <input type="password" formControlName="password" /></label>
+        <label class="ax-field"><span>Employee ID <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="number" formControlName="employeeId" />
+          <small class="ax-field-err" *ngIf="pmForm.get('employeeId')?.touched && pmForm.get('employeeId')?.errors?.['required']">Employee ID is required.</small>
+        </label>
+        <label class="ax-field"><span>Phone Number <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="number" formControlName="phoneNumber" />
+          <small class="ax-field-err" *ngIf="pmForm.get('phoneNumber')?.touched && pmForm.get('phoneNumber')?.errors?.['required']">Phone number is required.</small>
+        </label>
+        <label class="ax-field"><span>First Name <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="text" formControlName="firstName" />
+          <small class="ax-field-err" *ngIf="pmForm.get('firstName')?.touched && pmForm.get('firstName')?.errors?.['required']">First name is required.</small>
+          <small class="ax-field-err" *ngIf="pmForm.get('firstName')?.touched && pmForm.get('firstName')?.errors?.['minlength']">First name must be at least 2 characters.</small>
+        </label>
+        <label class="ax-field"><span>Last Name <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="text" formControlName="lastName" />
+          <small class="ax-field-err" *ngIf="pmForm.get('lastName')?.touched && pmForm.get('lastName')?.errors?.['required']">Last name is required.</small>
+        </label>
+        <label class="ax-field span2"><span>Email <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="email" formControlName="email" />
+          <small class="ax-field-err" *ngIf="pmForm.get('email')?.touched && pmForm.get('email')?.errors?.['required']">Email is required.</small>
+          <small class="ax-field-err" *ngIf="pmForm.get('email')?.touched && pmForm.get('email')?.errors?.['email']">Enter a valid email address.</small>
+        </label>
+        <label class="ax-field span2"><span>Password <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="password" formControlName="password" />
+          <small class="ax-field-err" *ngIf="pmForm.get('password')?.touched && pmForm.get('password')?.errors?.['required']">Password is required.</small>
+          <small class="ax-field-err" *ngIf="pmForm.get('password')?.touched && pmForm.get('password')?.errors?.['minlength']">Password must be at least 4 characters.</small>
+        </label>
       </form>
       <div class="ax-ok"  *ngIf="pmMessage"><span class="mi">check_circle</span> {{ pmMessage }}</div>
       <div class="ax-err" *ngIf="pmError"><span class="mi">error_outline</span> {{ pmError }}</div>
@@ -240,18 +270,25 @@
 
     <div class="ax-modal-body">
       <form [formGroup]="projectForm" (ngSubmit)="submitProjectForm()" novalidate class="ax-form">
-        <label class="ax-field span2"><span>Project Name</span>
-          <input type="text" formControlName="projectName" /></label>
+        <label class="ax-field span2"><span>Project Name <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="text" formControlName="projectName" />
+          <small class="ax-field-err" *ngIf="projectForm.get('projectName')?.touched && projectForm.get('projectName')?.errors?.['required']">Project name is required.</small>
+          <small class="ax-field-err" *ngIf="projectForm.get('projectName')?.touched && projectForm.get('projectName')?.errors?.['minlength']">Project name must be at least 2 characters.</small>
+        </label>
         <label class="ax-field span2"><span>Description</span>
           <textarea formControlName="description" rows="3"></textarea></label>
-        <label class="ax-field"><span>Status</span>
+        <label class="ax-field"><span>Status <span class="ax-req" aria-hidden="true">*</span></span>
           <select formControlName="status">
             <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
-          </select></label>
-        <label class="ax-field"><span>Domain</span>
+          </select>
+          <small class="ax-field-err" *ngIf="projectForm.get('status')?.touched && projectForm.get('status')?.errors?.['required']">Status is required.</small>
+        </label>
+        <label class="ax-field"><span>Domain <span class="ax-req" aria-hidden="true">*</span></span>
           <select formControlName="domain">
             <option *ngFor="let d of domainOptions" [value]="d">{{ d }}</option>
-          </select></label>
+          </select>
+          <small class="ax-field-err" *ngIf="projectForm.get('domain')?.touched && projectForm.get('domain')?.errors?.['required']">Domain is required.</small>
+        </label>
         <label class="ax-field span2"><span>Project Manager</span>
           <select formControlName="managerId">
             <option [ngValue]="null">— None —</option>

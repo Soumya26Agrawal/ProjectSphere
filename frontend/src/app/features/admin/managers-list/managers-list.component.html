@@ -1,0 +1,171 @@
+<div class="ax-breadcrumb">
+  <a routerLink="/admin">Admin</a>
+  <span class="mi">chevron_right</span>
+  <span>Project Managers</span>
+</div>
+
+<div class="ax-page-head">
+  <div>
+    <h1 class="ax-page-title">Project Managers</h1>
+    <p class="ax-page-sub">All project managers in your organisation.</p>
+  </div>
+  <button class="ax-btn primary" (click)="openPmModal()"><span class="mi">add</span> New Manager</button>
+</div>
+
+<!-- KPI cards -->
+<div class="ax-kpi-grid">
+  <div class="ax-kpi">
+    <span class="ax-kpi-icon blue"><span class="mi">badge</span></span>
+    <span><span class="ax-kpi-label">Total Managers</span><div class="ax-kpi-value">{{ total }}</div></span>
+  </div>
+  <div class="ax-kpi">
+    <span class="ax-kpi-icon green"><span class="mi">verified</span></span>
+    <span><span class="ax-kpi-label">Active</span><div class="ax-kpi-value">{{ active }}</div></span>
+  </div>
+  <div class="ax-kpi">
+    <span class="ax-kpi-icon amber"><span class="mi">layers</span></span>
+    <span><span class="ax-kpi-label">Managing &gt; 1</span><div class="ax-kpi-value">{{ multiCount }}</div></span>
+  </div>
+  <div class="ax-kpi">
+    <span class="ax-kpi-icon purple"><span class="mi">folder</span></span>
+    <span><span class="ax-kpi-label">Projects Managed</span><div class="ax-kpi-value">{{ totalProjects }}</div></span>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div class="ax-toolbar">
+  <div class="ax-search">
+    <span class="mi">search</span>
+    <input type="text" [(ngModel)]="query" (ngModelChange)="onSearch()"
+           placeholder="Search managers by name, email or ID..." />
+  </div>
+  <div class="ax-seg">
+    <button class="ax-seg-btn" [class.active]="activeTab==='ALL'"      (click)="setTab('ALL')">All</button>
+    <button class="ax-seg-btn" [class.active]="activeTab==='ACTIVE'"   (click)="setTab('ACTIVE')">Active</button>
+    <button class="ax-seg-btn" [class.active]="activeTab==='INACTIVE'" (click)="setTab('INACTIVE')">Inactive</button>
+    <button class="ax-seg-btn" [class.active]="activeTab==='MULTI'"    (click)="setTab('MULTI')">Managing &gt; 1</button>
+  </div>
+  <button class="ax-btn ghost" (click)="load()"><span class="mi">refresh</span> Refresh</button>
+</div>
+
+<div class="ax-err" *ngIf="error"><span class="mi">error_outline</span> {{ error }}</div>
+<div class="ax-info" *ngIf="loading">Loading managers…</div>
+
+<div class="ax-empty" *ngIf="!loading && !error && filtered.length === 0">
+  <span class="mi">person_off</span>
+  <h3>No project managers match</h3>
+  <p>Try clearing the search or switching the filter.</p>
+</div>
+
+<div class="ax-grid" *ngIf="filtered.length > 0">
+  <button class="ax-person" *ngFor="let m of pageItems; let i = index" (click)="open(m)">
+    <div class="ax-person-top">
+      <span class="ax-pill">{{ empTag(m.employeeId) }}</span>
+    </div>
+
+    <div class="ax-person-hero">
+      <div class="ax-big-av" [ngClass]="colorClass(i)">{{ initials(m) }}</div>
+      <div class="ax-person-hero-text">
+        <div class="ax-person-name">{{ m.firstName }} {{ m.lastName }}</div>
+        <div class="ax-person-role">Project Manager</div>
+      </div>
+    </div>
+
+    <div class="ax-person-rows">
+      <div class="ax-person-row">
+        <span class="mi">mail</span>
+        <span class="text">{{ m.email }}</span>
+      </div>
+      <div class="ax-person-row">
+        <span class="mi">call</span>
+        <span class="text">{{ m.phoneNumber }}</span>
+      </div>
+      <div class="ax-person-row managing">
+        <span class="mi">folder</span>
+        <span *ngIf="m.managedProjects.length > 0">
+          Managing <strong>{{ m.managedProjects.length }}</strong>
+          {{ m.managedProjects.length === 1 ? 'project' : 'projects' }}
+        </span>
+        <span class="muted" *ngIf="m.managedProjects.length === 0">No active projects</span>
+      </div>
+    </div>
+
+    <div class="ax-person-foot">
+      <span class="ax-status-dot" [class.active]="m.isActive" [class.inactive]="!m.isActive">
+        {{ m.isActive ? 'Active' : 'Inactive' }}
+      </span>
+    </div>
+  </button>
+</div>
+
+<!-- Pagination -->
+<div class="ax-pager-wrap" *ngIf="filtered.length > 0">
+  <div class="ax-pager-status">Page <strong>{{ page }}</strong> of <strong>{{ pageCount }}</strong></div>
+  <div class="ax-pager-simple">
+    <button class="ax-pager-btn" (click)="prevPage()" [disabled]="page === 1" title="Previous">
+      <span class="mi">chevron_left</span>
+    </button>
+    <ng-container *ngFor="let p of pageList">
+      <button *ngIf="p !== '…'"
+              class="ax-pager-btn" [class.active]="p === page" (click)="goPage(p)">{{ p }}</button>
+      <span *ngIf="p === '…'" class="ax-pager-ellipsis">…</span>
+    </ng-container>
+    <button class="ax-pager-btn" (click)="nextPage()" [disabled]="page >= pageCount" title="Next">
+      <span class="mi">chevron_right</span>
+    </button>
+  </div>
+</div>
+
+<!-- Add Project Manager modal -->
+<div class="ax-modal-backdrop" *ngIf="showPmModal" (click)="closePmModal()">
+  <div class="ax-modal wide" (click)="$event.stopPropagation()">
+    <header class="ax-modal-head">
+      <span class="ax-kpi-icon blue"><span class="mi">badge</span></span>
+      <div class="ax-modal-title">Add Project Manager</div>
+      <button class="ax-modal-close" (click)="closePmModal()"><span class="mi">close</span></button>
+    </header>
+
+    <div class="ax-modal-body">
+      <form [formGroup]="pmForm" (ngSubmit)="submitPmForm()" novalidate class="ax-form">
+        <label class="ax-field"><span>Employee ID <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="number" formControlName="employeeId" />
+          <small class="ax-field-err" *ngIf="pmForm.get('employeeId')?.touched && pmForm.get('employeeId')?.errors?.['required']">Employee ID is required.</small>
+        </label>
+        <label class="ax-field"><span>Phone Number <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="number" formControlName="phoneNumber" />
+          <small class="ax-field-err" *ngIf="pmForm.get('phoneNumber')?.touched && pmForm.get('phoneNumber')?.errors?.['required']">Phone number is required.</small>
+        </label>
+        <label class="ax-field"><span>First Name <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="text" formControlName="firstName" />
+          <small class="ax-field-err" *ngIf="pmForm.get('firstName')?.touched && pmForm.get('firstName')?.errors?.['required']">First name is required.</small>
+          <small class="ax-field-err" *ngIf="pmForm.get('firstName')?.touched && pmForm.get('firstName')?.errors?.['minlength']">First name must be at least 2 characters.</small>
+        </label>
+        <label class="ax-field"><span>Last Name <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="text" formControlName="lastName" />
+          <small class="ax-field-err" *ngIf="pmForm.get('lastName')?.touched && pmForm.get('lastName')?.errors?.['required']">Last name is required.</small>
+        </label>
+        <label class="ax-field span2"><span>Email <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="email" formControlName="email" />
+          <small class="ax-field-err" *ngIf="pmForm.get('email')?.touched && pmForm.get('email')?.errors?.['required']">Email is required.</small>
+          <small class="ax-field-err" *ngIf="pmForm.get('email')?.touched && pmForm.get('email')?.errors?.['email']">Enter a valid email address.</small>
+        </label>
+        <label class="ax-field span2"><span>Password <span class="ax-req" aria-hidden="true">*</span></span>
+          <input type="password" formControlName="password" />
+          <small class="ax-field-err" *ngIf="pmForm.get('password')?.touched && pmForm.get('password')?.errors?.['required']">Password is required.</small>
+          <small class="ax-field-err" *ngIf="pmForm.get('password')?.touched && pmForm.get('password')?.errors?.['minlength']">Password must be at least 4 characters.</small>
+        </label>
+      </form>
+      <div class="ax-ok"  *ngIf="pmMessage"><span class="mi">check_circle</span> {{ pmMessage }}</div>
+      <div class="ax-err" *ngIf="pmError"><span class="mi">error_outline</span> {{ pmError }}</div>
+    </div>
+
+    <footer class="ax-modal-foot">
+      <button class="ax-btn ghost" (click)="closePmModal()">Close</button>
+      <button class="ax-btn primary" (click)="submitPmForm()" [disabled]="pmSubmitting">
+        <span class="mi" *ngIf="!pmSubmitting">badge</span>
+        <span class="mi spin" *ngIf="pmSubmitting">sync</span>
+        {{ pmSubmitting ? 'Saving…' : 'Register Manager' }}
+      </button>
+    </footer>
+  </div>
+</div>

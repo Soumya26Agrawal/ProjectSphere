@@ -1,0 +1,61 @@
+<div class="ax-breadcrumb">
+  <a routerLink="/admin">Admin</a>
+  <span class="mi">chevron_right</span>
+  <a *ngIf="kind === 'pm'"     routerLink="/admin/project-managers">Project Managers</a>
+  <a *ngIf="kind === 'member'" routerLink="/admin/team-members">Team Members</a>
+  <span class="mi">chevron_right</span>
+  <span *ngIf="user">{{ empTag(user.employeeId) }}</span>
+</div>
+
+<div class="ax-page-head">
+  <div>
+    <h1 class="ax-page-title" *ngIf="user">{{ user.firstName }} {{ user.lastName }}</h1>
+    <h1 class="ax-page-title" *ngIf="!user">{{ kindLabel }}</h1>
+    <p class="ax-page-sub" *ngIf="user">{{ empTag(user.employeeId) }} · {{ kindLabel }} · {{ user.isActive ? 'Active' : 'Inactive' }}</p>
+  </div>
+  <button class="ax-btn ghost" (click)="back()"><span class="mi">arrow_back</span> Back</button>
+</div>
+
+<div class="ax-info" *ngIf="loading">Loading…</div>
+<div class="ax-err" *ngIf="error"><span class="mi">error_outline</span> {{ error }}</div>
+
+<section class="ax-section" *ngIf="!loading && !error && user">
+  <h3 class="ax-section-title"><span class="mi">edit</span> Edit {{ kindLabel }} Details</h3>
+
+  <form [formGroup]="form" (ngSubmit)="save()" novalidate class="ax-form">
+    <label class="ax-field"><span>First Name <span class="ax-req" aria-hidden="true">*</span></span>
+      <input type="text" formControlName="firstName" />
+      <small class="ax-field-err" *ngIf="form.get('firstName')?.touched && form.get('firstName')?.errors?.['required']">First name is required.</small>
+    </label>
+    <label class="ax-field"><span>Last Name <span class="ax-req" aria-hidden="true">*</span></span>
+      <input type="text" formControlName="lastName" />
+      <small class="ax-field-err" *ngIf="form.get('lastName')?.touched && form.get('lastName')?.errors?.['required']">Last name is required.</small>
+    </label>
+    <label class="ax-field span2"><span>Email <span class="ax-req" aria-hidden="true">*</span></span>
+      <input type="email" formControlName="email" />
+      <small class="ax-field-err" *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['required']">Email is required.</small>
+      <small class="ax-field-err" *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['email']">Enter a valid email address.</small>
+    </label>
+    <label class="ax-field"><span>Phone Number <span class="ax-req" aria-hidden="true">*</span></span>
+      <input type="number" formControlName="phoneNumber" />
+      <small class="ax-field-err" *ngIf="form.get('phoneNumber')?.touched && form.get('phoneNumber')?.errors?.['required']">Phone number is required.</small>
+    </label>
+    <label class="ax-field"><span>Status</span>
+      <select formControlName="isActive">
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+    </label>
+
+    <div class="ax-form-foot">
+      <button type="button" class="ax-btn ghost" (click)="back()">Cancel</button>
+      <button type="submit" class="ax-btn primary" [disabled]="saving">
+        <span class="mi" *ngIf="!saving">save</span>
+        <span class="mi spin" *ngIf="saving">sync</span>
+        {{ saving ? 'Saving…' : 'Save Changes' }}
+      </button>
+    </div>
+  </form>
+
+  <div class="ax-ok"  *ngIf="message"><span class="mi">check_circle</span> {{ message }}</div>
+</section>

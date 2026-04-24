@@ -26,7 +26,7 @@
     <div class="dx-kpi">
       <span class="dx-kpi-icon blue"><span class="mi">bug_report</span></span>
       <div class="dx-kpi-body">
-        <div class="dx-kpi-val">{{ ds.defects.length }}</div>
+        <div class="dx-kpi-val">{{ totalElements }}</div>
         <div class="dx-kpi-lbl">Total Defects</div>
       </div>
     </div>
@@ -106,30 +106,57 @@
     </section>
   </div>
 
-  <!-- ═══ Filters ═══ -->
+  <!-- ═══ Filters & Pagination ═══ -->
   <div class="dx-toolbar">
     <div class="jira-search">
       <span class="mi">search</span>
       <input [(ngModel)]="search" placeholder="Search by ID or title…"/>
     </div>
-    <div class="seg">
-      <button class="seg-btn" [class.active]="statusFilter === ''"            (click)="statusFilter = ''">All</button>
-      <button class="seg-btn" [class.active]="statusFilter === 'OPEN'"        (click)="statusFilter = 'OPEN'">Open</button>
-      <button class="seg-btn" [class.active]="statusFilter === 'IN_PROGRESS'" (click)="statusFilter = 'IN_PROGRESS'">In Progress</button>
-      <button class="seg-btn" [class.active]="statusFilter === 'RESOLVED'"    (click)="statusFilter = 'RESOLVED'">Resolved</button>
-    </div>
-    <select class="jira-select" [(ngModel)]="sevFilter">
+    <select class="jira-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+      <option value="">All statuses</option>
+      <option value="NEW">New</option>
+      <option value="OPEN">Open</option>
+      <option value="IN_PROGRESS">In Progress</option>
+      <option value="FIXED">Fixed</option>
+      <option value="RETEST">Retest</option>
+      <option value="CLOSED">Closed</option>
+      <option value="REOPENED">Reopened</option>
+      <option value="DEFERRED">Deferred</option>
+      <option value="REJECTED">Rejected</option>
+      <option value="DUPLICATE">Duplicate</option>
+    </select>
+    <select class="jira-select" [(ngModel)]="sevFilter" (change)="onFilterChange()">
       <option value="">All severities</option>
       <option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option>
     </select>
-    <select class="jira-select" [(ngModel)]="repFilter">
-      <option value="">Reproducibility</option>
+    <select class="jira-select" [(ngModel)]="repFilter" (change)="onFilterChange()">
+      <option value="">All reproducibility</option>
       <option>ALWAYS</option><option>SOMETIMES</option><option>ONCE</option>
     </select>
-    <select class="jira-select" [(ngModel)]="assigneeFilter">
-      <option value="">All assignees</option>
-      <option *ngFor="let a of assignees">{{ a }}</option>
+    <select class="jira-select" [(ngModel)]="assignedFilter" (change)="onFilterChange()">
+      <option value="">All assignments</option>
+      <option value="assigned">Assigned</option>
+      <option value="unassigned">Unassigned</option>
     </select>
+  </div>
+
+  <!-- ═══ Pagination Controls ═══ -->
+  <div class="dx-pagination" *ngIf="totalPages > 1">
+    <button class="pag-btn" (click)="prevPage()" [disabled]="currentPage === 0">
+      <span class="mi">chevron_left</span>
+    </button>
+    <span class="pag-info">Page {{ currentPage + 1 }} of {{ totalPages }} ({{ totalElements }} total)</span>
+    <button class="pag-btn" (click)="nextPage()" [disabled]="currentPage === totalPages - 1">
+      <span class="mi">chevron_right</span>
+    </button>
+    <div class="pag-dots">
+      <button class="pag-dot" 
+        *ngFor="let p of [].constructor(totalPages); let i = index"
+        [class.active]="i === currentPage"
+        (click)="goToPage(i)">
+        {{ i + 1 }}
+      </button>
+    </div>
   </div>
 
   <!-- ═══ Table ═══ -->

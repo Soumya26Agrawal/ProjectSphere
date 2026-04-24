@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DataService } from '../../core/services/data.service';
 import { UiService } from '../../core/services/ui.service';
+import { DefectApiService, Page } from '../../core/services/defect-api.service';
 import { Defect, DefectStatus } from '../../core/models/models';
 
 /** Mock linked-artifact shape — stands in until we wire the backend. */
@@ -17,17 +18,97 @@ interface ActivityEvent { icon: string; color: string; text: string; time: strin
   templateUrl: './defects.component.html',
   styleUrl: './defects.component.css',
 })
-export class DefectsComponent {
+export class DefectsComponent implements OnInit {
   search = '';
   statusFilter = '';
   sevFilter = '';
   repFilter = '';
-  assigneeFilter = '';
+  assignedFilter = '';
   selectedDefect: Defect | null = null;
   moreOpen = false;
   detailTab: 'details' | 'tests' | 'activity' = 'details';
 
-  constructor(public ds: DataService, public ui: UiService) {}
+  // Pagination
+  currentPage = 0;
+  pageSize = 10;
+  totalPages = 0;
+  totalElements = 0;
+  isLoading = false;
+  defectsPage: Defect[] = [];
+
+  constructor(
+    public ds: DataService,
+    public ui: UiService,
+    private defectApi: DefectApiService,
+  ) {}
+
+  ngOnInit(): void {
+    this.loadDefects();
+  }
+
+  /**
+   * Load defects from the backend with current filters and pagination.
+   */
+  loadDefects(): void {
+    this.isLoading = true;
+    this.defectApi.getAlDefects(
+      this.currentPage,
+      this.pageSize,
+      this.sevFilter || undefined,
+      this.statusFilter || undefined,
+      this.assignedFilter || undefined,
+    ).subscribe({
+      next: (response: Page<Defect>) => {
+        this.defectsPage = response.content;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading defects:', err);
+        this.isLoading = false;
+        this.ui.toast('Failed to load defects');
+      },
+    });
+  }
+
+  /**
+   * Called when filters change — reset to page 0 and reload.
+   */
+  onFilterChange(): void {
+    this.currentPage = 0;
+    this.loadDefects();
+  }
+
+  /**
+   * Pagination: go to next page.
+   */
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadDefects();
+    }
+  }
+
+  /**
+   * Pagination: go to previous page.
+   */
+  prevPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadDefects();
+    }
+  }
+
+  /**
+   * Pagination: go to a specific page.
+   */
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages) {
+      this.currentPage = page;
+      this.loadDefects();
+    }
+  }
 
   /* ── Status bucketing (collapse 10 backend states into 3 UI buckets) ── */
   private static readonly BUCKET_OPEN:     ReadonlyArray<string> = ['NEW','OPEN','REOPENED'];
@@ -40,26 +121,22 @@ export class DefectsComponent {
     return 'OPEN';
   }
 
-  /* ── Filtered list ────────────────────────────────────────────── */
+  /* ── Filtered list (local filtering on the current page) ────────── */
   get filteredDefects(): Defect[] {
     const s = this.search.toLowerCase();
-    return this.ds.defects.filter(d =>
-      (!this.statusFilter   || this.bucketFor(d) === this.statusFilter) &&
-      (!this.sevFilter      || d.sev === this.sevFilter) &&
-      (!this.repFilter      || d.rep === this.repFilter) &&
-      (!this.assigneeFilter || d.ass === this.assigneeFilter) &&
+    return this.defectsPage.filter(d =>
       (!s || d.title.toLowerCase().includes(s) || d.bid.toLowerCase().includes(s))
     );
   }
 
-  /* ── KPI getters ──────────────────────────────────────────────── */
-  get criticalCount(): number { return this.ds.defects.filter(d => d.sev === 'CRITICAL').length; }
-  get openCount():     number { return this.ds.defects.filter(d => this.bucketFor(d) === 'OPEN').length; }
-  get inProgCount():   number { return this.ds.defects.filter(d => this.bucketFor(d) === 'IN_PROGRESS').length; }
-  get resolvedCount(): number { return this.ds.defects.filter(d => this.bucketFor(d) === 'RESOLVED').length; }
+  /* ── KPI getters (from the current page, or use backend totals) ────── */
+  get criticalCount(): number { return this.defectsPage.filter(d => d.sev === 'CRITICAL').length; }
+  get openCount():     number { return this.defectsPage.filter(d => this.bucketFor(d) === 'OPEN').length; }
+  get inProgCount():   number { return this.defectsPage.filter(d => this.bucketFor(d) === 'IN_PROGRESS').length; }
+  get resolvedCount(): number { return this.defectsPage.filter(d => this.bucketFor(d) === 'RESOLVED').length; }
 
   countByStatus(status: DefectStatus): number {
-    return this.ds.defects.filter(d => d.status === status).length;
+    return this.defectsPage.filter(d => d.status === status).length;
   }
 
   readonly kanbanStates = [
@@ -72,11 +149,11 @@ export class DefectsComponent {
   ] as const;
 
   statusCount(status: DefectStatus): number {
-    return this.ds.defects.filter(d => d.status === status).length;
+    return this.defectsPage.filter(d => d.status === status).length;
   }
 
   defectsByState(status: DefectStatus): Defect[] {
-    return this.ds.defects.filter(d => d.status === status);
+    return this.defectsPage.filter(d => d.status === status);
   }
 
   allowDrop(event: DragEvent): void {
@@ -98,17 +175,28 @@ export class DefectsComponent {
     const defectId = payload ? Number(payload) : NaN;
     if (isNaN(defectId)) return;
 
-    const defect = this.ds.defects.find(d => d.id === defectId);
+    const defect = this.defectsPage.find(d => d.id === defectId);
     if (!defect || defect.status === targetStatus) return;
 
-    this.ds.updateDefectStatus(defectId, targetStatus);
-    this.ui.toast(`${defect.bid} moved to ${this.ds.sl(targetStatus)}`);
+    // Call the API to update the status
+    this.defectApi.updateDefectStatus(defectId, targetStatus).subscribe({
+      next: () => {
+        // Update local state
+        const updated = this.defectsPage.map(d => d.id === defectId ? {...d, status: targetStatus} : d);
+        this.defectsPage = updated;
+        this.ui.toast(`${defect.bid} moved to ${this.ds.sl(targetStatus)}`);
+      },
+      error: (err) => {
+        console.error('Error updating defect status:', err);
+        this.ui.toast('Failed to update defect status');
+      },
+    });
   }
 
   /** Resolution rate — percentage of defects that have been closed out. */
   get resolutionPct(): number {
-    return this.ds.defects.length
-      ? Math.round(this.resolvedCount / this.ds.defects.length * 100)
+    return this.totalElements
+      ? Math.round(this.resolvedCount / this.totalElements * 100)
       : 0;
   }
 
@@ -154,7 +242,7 @@ export class DefectsComponent {
 
   /** Unique assignee list, for the filter dropdown. */
   get assignees(): string[] {
-    const set = new Set(this.ds.defects.map(d => d.ass));
+    const set = new Set(this.defectsPage.map(d => d.ass));
     return Array.from(set).sort();
   }
 
@@ -168,9 +256,17 @@ export class DefectsComponent {
 
   deleteDefect(): void {
     if (this.selectedDefect) {
-      this.ds.deleteDefect(this.selectedDefect.id);
-      this.selectedDefect = null;
-      this.ui.toast('Defect deleted');
+      this.defectApi.deleteDefect(this.selectedDefect.id).subscribe({
+        next: () => {
+          this.defectsPage = this.defectsPage.filter(d => d.id !== this.selectedDefect!.id);
+          this.selectedDefect = null;
+          this.ui.toast('Defect deleted');
+        },
+        error: (err) => {
+          console.error('Error deleting defect:', err);
+          this.ui.toast('Failed to delete defect');
+        },
+      });
     }
   }
 

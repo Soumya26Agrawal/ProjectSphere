@@ -26,11 +26,15 @@ public class DefectController {
     public ResponseEntity<DefectResponseDTO> raiseDefect(@RequestBody DefectRequestDTO dto){
         Defect defect=defectService.raiseDefect(dto);
 
-        DefectResponseDTO response=DefectResponseDTO.builder().defectId(defect.getDefectId())
+        String expectedResult = defect.getTestCase() != null ? defect.getTestCase().getExpectedResult() : "No expected result";
+        String actualResult = defect.getTestCase() != null ? defect.getTestCase().getActualResult() : "No actual result";
+
+        DefectResponseDTO response=DefectResponseDTO.builder()
+                .defectId(defect.getDefectId())
                 .reproducible(defect.getReproducible())
                 .severity(defect.getSeverity())
-                .expectedResult(defect.getTestCase().getExpectedResult())
-                .actualResult(defect.getTestCase().getActualResult())
+                .expectedResult(expectedResult)
+                .actualResult(actualResult)
                 .stepsToReproduce(defect.getStepsToReproduce())
                 .status(defect.getStatus())
                 .build();
@@ -49,15 +53,20 @@ public class DefectController {
         List<Defect> defects=defectService.getAllDefects();
 
         List<DefectResponseDTO> response = defects.stream()
-                .map(defect -> DefectResponseDTO.builder()
+                .map(defect -> {
+                    String expectedResult = defect.getTestCase() != null ? defect.getTestCase().getExpectedResult() : "No expected result";
+                    String actualResult = defect.getTestCase() != null ? defect.getTestCase().getActualResult() : "No actual result";
+                    
+                    return DefectResponseDTO.builder()
                         .defectId(defect.getDefectId())
                         .reproducible(defect.getReproducible())
                         .severity(defect.getSeverity())
-                        .expectedResult(defect.getTestCase().getExpectedResult())
-                        .actualResult(defect.getTestCase().getActualResult())
+                        .expectedResult(expectedResult)
+                        .actualResult(actualResult)
                         .stepsToReproduce(defect.getStepsToReproduce())
                         .status(defect.getStatus())
-                        .build())
+                        .build();
+                })
                 .toList();
         
         return ResponseEntity.ok(response);

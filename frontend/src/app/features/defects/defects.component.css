@@ -508,3 +508,73 @@
   .dx-kanban-overview { grid-template-columns: 1fr; }
   .dx-detail-grid, .dx-result-pair { grid-template-columns: 1fr; }
 }
+
+/* Pagination styles */
+.dx-pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 12px;
+  background: #f5f6f7;
+  border-radius: 4px;
+  flex-wrap: wrap;
+}
+
+.pag-btn {
+  padding: 6px 12px;
+  border: 1px solid #dfe1e6;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.pag-btn:hover:not(:disabled) {
+  background: #0052cc;
+  color: #fff;
+  border-color: #0052cc;
+}
+
+.pag-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pag-info {
+  font-size: 13px;
+  color: #42526e;
+  font-weight: 500;
+}
+
+.pag-dots {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pag-dot {
+  min-width: 28px;
+  height: 28px;
+  border: 1px solid #dfe1e6;
+  background: #fff;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.pag-dot:hover {
+  background: #f5f6f7;
+  border-color: #0052cc;
+}
+
+.pag-dot.active {
+  background: #0052cc;
+  color: #fff;
+  border-color: #0052cc;
+  font-weight: 600;
+}

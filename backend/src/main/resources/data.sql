@@ -239,18 +239,18 @@ INSERT INTO defect (ticket_id, reproducible, severity, status, test_case_id) VAL
 (4,  'SOMETIMES', 'HIGH',     'OPEN',        2),
 (9,  'ALWAYS',    'CRITICAL', 'IN_PROGRESS', 5),
 (19, 'SOMETIMES', 'HIGH',     'NEW',         13),
-(2,  'ONCE',      'LOW',      'CLOSED',      NULL),
+(2,  'ONCE',      'LOW',      'CLOSED',      1),
 (6,  'ALWAYS',    'MEDIUM',   'OPEN',        3),
 (10, 'SOMETIMES', 'MEDIUM',   'FIXED',       6),
 (15, 'ALWAYS',    'HIGH',     'RETEST',      10),
 (18, 'SOMETIMES', 'MEDIUM',   'OPEN',        12),
-(8,  'ALWAYS',    'CRITICAL', 'REOPENED',    NULL),
-(12, 'ONCE',      'LOW',      'DEFERRED',    NULL),
-(14, 'ALWAYS',    'HIGH',     'OPEN',        NULL),
+(8,  'ALWAYS',    'CRITICAL', 'REOPENED',    4),
+(12, 'ONCE',      'LOW',      'DEFERRED',    7),
+(14, 'ALWAYS',    'HIGH',     'OPEN',        8),
 (20, 'SOMETIMES', 'LOW',      'CLOSED',      14),
-(11, 'ONCE',      'LOW',      'REJECTED',    NULL),
+(11, 'ONCE',      'LOW',      'REJECTED',    9),
 (16, 'ALWAYS',    'MEDIUM',   'NEW',         11),
-(17, 'SOMETIMES', 'CRITICAL', 'DUPLICATE',   NULL);
+(17, 'SOMETIMES', 'CRITICAL', 'DUPLICATE',   15);
 
 
 -- ═══════════════════════════════════════════════════════════════════════

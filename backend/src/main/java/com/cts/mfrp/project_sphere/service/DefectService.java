@@ -12,6 +12,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DefectService {
@@ -46,5 +48,9 @@ public class DefectService {
 
 
         defectRepository.save(defect);
+    }
+
+    public List<Defect> getAllDefects(){
+        return defectRepository.findAll();
     }
 }

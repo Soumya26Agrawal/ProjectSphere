@@ -1,88 +1,207 @@
-<!-- ── Page Header ── -->
-<div class="pm-header">
+<!-- Breadcrumb -->
+<div class="ax-breadcrumb">
+  <a routerLink="/pm">Project Manager</a>
+  <span class="mi">chevron_right</span>
+  <span>Dashboard</span>
+</div>
+
+<!-- Page header -->
+<div class="ax-page-head">
   <div>
-    <h1 class="pm-title">Project Manager Dashboard</h1>
-    <p class="pm-sub">Welcome back, {{ user()?.name }}</p>
+    <h1 class="ax-page-title">Project Manager Dashboard</h1>
+    <p class="ax-page-sub">Welcome back, {{ user()?.name }}. Here's a snapshot of the projects you own.</p>
   </div>
-  <button class="pm-logout" (click)="logout()">
-    <span class="mi">logout</span> Logout
+  <button class="ax-btn ghost" (click)="refreshAll()">
+    <span class="mi">refresh</span> Refresh
   </button>
 </div>
-<div class="pm-divider"></div>
 
-<!-- ── 3 KPI Cards ── -->
-<div class="kpi-row">
-  <div class="kpi-card" [ngClass]="s.cls" *ngFor="let s of stats">
-    <span class="mi kpi-icon">{{ s.icon }}</span>
-    <div class="kpi-val">{{ s.value }}</div>
-    <div class="kpi-lbl">{{ s.label }}</div>
+<!-- KPI cards -->
+<div class="ax-kpi-grid">
+  <button class="ax-kpi" (click)="goTo('/pm/projects')">
+    <span class="ax-kpi-icon blue"><span class="mi">folder_special</span></span>
+    <span>
+      <span class="ax-kpi-label">My Projects</span>
+      <div class="ax-kpi-value">{{ stats?.myProjects ?? '—' }}</div>
+    </span>
+  </button>
+  <button class="ax-kpi" (click)="goTo('/pm/projects')">
+    <span class="ax-kpi-icon amber"><span class="mi">schedule</span></span>
+    <span>
+      <span class="ax-kpi-label">Ongoing</span>
+      <div class="ax-kpi-value">{{ stats?.ongoingProjects ?? '—' }}</div>
+    </span>
+  </button>
+  <button class="ax-kpi" (click)="goTo('/pm/projects')">
+    <span class="ax-kpi-icon green"><span class="mi">check_circle</span></span>
+    <span>
+      <span class="ax-kpi-label">Completed</span>
+      <div class="ax-kpi-value">{{ stats?.completedProjects ?? '—' }}</div>
+    </span>
+  </button>
+  <button class="ax-kpi" (click)="goTo('/pm/teams')">
+    <span class="ax-kpi-icon purple"><span class="mi">groups</span></span>
+    <span>
+      <span class="ax-kpi-label">Teams</span>
+      <div class="ax-kpi-value">{{ myTeamsCount }}</div>
+    </span>
+  </button>
+</div>
+
+<div class="ax-err"  *ngIf="statsError"><span class="mi">error_outline</span> {{ statsError }}</div>
+<div class="ax-info" *ngIf="statsLoading">Loading stats…</div>
+
+<!-- Quick actions -->
+<h2 class="qa-h">Quick actions</h2>
+<div class="qa-row">
+  <button class="qa-card" (click)="openModal('project')" [disabled]="activeModal !== 'none'">
+    <span class="ax-kpi-icon green"><span class="mi">add_box</span></span>
+    <span class="qa-text">
+      <span class="qa-title">New Project</span>
+      <span class="qa-sub">Create a project under your name</span>
+    </span>
+    <span class="mi qa-arrow">arrow_forward</span>
+  </button>
+
+  <button class="qa-card" (click)="openModal('team')" [disabled]="activeModal !== 'none'">
+    <span class="ax-kpi-icon purple"><span class="mi">group_add</span></span>
+    <span class="qa-text">
+      <span class="qa-title">New Team</span>
+      <span class="qa-sub">Create a team for one of your projects</span>
+    </span>
+    <span class="mi qa-arrow">arrow_forward</span>
+  </button>
+
+  <button class="qa-card" (click)="goTo('/pm/projects')">
+    <span class="ax-kpi-icon blue"><span class="mi">folder_special</span></span>
+    <span class="qa-text">
+      <span class="qa-title">My Projects</span>
+      <span class="qa-sub">View and edit the projects you manage</span>
+    </span>
+    <span class="mi qa-arrow">arrow_forward</span>
+  </button>
+</div>
+
+<!-- Analytics -->
+<h2 class="qa-h">Analytics</h2>
+<div class="ax-info" *ngIf="analyticsLoading">Loading charts…</div>
+<div class="ax-err"  *ngIf="analyticsError"><span class="mi">error_outline</span> {{ analyticsError }}</div>
+
+<div class="charts-grid">
+  <div class="chart-card">
+    <h4>Project Status</h4>
+    <div class="ch-sub">Your ongoing vs completed projects</div>
+    <div class="chart-box"><canvas #cProjStatus></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Projects by Domain</h4>
+    <div class="ch-sub">Distribution across business domains</div>
+    <div class="chart-box"><canvas #cProjDomain></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Team Size Distribution</h4>
+    <div class="ch-sub">Number of projects per team-size bucket</div>
+    <div class="chart-box"><canvas #cTeamSize></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Projects Created (last 6 months)</h4>
+    <div class="ch-sub">Creation trend</div>
+    <div class="chart-box"><canvas #cCreated></canvas></div>
+  </div>
+  <div class="chart-card">
+    <h4>Completion Trend (last 6 months)</h4>
+    <div class="ch-sub">Projects marked completed over time</div>
+    <div class="chart-box"><canvas #cCompleted></canvas></div>
   </div>
 </div>
 
-<!-- ── Your Projects ── -->
-<h2 class="your-title">Your Projects</h2>
+<!-- ─── New Project modal ─── -->
+<div class="ax-modal-backdrop" *ngIf="activeModal === 'project'" (click)="closeModal()">
+  <div class="ax-modal wide" (click)="$event.stopPropagation()">
+    <header class="ax-modal-head">
+      <span class="ax-kpi-icon green"><span class="mi">add_box</span></span>
+      <div class="ax-modal-title">New Project</div>
+      <button class="ax-modal-close" (click)="closeModal()"><span class="mi">close</span></button>
+    </header>
 
-<div class="proj-card" *ngFor="let p of projects">
-
-  <!-- Card Top: Name + Status Badge -->
-  <div class="proj-top">
-    <div>
-      <h3 class="proj-name">{{ p.name }}</h3>
-      <p class="proj-desc">{{ p.description }}</p>
+    <div class="ax-modal-body">
+      <form [formGroup]="projectForm" (ngSubmit)="submitProject()" novalidate class="ax-form">
+        <label class="ax-field span2"><span>Project Name</span>
+          <input type="text" formControlName="projectName" /></label>
+        <label class="ax-field span2"><span>Description</span>
+          <textarea formControlName="description" rows="3"></textarea></label>
+        <label class="ax-field"><span>Status</span>
+          <select formControlName="status">
+            <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+          </select></label>
+        <label class="ax-field"><span>Domain</span>
+          <select formControlName="domain">
+            <option *ngFor="let d of domainOptions" [value]="d">{{ d }}</option>
+          </select></label>
+        <div class="ax-field span2">
+          <small class="ax-hint">This project will be created under your name. You can assign a team after creating it.</small>
+        </div>
+      </form>
+      <div class="ax-ok"  *ngIf="projectMessage"><span class="mi">check_circle</span> {{ projectMessage }}</div>
+      <div class="ax-err" *ngIf="projectError"><span class="mi">error_outline</span> {{ projectError }}</div>
     </div>
-    <span class="status-badge"
-          [ngClass]="p.status === 'ONGOING' ? 'badge-ongoing' : 'badge-done'">
-      {{ p.status }}
-    </span>
+
+    <footer class="ax-modal-foot">
+      <button class="ax-btn ghost" (click)="closeModal()">Cancel</button>
+      <button class="ax-btn primary" (click)="submitProject()" [disabled]="projectSubmitting">
+        <span class="mi" *ngIf="!projectSubmitting">add_box</span>
+        <span class="mi spin" *ngIf="projectSubmitting">sync</span>
+        {{ projectSubmitting ? 'Creating…' : 'Create Project' }}
+      </button>
+    </footer>
   </div>
+</div>
 
-  <!-- Meta Row: Team Lead / Absentees / Active Stories / Open Defects -->
-  <div class="proj-meta">
-    <div class="meta-item">
-      <span class="mi meta-icon tl-ic">person</span>
-      <div>
-        <span class="meta-lbl">Team Lead</span>
-        <div class="meta-val">{{ p.teamLead }}</div>
-      </div>
+<!-- ─── New Team modal ─── -->
+<div class="ax-modal-backdrop" *ngIf="activeModal === 'team'" (click)="closeModal()">
+  <div class="ax-modal wide" (click)="$event.stopPropagation()">
+    <header class="ax-modal-head">
+      <span class="ax-kpi-icon purple"><span class="mi">group_add</span></span>
+      <div class="ax-modal-title">New Team</div>
+      <button class="ax-modal-close" (click)="closeModal()"><span class="mi">close</span></button>
+    </header>
+
+    <div class="ax-modal-body">
+      <form [formGroup]="teamForm" (ngSubmit)="submitTeam()" novalidate class="ax-form">
+        <label class="ax-field span2">
+          <span>Team Name</span>
+          <input type="text" formControlName="teamName" placeholder="e.g. Phoenix Squad" />
+        </label>
+        <label class="ax-field span2">
+          <span>Project</span>
+          <select formControlName="projectId">
+            <option [ngValue]="null" disabled>— Select one of your projects —</option>
+            <option *ngFor="let p of projectsWithoutTeam" [ngValue]="p.projectId">
+              {{ p.projectName }} ({{ p.status === 'IN_PROGRESS' ? 'Ongoing' : 'Completed' }})
+            </option>
+          </select>
+          <small class="ax-hint" *ngIf="projectsWithoutTeam.length === 0">
+            All your projects already have teams. Create a project first.
+          </small>
+          <small class="ax-hint" *ngIf="projectsWithoutTeam.length > 0">
+            Only projects you manage that don't yet have a team are listed.
+          </small>
+        </label>
+        <div class="ax-field span2">
+          <small class="ax-hint">Members and scrum master can be added on the next screen.</small>
+        </div>
+      </form>
+      <div class="ax-ok"  *ngIf="teamMessage"><span class="mi">check_circle</span> {{ teamMessage }}</div>
+      <div class="ax-err" *ngIf="teamError"><span class="mi">error_outline</span> {{ teamError }}</div>
     </div>
-    <div class="meta-item">
-      <span class="mi meta-icon ab-ic">group</span>
-      <div>
-        <span class="meta-lbl">Absentees</span>
-        <div class="meta-val red">{{ p.absentees }} members</div>
-      </div>
-    </div>
-    <div class="meta-item">
-      <span class="mi meta-icon st-ic">check_circle</span>
-      <div>
-        <span class="meta-lbl">Active Stories</span>
-        <div class="meta-val">{{ p.activeStories }}</div>
-      </div>
-    </div>
-    <div class="meta-item">
-      <span class="mi meta-icon df-ic">error</span>
-      <div>
-        <span class="meta-lbl">Open Defects</span>
-        <div class="meta-val">{{ p.openDefects }}</div>
-      </div>
-    </div>
+
+    <footer class="ax-modal-foot">
+      <button class="ax-btn ghost" (click)="closeModal()">Cancel</button>
+      <button class="ax-btn primary" (click)="submitTeam()" [disabled]="teamSubmitting">
+        <span class="mi" *ngIf="!teamSubmitting">group_add</span>
+        <span class="mi spin" *ngIf="teamSubmitting">sync</span>
+        {{ teamSubmitting ? 'Creating…' : 'Create Team' }}
+      </button>
+    </footer>
   </div>
-
-  <!-- Progress Bar -->
-  <div class="prog-row">
-    <span class="prog-label">Progress</span>
-    <div class="prog-track">
-      <div class="prog-fill" [style.width.%]="p.progress"></div>
-    </div>
-    <span class="prog-pct">{{ p.progress }}%</span>
-  </div>
-
-  <div class="card-divider"></div>
-
-  <!-- Action Buttons -->
-  <div class="proj-actions">
-    <button class="btn-eval" routerLink="/evaluation">Evaluation</button>
-    <button class="btn-workspace" routerLink="/board">See Workspace</button>
-  </div>
-
 </div>

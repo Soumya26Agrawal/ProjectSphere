@@ -1,16 +1,19 @@
+/* Sidebar is pinned: position: fixed below the topnav. It does NOT scroll
+   with the page — only the inner list scrolls if it overflows vertically. */
 .sidebar {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  bottom: 0;
   width: 240px;
-  flex-shrink: 0;
   background: var(--surface);
   border-right: 1px solid var(--border);
   padding: 12px 8px;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  position: sticky;
-  top: 56px;
-  height: calc(100vh - 56px);
   overflow-y: auto;
+  z-index: 40;
 }
 
 .sb-section { margin-bottom: 4px; }
@@ -47,6 +50,16 @@
 .sb-item:hover .mi { color: var(--text2); }
 .sb-item.active { background: var(--jira-blue-pale); color: var(--jira-blue); font-weight: 600; }
 .sb-item.active .mi { color: var(--jira-blue); }
+
+/* "Home" gets a subtle accent so it reads as the primary escape-hatch. */
+.sb-item.sb-home {
+  background: #F4F8FF;
+  color: var(--jira-blue);
+  font-weight: 600;
+  border: 1px solid #DEEBFF;
+}
+.sb-item.sb-home .mi { color: var(--jira-blue); }
+.sb-item.sb-home:hover { background: #DEEBFF; }
 
 .sb-count {
   margin-left: auto;

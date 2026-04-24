@@ -1,53 +1,77 @@
-<div>
+<div class="dx-wrap">
+  <!-- Breadcrumb -->
   <div class="breadcrumb">
-    <span class="bc-link" routerLink="/summary">ProjectSphere</span>
+    <span class="bc-link" routerLink="/board">ProjectSphere</span>
     <span class="bc-sep mi">chevron_right</span>Defect Tracker
   </div>
 
+  <!-- Header -->
   <div class="page-hdr">
     <div>
       <div class="page-title">Defect Tracker</div>
-      <div class="page-sub">Manage and track system bugs and environment defects</div>
+      <div class="page-sub">Triage, assign and resolve defects across the project.</div>
     </div>
     <div class="page-actions">
       <button class="btn btn-secondary" (click)="ui.toast('Export defects report')">
         <span class="mi">download</span>Export
       </button>
-      <button class="btn btn-primary" (click)="showReportDialog = true">
+      <button class="btn btn-primary" (click)="ui.openReportDefect()">
         <span class="mi">add</span>Report Defect
       </button>
     </div>
   </div>
 
-  <!-- Stats -->
-  <div class="defect-stats">
-    <div class="dstat dstat-total" (click)="ui.toast('Total Defects: ' + ds.defects.length)">
-      <span class="mi dstat-icon">summarize</span>
-      <div class="dstat-val">{{ ds.defects.length }}</div>
-      <div class="dstat-lbl">Total Defects</div>
+  <!-- ═══ KPIs ═══ -->
+  <div class="dx-kpi-grid">
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon blue"><span class="mi">bug_report</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ ds.defects.length }}</div>
+        <div class="dx-kpi-lbl">Total Defects</div>
+      </div>
     </div>
-    <div class="dstat dstat-critical" (click)="ui.toast('Critical: ' + criticalCount)">
-      <span class="mi dstat-icon">warning</span>
-      <div class="dstat-val">{{ criticalCount }}</div>
-      <div class="dstat-lbl">Critical Bugs</div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon red"><span class="mi">warning</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ criticalCount }}</div>
+        <div class="dx-kpi-lbl">Critical</div>
+      </div>
     </div>
-    <div class="dstat dstat-open" (click)="ui.toast('Open: ' + openCount)">
-      <span class="mi dstat-icon">pending</span>
-      <div class="dstat-val">{{ openCount }}</div>
-      <div class="dstat-lbl">Open / Pending</div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon amber"><span class="mi">error_outline</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ openCount }}</div>
+        <div class="dx-kpi-lbl">Open</div>
+      </div>
     </div>
-    <div class="dstat dstat-resolved" (click)="ui.toast('Resolved: ' + resolvedCount)">
-      <span class="mi dstat-icon">check_circle</span>
-      <div class="dstat-val">{{ resolvedCount }}</div>
-      <div class="dstat-lbl">Resolved</div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon purple"><span class="mi">hourglass_top</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ inProgCount }}</div>
+        <div class="dx-kpi-lbl">In Progress</div>
+      </div>
+    </div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon green"><span class="mi">check_circle</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ resolvedCount }}</div>
+        <div class="dx-kpi-lbl">Resolved</div>
+      </div>
+    </div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon teal"><span class="mi">trending_up</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ resolutionPct }}%</div>
+        <div class="dx-kpi-lbl">Resolution Rate</div>
+      </div>
     </div>
   </div>
 
-  <!-- Filters -->
-  <div class="defect-filter-bar">
+  <!-- ═══ Filters ═══ -->
+  <div class="dx-toolbar">
     <div class="jira-search">
       <span class="mi">search</span>
-      <input [(ngModel)]="search" placeholder="Search defects…" style="width:220px"/>
+      <input [(ngModel)]="search" placeholder="Search by ID or title…"/>
     </div>
     <div class="seg">
       <button class="seg-btn" [class.active]="statusFilter === ''"            (click)="statusFilter = ''">All</button>
@@ -56,160 +80,236 @@
       <button class="seg-btn" [class.active]="statusFilter === 'RESOLVED'"    (click)="statusFilter = 'RESOLVED'">Resolved</button>
     </div>
     <select class="jira-select" [(ngModel)]="sevFilter">
-      <option value="">All Severities</option>
+      <option value="">All severities</option>
       <option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option>
     </select>
     <select class="jira-select" [(ngModel)]="repFilter">
-      <option value="">Reproducible</option>
-      <option>ALWAYS</option><option>SOMETIMES</option><option>RARELY</option><option>NEVER</option>
+      <option value="">Reproducibility</option>
+      <option>ALWAYS</option><option>SOMETIMES</option><option>ONCE</option>
+    </select>
+    <select class="jira-select" [(ngModel)]="assigneeFilter">
+      <option value="">All assignees</option>
+      <option *ngFor="let a of assignees">{{ a }}</option>
     </select>
   </div>
 
-  <!-- Defect List -->
-  <div *ngIf="filteredDefects.length > 0; else noDefects">
-    <div *ngFor="let d of filteredDefects" class="defect-row" (click)="openDefect(d)">
-      <span class="defect-row-id">{{ d.bid }}</span>
-      <span class="sev-chip" [ngStyle]="sevStyle(d.sev)">{{ d.sev }}</span>
-      <span class="defect-row-title">{{ d.title }}</span>
-      <span class="defect-row-env" [title]="d.env">
-        <span class="mi" style="font-size:13px;vertical-align:middle">computer</span> {{ d.env }}
-      </span>
-      <div class="defect-row-ass">
-        <div class="k-card-av" [style.background]="ds.avColor(d.ass)" style="width:22px;height:22px;font-size:.58rem">
-          {{ ds.ini(d.ass) }}
-        </div>
-        {{ d.ass }}
-      </div>
-      <span class="lozenge" [ngClass]="ds.dfLoz(d.status)">{{ ds.sl(d.status) }}</span>
-    </div>
+  <!-- ═══ Table ═══ -->
+  <div class="dx-table-wrap" *ngIf="filteredDefects.length > 0; else noDefects">
+    <table class="dx-table">
+      <thead>
+        <tr>
+          <th style="width:90px">ID</th>
+          <th style="width:90px">Severity</th>
+          <th>Title</th>
+          <th>Environment</th>
+          <th style="width:120px">Reproducibility</th>
+          <th style="width:170px">Assignee</th>
+          <th style="width:130px">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of filteredDefects" class="dx-row" (click)="openDefect(d)">
+          <td><span class="dx-id">{{ d.bid }}</span></td>
+          <td><span [ngStyle]="sevStyle(d.sev)">{{ d.sev }}</span></td>
+          <td class="dx-title">{{ d.title }}</td>
+          <td>
+            <span class="dx-env" [title]="d.env">
+              <span class="mi">computer</span>
+              <span class="dx-env-text">{{ d.env }}</span>
+            </span>
+          </td>
+          <td>
+            <span class="dx-rep-chip">{{ d.rep }}</span>
+          </td>
+          <td>
+            <span class="dx-ass">
+              <span class="k-card-av" [style.background]="ds.avColor(d.ass)">{{ ds.ini(d.ass) }}</span>
+              <span class="dx-ass-name">{{ d.ass }}</span>
+            </span>
+          </td>
+          <td>
+            <span class="lozenge" [ngClass]="ds.dfLoz(d.status)">{{ ds.sl(d.status) }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   <ng-template #noDefects>
-    <div style="text-align:center;padding:40px;color:var(--text3)">
-      <span class="mi" style="font-size:32px;display:block;margin-bottom:8px;opacity:.3">bug_report</span>
-      No defects found
+    <div class="dx-empty">
+      <span class="mi">bug_report</span>
+      <h3>No defects match</h3>
+      <p>Try clearing the search or relaxing the filters.</p>
     </div>
   </ng-template>
 
-  <!-- Defect Detail Dialog -->
+  <!-- ═══ Detail slide-over (Zephyr-style) ═══ -->
   <div class="overlay" [class.open]="!!selectedDefect" (click)="onOverlayClick($event, 'detail')">
-    <div class="dialog dialog-wide" *ngIf="selectedDefect">
-      <div class="dialog-hdr">
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <span class="sev-chip" [ngStyle]="sevStyle(selectedDefect.sev)">{{ selectedDefect.sev }}</span>
-          <span class="lozenge" [ngClass]="ds.dfLoz(selectedDefect.status)">{{ ds.sl(selectedDefect.status) }}</span>
-          <span style="font-size:13px;font-weight:600;color:var(--jira-blue)">{{ selectedDefect.bid }}</span>
-          <span style="font-weight:600;font-size:15px;color:var(--text)">{{ selectedDefect.title }}</span>
+    <aside class="dx-drawer" *ngIf="selectedDefect">
+      <!-- Drawer header -->
+      <header class="dx-drawer-hdr">
+        <div class="dx-drawer-heading">
+          <div class="dx-drawer-id">{{ selectedDefect.bid }}</div>
+          <h2 class="dx-drawer-title">{{ selectedDefect.title }}</h2>
+          <div class="dx-drawer-chips">
+            <span [ngStyle]="sevStyle(selectedDefect.sev)">{{ selectedDefect.sev }}</span>
+            <span class="lozenge" [ngClass]="ds.dfLoz(selectedDefect.status)">{{ ds.sl(selectedDefect.status) }}</span>
+            <span class="dx-rep-chip">{{ selectedDefect.rep }}</span>
+          </div>
         </div>
-        <div style="display:flex;gap:6px">
-          <div class="dropdown" style="position:relative">
-            <button class="icon-btn" (click)="moreOpen = !moreOpen"><span class="mi">more_horiz</span></button>
-            <div class="dropdown-menu" [class.open]="moreOpen">
-              <button class="dropdown-item" (click)="ui.toast('Defect assigned'); moreOpen=false">
-                <span class="mi">person_add</span>Assign
-              </button>
-              <button class="dropdown-item" (click)="ui.toast('Status updated to Resolved'); selectedDefect=null; moreOpen=false">
-                <span class="mi">check_circle</span>Mark Resolved
-              </button>
-              <div class="dropdown-sep"></div>
-              <button class="dropdown-item danger" (click)="deleteDefect()">
-                <span class="mi">delete</span>Delete Defect
-              </button>
+        <div class="dx-drawer-actions">
+          <button class="icon-btn" (click)="moreOpen = !moreOpen; $event.stopPropagation()">
+            <span class="mi">more_horiz</span>
+          </button>
+          <div class="dropdown-menu" [class.open]="moreOpen" style="right:40px;top:46px">
+            <button class="dropdown-item" (click)="ui.toast('Defect assigned'); moreOpen=false">
+              <span class="mi">person_add</span>Assign
+            </button>
+            <button class="dropdown-item" (click)="ui.toast('Status moved to In Progress'); moreOpen=false">
+              <span class="mi">play_arrow</span>Start Progress
+            </button>
+            <button class="dropdown-item" (click)="ui.toast('Status moved to Fixed'); moreOpen=false">
+              <span class="mi">check_circle</span>Mark Fixed
+            </button>
+            <div class="dropdown-sep"></div>
+            <button class="dropdown-item danger" (click)="deleteDefect()">
+              <span class="mi">delete</span>Delete Defect
+            </button>
+          </div>
+          <button class="icon-btn" (click)="closeDefect()"><span class="mi">close</span></button>
+        </div>
+      </header>
+
+      <!-- Drawer tabs -->
+      <nav class="dx-tabs">
+        <button class="dx-tab" [class.active]="detailTab==='details'"  (click)="detailTab='details'">Details</button>
+        <button class="dx-tab" [class.active]="detailTab==='tests'"    (click)="detailTab='tests'">
+          Linked Test Cases <span class="dx-tab-badge">{{ linkedTests(selectedDefect).length }}</span>
+        </button>
+        <button class="dx-tab" [class.active]="detailTab==='activity'" (click)="detailTab='activity'">Activity</button>
+      </nav>
+
+      <!-- Drawer body -->
+      <div class="dx-drawer-body">
+
+        <!-- DETAILS TAB -->
+        <div *ngIf="detailTab === 'details'">
+          <section class="dx-section">
+            <h4>Description</h4>
+            <p>{{ selectedDefect.desc }}</p>
+          </section>
+
+          <section class="dx-section">
+            <h4>Details</h4>
+            <div class="dx-detail-grid">
+              <div class="dx-detail">
+                <small>Environment</small>
+                <strong><span class="mi">computer</span>{{ selectedDefect.env }}</strong>
+              </div>
+              <div class="dx-detail">
+                <small>Reproducibility</small>
+                <strong>{{ selectedDefect.rep }}</strong>
+              </div>
+              <div class="dx-detail">
+                <small>Assignee</small>
+                <strong>
+                  <div class="k-card-av" [style.background]="ds.avColor(selectedDefect.ass)">{{ ds.ini(selectedDefect.ass) }}</div>
+                  {{ selectedDefect.ass }}
+                </strong>
+              </div>
+              <div class="dx-detail">
+                <small>Severity</small>
+                <strong>
+                  <span [ngStyle]="sevStyle(selectedDefect.sev)">{{ selectedDefect.sev }}</span>
+                </strong>
+              </div>
             </div>
+          </section>
+
+          <section class="dx-section">
+            <h4>Expected vs Actual</h4>
+            <div class="dx-result-pair">
+              <div class="dx-result dx-result-expected">
+                <header><span class="mi">check_circle</span> Expected</header>
+                <p>{{ selectedDefect.exp }}</p>
+              </div>
+              <div class="dx-result dx-result-actual">
+                <header><span class="mi">cancel</span> Actual</header>
+                <p>{{ selectedDefect.act }}</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="dx-section">
+            <h4>Steps to Reproduce</h4>
+            <ol class="dx-steps">
+              <li *ngFor="let step of getSteps(selectedDefect.steps)">{{ step }}</li>
+            </ol>
+          </section>
+
+          <div class="dx-drawer-quick">
+            <button class="btn btn-primary btn-sm" (click)="ui.toast('Status moved to In Progress'); closeDefect()">
+              <span class="mi">play_arrow</span>Start Progress
+            </button>
+            <button class="btn btn-secondary btn-sm" (click)="ui.toast('Status moved to Fixed'); closeDefect()">
+              <span class="mi">check</span>Mark Fixed
+            </button>
+            <button class="btn btn-secondary btn-sm" (click)="ui.toast('Status moved to Retest'); closeDefect()">
+              <span class="mi">science</span>Retest
+            </button>
           </div>
-          <button class="icon-btn" (click)="selectedDefect = null"><span class="mi">close</span></button>
         </div>
+
+        <!-- LINKED TESTS TAB -->
+        <div *ngIf="detailTab === 'tests'">
+          <section class="dx-section">
+            <h4>Linked Test Cases</h4>
+            <p class="dx-note">Test cases that surfaced this defect — click to jump to the test run.</p>
+            <div class="dx-tc-list">
+              <div class="dx-tc-row" *ngFor="let tc of linkedTests(selectedDefect)">
+                <span class="dx-tc-id">{{ tc.id }}</span>
+                <span class="dx-tc-title">{{ tc.title }}</span>
+                <span class="dx-tc-result" [ngClass]="tcResultClass(tc.result)">
+                  <span class="mi">
+                    {{ tc.result === 'PASSED' ? 'check_circle' :
+                       tc.result === 'FAILED' ? 'cancel' : 'radio_button_unchecked' }}
+                  </span>
+                  {{ tc.result }}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section class="dx-section">
+            <h4>Attachments</h4>
+            <div class="dx-empty-inline">
+              <span class="mi">attachment</span>
+              <p>No attachments yet.</p>
+            </div>
+          </section>
+        </div>
+
+        <!-- ACTIVITY TAB -->
+        <div *ngIf="detailTab === 'activity'">
+          <section class="dx-section">
+            <h4>Activity Log</h4>
+            <ul class="dx-timeline">
+              <li *ngFor="let a of activityFor(selectedDefect)">
+                <span class="dx-timeline-dot" [style.background]="a.color">
+                  <span class="mi">{{ a.icon }}</span>
+                </span>
+                <div>
+                  <div class="dx-timeline-text" [innerHTML]="a.text"></div>
+                  <div class="dx-timeline-time">{{ a.time }}</div>
+                </div>
+              </li>
+            </ul>
+          </section>
+        </div>
+
       </div>
-      <div class="dialog-body">
-        <p style="font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:14px">{{ selectedDefect.desc }}</p>
-        <div class="defect-detail-info">
-          <div class="defect-info-box"><strong>Environment</strong><span>{{ selectedDefect.env }}</span></div>
-          <div class="defect-info-box"><strong>Reproducible</strong><span>{{ selectedDefect.rep }}</span></div>
-          <div class="defect-info-box">
-            <strong>Assigned To</strong>
-            <span style="display:flex;align-items:center;gap:6px;margin-top:4px">
-              <div class="k-card-av" [style.background]="ds.avColor(selectedDefect.ass)">{{ ds.ini(selectedDefect.ass) }}</div>
-              {{ selectedDefect.ass }}
-            </span>
-          </div>
-        </div>
-        <div class="result-pair">
-          <div class="result-box result-expected"><strong>Expected Result</strong><p>{{ selectedDefect.exp }}</p></div>
-          <div class="result-box result-actual"><strong>Actual Result</strong><p>{{ selectedDefect.act }}</p></div>
-        </div>
-        <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">
-          Steps to Reproduce
-        </div>
-        <ol class="steps-list">
-          <li *ngFor="let step of getSteps(selectedDefect.steps)">{{ step }}</li>
-        </ol>
-        <div style="margin-top:16px;display:flex;gap:8px">
-          <button class="btn btn-primary btn-sm" (click)="ui.toast('Status updated to In Progress'); selectedDefect=null">
-            <span class="mi">play_arrow</span>Start Progress
-          </button>
-          <button class="btn btn-secondary btn-sm" (click)="ui.toast('Status updated to Resolved'); selectedDefect=null">
-            <span class="mi">check</span>Resolve
-          </button>
-          <button class="btn btn-secondary btn-sm" (click)="ui.toast('Defect assigned')">
-            <span class="mi">person_add</span>Assign
-          </button>
-        </div>
-      </div>
-    </div>
+    </aside>
   </div>
 
-  <!-- Report Defect Dialog -->
-  <div class="overlay" [class.open]="showReportDialog" (click)="onOverlayClick($event, 'report')">
-    <div class="dialog">
-      <div class="dialog-hdr">
-        <h2>Report New Defect</h2>
-        <button class="icon-btn" (click)="showReportDialog = false"><span class="mi">close</span></button>
-      </div>
-      <div class="dialog-body">
-        <div class="field">
-          <label>Defect Summary *</label>
-          <input [(ngModel)]="form.title" placeholder="Brief description of the bug…"/>
-        </div>
-        <div class="field">
-          <label>Environment</label>
-          <input [(ngModel)]="form.env" placeholder="e.g. Windows 11, Chrome 120, Staging"/>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Severity</label>
-            <select [(ngModel)]="form.sev">
-              <option>MEDIUM</option><option>CRITICAL</option><option>HIGH</option><option>LOW</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Reproducible</label>
-            <select [(ngModel)]="form.rep">
-              <option>ALWAYS</option><option>SOMETIMES</option><option>RARELY</option><option>NEVER</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label>Description</label>
-          <textarea [(ngModel)]="form.desc" rows="3" placeholder="Full bug details…"></textarea>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Expected Result</label>
-            <textarea [(ngModel)]="form.exp" rows="2" placeholder="What should happen…" style="border-color:#A5D6A7"></textarea>
-          </div>
-          <div class="field">
-            <label>Actual Result</label>
-            <textarea [(ngModel)]="form.act" rows="2" placeholder="What actually happened…" style="border-color:#FFCDD2"></textarea>
-          </div>
-        </div>
-        <div class="field">
-          <label>Steps to Reproduce</label>
-          <textarea [(ngModel)]="form.steps" rows="3" placeholder="1. Navigate to…&#10;2. Click on…&#10;3. Observe…"></textarea>
-        </div>
-      </div>
-      <div class="dialog-footer">
-        <button class="btn btn-secondary" (click)="showReportDialog = false">Cancel</button>
-        <button class="btn btn-primary"   (click)="submitDefect()">Submit Defect</button>
-      </div>
-    </div>
-  </div>
+  <!-- Report-defect dialog lives globally in AppComponent; this page just
+       triggers it via ui.openReportDefect(). -->
 </div>

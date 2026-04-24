@@ -12,6 +12,7 @@ export class UiService {
   /* ── Dialog / Panel State ── */
   selectedTicket: Ticket | null = null;
   createIssueOpen = false;
+  reportDefectOpen = false;
   notifOpen = false;
 
   /* ── Notifications ── */
@@ -63,6 +64,15 @@ export class UiService {
 
   closeCreateIssue(): void {
     this.createIssueOpen = false;
+  }
+
+  /* ── Report Defect Dialog ── */
+  openReportDefect(): void {
+    this.reportDefectOpen = true;
+  }
+
+  closeReportDefect(): void {
+    this.reportDefectOpen = false;
   }
 
   /* ── Notification Panel ── */

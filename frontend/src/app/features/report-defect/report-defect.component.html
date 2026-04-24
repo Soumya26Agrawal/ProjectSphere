@@ -1,0 +1,114 @@
+<div class="overlay" [class.open]="open" (click)="onOverlayClick($event)">
+  <div class="dialog form-dialog rd-dialog">
+    <div class="dialog-hdr">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="form-head-icon red"><span class="mi">bug_report</span></span>
+        <div>
+          <h2 style="margin:0">Report Defect</h2>
+          <small style="color:var(--text3);font-size:12px">Log a bug so the team can triage and fix it.</small>
+        </div>
+      </div>
+      <button class="icon-btn" (click)="close.emit()"><span class="mi">close</span></button>
+    </div>
+
+    <div class="dialog-body">
+      <div class="form-field">
+        <label>Summary *</label>
+        <div class="form-input">
+          <input [(ngModel)]="form.title" placeholder="Short description of the bug…"/>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Environment</label>
+        <div class="form-input">
+          <input [(ngModel)]="form.env" placeholder="e.g. Windows 11, Chrome 120, Staging"/>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>Severity</label>
+          <div class="form-input">
+            <select [(ngModel)]="form.sev">
+              <option>CRITICAL</option><option>HIGH</option>
+              <option>MEDIUM</option><option>LOW</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Reproducibility</label>
+          <div class="form-input">
+            <select [(ngModel)]="form.rep">
+              <option>ALWAYS</option><option>SOMETIMES</option><option>ONCE</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Description</label>
+        <div class="form-input">
+          <textarea [(ngModel)]="form.desc" rows="3" placeholder="Detail what went wrong…"></textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>Expected Result</label>
+          <div class="form-input expected">
+            <textarea [(ngModel)]="form.exp" rows="2" placeholder="What should happen…"></textarea>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Actual Result</label>
+          <div class="form-input actual">
+            <textarea [(ngModel)]="form.act" rows="2" placeholder="What actually happened…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Steps to Reproduce</label>
+        <div class="form-input">
+          <textarea [(ngModel)]="form.steps" rows="3" placeholder="1. Navigate to…&#10;2. Click on…&#10;3. Observe…"></textarea>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Attachments</label>
+        <label class="rd-upload">
+          <span class="mi">cloud_upload</span>
+          <span>Click to attach screenshots or logs</span>
+          <input type="file" multiple hidden (change)="onFilesSelected($event)"/>
+        </label>
+        <div class="rd-attach-list" *ngIf="attachments.length > 0">
+          <div class="rd-attach" *ngFor="let a of attachments; let i = index">
+            <span class="mi">insert_drive_file</span>
+            <div class="rd-attach-body">
+              <strong>{{ a.name }}</strong>
+              <small>{{ a.size }}</small>
+            </div>
+            <button type="button" class="rd-attach-remove" (click)="removeAttachment(i)">
+              <span class="mi">close</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Remarks</label>
+        <div class="form-input">
+          <textarea [(ngModel)]="form.remarks" rows="2" placeholder="Additional context for the triage team…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-footer">
+      <button class="btn btn-secondary" (click)="close.emit()">Cancel</button>
+      <button class="btn btn-primary" (click)="submit()">
+        <span class="mi">bug_report</span>Submit Defect
+      </button>
+    </div>
+  </div>
+</div>

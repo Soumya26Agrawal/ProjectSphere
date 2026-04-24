@@ -1,36 +1,36 @@
-<nav class="topnav">
-  <a class="tn-logo" routerLink="/summary">
-    <div class="tn-logo-icon">PS</div>
-    ProjectSphere
+<!-- Top bar — identical structure to admin-shell and pm-shell -->
+<header class="ax-topbar">
+  <a class="ax-brand" routerLink="/board">
+    <span class="ax-logo">
+      <span class="mi">dashboard</span>
+    </span>
+    <span class="ax-brand-name">Project Sphere</span>
   </a>
-  <div class="tn-divider"></div>
-  <div class="tn-project" routerLink="/summary">
-    <span class="mi" style="font-size:14px">folder_open</span>
-    <span class="mi" style="font-size:12px">expand_more</span>
+
+  <div class="ax-search-top">
+    <span class="mi">search</span>
+    <input type="text" [(ngModel)]="query"
+           placeholder="Search tickets, defects, team members..." />
   </div>
-  <div class="tn-nav">
-    <button class="tn-btn" routerLink="/summary" routerLinkActive="active"><span class="mi">home</span>Summary</button>
-    <button class="tn-btn" routerLink="/board" routerLinkActive="active"><span class="mi">view_kanban</span>Board</button>
-    <button class="tn-btn" routerLink="/backlog" routerLinkActive="active"><span class="mi">view_list</span>Backlog</button>
-    <button class="tn-btn" routerLink="/timeline" routerLinkActive="active"><span class="mi">timeline</span>Timeline</button>
-    <button class="tn-btn" routerLink="/history" routerLinkActive="active"><span class="mi">history</span>History</button>
-    <button class="tn-btn" routerLink="/defects" routerLinkActive="active"><span class="mi">bug_report</span>Defects</button>
-    <button class="tn-btn" routerLink="/analytics" routerLinkActive="active"><span class="mi">bar_chart</span>Analytics</button>
-    <button class="tn-btn" routerLink="/team" routerLinkActive="active"><span class="mi">group</span>Team</button>
-  </div>
-  <div class="tn-right">
-    <button class="tn-icon-btn" (click)="ui.toggleNotif()" title="Notifications">
-      <span class="mi">notifications</span>
-      <span class="notif-badge" *ngIf="ui.unreadCount > 0">{{ ui.unreadCount }}</span>
+
+  <div class="ax-topbar-right">
+    <button class="ax-avatar-btn" (click)="toggleMenu(); $event.stopPropagation()" aria-label="Profile">
+      <span class="ax-avatar">{{ currentUser()?.avatar || 'U' }}</span>
     </button>
-    <button class="tn-icon-btn" title="Help" (click)="ui.toast('Help center coming soon')"><span class="mi">help_outline</span></button>
-    <button class="tn-icon-btn" title="Settings" routerLink="/settings"><span class="mi">settings</span></button>
-    <div class="tn-user">
-      <div class="tn-avatar">{{ currentUser()?.avatar || 'U' }}</div>
-      <span>{{ currentUser()?.name || 'User' }}</span>
+
+    <div class="ax-menu" *ngIf="menuOpen">
+      <div class="ax-menu-head">
+        <div class="ax-avatar lg">{{ currentUser()?.avatar || 'U' }}</div>
+        <div class="ax-menu-info">
+          <div class="ax-menu-name">{{ currentUser()?.name || 'User' }}</div>
+          <div class="ax-menu-mail">{{ currentUser()?.email || '' }}</div>
+        </div>
+      </div>
+      <button class="ax-menu-btn" (click)="logout()">
+        <span class="mi">logout</span> Logout
+      </button>
     </div>
-    <button class="tn-icon-btn tn-logout" title="Logout" (click)="logout()">
-      <span class="mi">logout</span>
-    </button>
   </div>
-</nav>
+</header>
+
+<div class="ax-shade" *ngIf="menuOpen" (click)="closeMenu()"></div>

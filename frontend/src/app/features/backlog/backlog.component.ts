@@ -20,14 +20,17 @@ export class BacklogComponent implements OnInit {
   ngOnInit(): void {}
 
   get activeSprints() { return this.ds.sprints.filter(s => s.status === 'ACTIVE'); }
-  get doneSprints()   { return this.ds.sprints.filter(s => s.status === 'DONE'); }
-  get backlogTickets(): Ticket[] { return this.ds.tickets.filter(t => t.status === 'BACKLOG'); }
-
-  getSprintTickets(sprintName: string): Ticket[] {
-    return this.ds.tickets.filter(t => t.sprint === sprintName && t.status !== 'BACKLOG');
+  get doneSprints()   { return this.ds.sprints.filter(s => s.status === 'COMPLETED'); }
+  /** Backlog = tickets with no sprint assigned. Epics are shown separately. */
+  get backlogTickets(): Ticket[] {
+    return this.ds.tickets.filter(t => !t.sprint && t.type !== 'EPIC');
   }
 
-  sprintDone(name: string): number  { return this.getSprintTickets(name).filter(t => t.status === 'DONE').length; }
+  getSprintTickets(sprintName: string): Ticket[] {
+    return this.ds.tickets.filter(t => t.sprint === sprintName);
+  }
+
+  sprintDone(name: string): number  { return this.getSprintTickets(name).filter(t => t.status === 'COMPLETED').length; }
   sprintTotal(name: string): number { return this.getSprintTickets(name).length; }
   sprintPct(name: string): number   { const t = this.sprintTotal(name); return t ? Math.round(this.sprintDone(name) / t * 100) : 0; }
 

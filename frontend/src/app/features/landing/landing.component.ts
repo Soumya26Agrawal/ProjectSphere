@@ -17,6 +17,6 @@ export class LandingComponent {
   }
 
   goToDashboard(): void {
-    this.router.navigate(['/summary']);
+    this.router.navigate(['/board']);
   }
 }

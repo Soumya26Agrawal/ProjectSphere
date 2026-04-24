@@ -1,15 +1,28 @@
+/* ═══════════════════════════════════════════════════════════════
+   Models that mirror the backend enums so the frontend speaks
+   the same language as the REST API we'll wire up later.
+   ═══════════════════════════════════════════════════════════════ */
+
+export type TicketType   = 'EPIC' | 'USER_STORY' | 'TASK' | 'SUB_TASK' | 'DEFECT';
+export type TicketStatus = 'TO_DO' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETED';
+export type Priority     = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+
 export interface Ticket {
   id: number;
-  type: 'STORY' | 'TASK' | 'BUG' | 'SUBTASK';
+  type: TicketType;
   sum: string;
   desc?: string;
   ass?: string;
   rep?: string;
-  pri: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-  status: 'TO_DO' | 'IN_PROGRESS' | 'TESTED' | 'DONE' | 'BACKLOG';
+  pri: Priority;
+  status: TicketStatus;
   pts?: number;
+  /** Name of the parent epic (for USER_STORY or TASK grouping). */
   epic?: string;
+  /** Id of the parent ticket (for SUB_TASK under a USER_STORY). */
+  parentId?: number | null;
   labels?: string;
+  /** `null` means the ticket is in the product backlog (no sprint). */
   sprint?: string | null;
   comments: Comment[];
 }
@@ -20,19 +33,25 @@ export interface Comment {
   time: string;
 }
 
+export type DefectSeverity      = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+export type DefectReproducibility = 'ALWAYS' | 'SOMETIMES' | 'ONCE';
+export type DefectStatus        =
+  | 'NEW' | 'OPEN' | 'IN_PROGRESS' | 'FIXED' | 'RETEST'
+  | 'CLOSED' | 'REOPENED' | 'DEFERRED' | 'REJECTED' | 'DUPLICATE';
+
 export interface Defect {
   id: number;
   bid: string;
   title: string;
   env: string;
-  sev: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-  rep: 'ALWAYS' | 'SOMETIMES' | 'RARELY' | 'NEVER';
+  sev: DefectSeverity;
+  rep: DefectReproducibility;
   desc: string;
   exp: string;
   act: string;
   steps: string;
   ass: string;
-  status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED';
+  status: DefectStatus;
 }
 
 export interface Engineer {
@@ -53,12 +72,14 @@ export interface Notification {
   read: boolean;
 }
 
+export type SprintStatus = 'PLANNED' | 'ACTIVE' | 'COMPLETED';
+
 export interface Sprint {
   id: number;
   name: string;
   start: string;
   end: string;
-  status: 'ACTIVE' | 'DONE';
+  status: SprintStatus;
 }
 
 export interface HistoryItem {
@@ -67,13 +88,13 @@ export interface HistoryItem {
   sprint: string;
   epic: string;
   ass: string;
-  status: 'DONE' | 'CANCELLED';
+  status: 'COMPLETED' | 'CANCELLED';
   start: string;
   end: string;
 }
 
 export interface KanbanColumn {
-  id: string;
+  id: TicketStatus;
   label: string;
   color: string;
   text: string;

@@ -1,0 +1,68 @@
+<div class="doc-wrap">
+  <div class="breadcrumb">
+    <span class="bc-link" routerLink="/board">ProjectSphere</span>
+    <span class="bc-sep mi">chevron_right</span>Documents
+  </div>
+
+  <div class="page-hdr">
+    <div>
+      <div class="page-title">Documents</div>
+      <div class="page-sub">Specs, playbooks and reference material for this project.</div>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-secondary" (click)="ui.toast('Import from Drive')">
+        <span class="mi">cloud_download</span>Import
+      </button>
+      <button class="btn btn-primary" (click)="ui.toast('Upload document')">
+        <span class="mi">upload</span>Upload
+      </button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="doc-toolbar">
+    <div class="jira-search">
+      <span class="mi">search</span>
+      <input [(ngModel)]="search" placeholder="Search documents by name or owner…"/>
+    </div>
+    <div class="seg">
+      <button class="seg-btn" [class.active]="category === ''"       (click)="category = ''">All</button>
+      <button class="seg-btn" *ngFor="let c of categories"
+              [class.active]="category === c"
+              (click)="category = c">{{ c }}</button>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="doc-grid" *ngIf="filtered.length > 0; else noDocs">
+    <button class="doc-card" *ngFor="let d of filtered" (click)="ui.toast('Opening ' + d.name)">
+      <div class="doc-card-icon" [ngClass]="typeClass(d.type)">
+        <span class="mi">{{ typeIcon(d.type) }}</span>
+      </div>
+      <div class="doc-card-body">
+        <div class="doc-card-name">{{ d.name }}</div>
+        <div class="doc-card-meta">
+          <span class="doc-card-type">{{ d.type }}</span>
+          <span class="doc-card-dot">·</span>
+          <span>{{ d.category }}</span>
+          <span class="doc-card-dot">·</span>
+          <span>{{ d.size }}</span>
+        </div>
+      </div>
+      <div class="doc-card-foot">
+        <div class="doc-card-owner">
+          <div class="k-card-av" title="{{ d.owner }}" style="background:#0052CC">{{ initials(d.owner) }}</div>
+          <small>{{ d.updated }}</small>
+        </div>
+      </div>
+    </button>
+  </div>
+
+  <ng-template #noDocs>
+    <div class="doc-empty">
+      <span class="mi">folder_open</span>
+      <h3>No documents match</h3>
+      <p>Try clearing the search or switching category.</p>
+    </div>
+  </ng-template>
+</div>

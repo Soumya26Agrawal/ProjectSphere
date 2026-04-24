@@ -88,13 +88,17 @@
 }
 .k-card:hover { box-shadow: var(--shadow); }
 .k-card.dragging { opacity: .5; transform: rotate(2deg); }
+.k-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px; margin-bottom: 8px;
+}
 .k-card-title {
   font-size: 13px; color: var(--text);
   line-height: 1.45; margin-bottom: 10px;
   display: block; word-break: break-word;
 }
 .k-card-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-.k-card-id   { font-size: 11px; color: var(--text3); font-weight: 500; }
+.k-card-id   { font-size: 10.5px; color: var(--text3); font-weight: 600; letter-spacing: .02em; }
 .k-card-pts  { font-size: 11px; color: var(--text2); font-weight: 600; background: var(--surface3); padding: 1px 5px; border-radius: var(--radius); }
 
 .k-col-empty {

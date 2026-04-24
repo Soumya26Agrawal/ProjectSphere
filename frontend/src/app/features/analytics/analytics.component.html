@@ -1,57 +1,167 @@
-<div>
+<div class="an-wrap">
   <div class="breadcrumb">
-    <span class="bc-link" routerLink="/summary">ProjectSphere</span>
+    <span class="bc-link" routerLink="/board">ProjectSphere</span>
     <span class="bc-sep mi">chevron_right</span>Analytics
   </div>
 
-  <div class="page-hdr">
-    <div>
-      <div class="page-title">Analytics</div>
-      <div class="page-sub">Project health and team productivity insights</div>
-    </div>
-    <div class="page-actions">
-      <select class="jira-select" (change)="ui.toast('Sprint filter applied')">
-        <option>Sprint 3</option><option>Sprint 2</option><option>Sprint 1</option><option>All Sprints</option>
-      </select>
-      <button class="btn btn-secondary" (click)="ui.toast('Exporting report…')">
-        <span class="mi">download</span>Export
-      </button>
-    </div>
-  </div>
-
-  <!-- KPI Row -->
-  <div class="kpi-row">
-    <div class="kpi" *ngFor="let k of kpis">
-      <div class="kpi-val" [style.color]="k.color">{{ k.v }}</div>
-      <div class="kpi-lbl">{{ k.l }}</div>
-      <div class="kpi-bar" *ngIf="k.bar != null">
-        <div class="kpi-fill" [style.width.%]="k.bar" [style.background]="k.color"></div>
+  <!-- ═══ Project hero (compact, single row) ═══ -->
+  <section class="an-hero">
+    <div class="an-hero-main">
+      <div class="an-hero-top">
+        <span class="an-hero-pill">
+          <span class="mi">verified</span> Active
+        </span>
+        <span class="an-hero-pill ghost">
+          <span class="mi">domain</span>{{ project.domain }}
+        </span>
+        <span class="an-hero-pill ghost">
+          <span class="mi">timer</span>{{ project.activeSprint }} · {{ daysRemaining }}d left
+        </span>
       </div>
-      <div *ngIf="k.sub" style="font-size:12px;color:var(--text3);margin-top:5px">{{ k.sub }}</div>
+      <h1 class="an-hero-title">{{ project.name }}</h1>
+      <p class="an-hero-sub">{{ project.description }}</p>
+
+      <div class="an-hero-meta">
+        <div class="an-meta">
+          <span class="mi">person</span>
+          <div><small>PM</small><strong>{{ project.manager }}</strong></div>
+        </div>
+        <div class="an-meta">
+          <span class="mi">engineering</span>
+          <div><small>Scrum Master</small><strong>{{ project.scrumMaster }}</strong></div>
+        </div>
+        <div class="an-meta">
+          <span class="mi">group</span>
+          <div><small>Team</small><strong>{{ teamSize }} engineers</strong></div>
+        </div>
+        <div class="an-meta">
+          <span class="mi">event</span>
+          <div><small>Started</small><strong>{{ project.startDate }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="an-hero-rings">
+      <div class="an-ring"
+           [style.background]="'conic-gradient(#0052CC ' + projectCompletion + '%, #DFE1E6 0)'">
+        <div class="an-ring-inner">
+          <span class="an-ring-val">{{ projectCompletion }}%</span>
+          <small class="an-ring-label">Project</small>
+        </div>
+      </div>
+      <div class="an-ring"
+           [style.background]="'conic-gradient(#36B37E ' + sprintCompletion + '%, #DFE1E6 0)'">
+        <div class="an-ring-inner">
+          <span class="an-ring-val">{{ sprintCompletion }}%</span>
+          <small class="an-ring-label">Sprint</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Primary KPIs (4) ═══ -->
+  <div class="an-kpi-grid">
+    <div class="an-kpi">
+      <span class="an-kpi-icon blue"><span class="mi">bookmark</span></span>
+      <div class="an-kpi-body">
+        <div class="an-kpi-val">{{ totalStories }}</div>
+        <div class="an-kpi-lbl">User Stories</div>
+        <div class="an-kpi-sub">{{ totalEpics }} epics · {{ totalTasks }} tasks</div>
+      </div>
+    </div>
+    <div class="an-kpi">
+      <span class="an-kpi-icon amber"><span class="mi">inventory_2</span></span>
+      <div class="an-kpi-body">
+        <div class="an-kpi-val">{{ backlogCount }}</div>
+        <div class="an-kpi-lbl">Backlog Items</div>
+        <div class="an-kpi-sub">unscheduled work</div>
+      </div>
+    </div>
+    <div class="an-kpi">
+      <span class="an-kpi-icon pink"><span class="mi">bug_report</span></span>
+      <div class="an-kpi-body">
+        <div class="an-kpi-val">{{ openDefects }}</div>
+        <div class="an-kpi-lbl">Open Defects</div>
+        <div class="an-kpi-sub">{{ criticalDefects }} critical · {{ solvedDefects }} solved</div>
+      </div>
+    </div>
+    <div class="an-kpi">
+      <span class="an-kpi-icon green"><span class="mi">check_circle</span></span>
+      <div class="an-kpi-body">
+        <div class="an-kpi-val">{{ defectResolutionPct }}%</div>
+        <div class="an-kpi-lbl">Defect Resolution</div>
+        <div class="an-kpi-sub">of {{ totalDefects }} total</div>
+      </div>
     </div>
   </div>
 
-  <!-- Charts Grid -->
-  <div class="charts-grid">
-    <div class="chart-card">
+  <!-- ═══ Agile metrics (4) ═══ -->
+  <h2 class="an-section-h">Sprint Metrics</h2>
+  <div class="an-agile-row">
+    <div class="an-metric">
+      <div class="an-metric-icon" style="background:#DEEBFF;color:#0052CC">
+        <span class="mi">speed</span>
+      </div>
+      <div class="an-metric-body">
+        <div class="an-metric-val">{{ velocity }}</div>
+        <div class="an-metric-label">Velocity</div>
+        <small>avg pts / sprint</small>
+      </div>
+    </div>
+    <div class="an-metric">
+      <div class="an-metric-icon" style="background:#EAE6FF;color:#403294">
+        <span class="mi">flag_circle</span>
+      </div>
+      <div class="an-metric-body">
+        <div class="an-metric-val">{{ committedPoints }}</div>
+        <div class="an-metric-label">Committed</div>
+        <small>points this sprint</small>
+      </div>
+    </div>
+    <div class="an-metric">
+      <div class="an-metric-icon" style="background:#E3FCEF;color:#006644">
+        <span class="mi">task_alt</span>
+      </div>
+      <div class="an-metric-body">
+        <div class="an-metric-val">{{ deliveredPoints }}</div>
+        <div class="an-metric-label">Delivered</div>
+        <small>points completed</small>
+      </div>
+    </div>
+    <div class="an-metric">
+      <div class="an-metric-icon" style="background:#FFF0B3;color:#7F5F01">
+        <span class="mi">hourglass_top</span>
+      </div>
+      <div class="an-metric-body">
+        <div class="an-metric-val">{{ inProgCount }}</div>
+        <div class="an-metric-label">In Progress</div>
+        <small>tickets active</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Charts (4) ═══ -->
+  <h2 class="an-section-h">Visual Reports</h2>
+  <div class="an-charts-grid">
+    <div class="an-chart-card">
       <h4>Task Status Distribution</h4>
       <div class="ch-sub">Volume per workflow stage</div>
-      <div class="chart-box"><canvas #cTask></canvas></div>
+      <div class="an-chart-box"><canvas #cTask></canvas></div>
     </div>
-    <div class="chart-card">
-      <h4>Story Priority &amp; Risk</h4>
-      <div class="ch-sub">Effort distribution by priority level</div>
-      <div class="chart-box"><canvas #cPrio></canvas></div>
+    <div class="an-chart-card">
+      <h4>Priority &amp; Risk</h4>
+      <div class="ch-sub">Effort distribution by priority</div>
+      <div class="an-chart-box"><canvas #cPrio></canvas></div>
     </div>
-    <div class="chart-card">
-      <h4>Defect Lifecycle Status</h4>
-      <div class="ch-sub">Bug open vs resolved tracking</div>
-      <div class="chart-box"><canvas #cDef></canvas></div>
+    <div class="an-chart-card">
+      <h4>Defect Lifecycle</h4>
+      <div class="ch-sub">Open / in-progress / resolved</div>
+      <div class="an-chart-box"><canvas #cDef></canvas></div>
     </div>
-    <div class="chart-card">
+    <div class="an-chart-card">
       <h4>Sprint Velocity</h4>
       <div class="ch-sub">Planned vs completed story points</div>
-      <div class="chart-box"><canvas #cVel></canvas></div>
+      <div class="an-chart-box"><canvas #cVel></canvas></div>
     </div>
   </div>
 </div>

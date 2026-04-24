@@ -1,117 +1,130 @@
-<div class="dash-header">
-  <div>
-    <div class="dash-breadcrumb">
-      <span class="mi">home</span> Developer Dashboard
-    </div>
-    <h1 class="dash-title">Welcome, {{ user()?.name }}</h1>
-    <p class="dash-sub">Sprint 3 · Your assigned work</p>
+<!-- Top bar — identical structure to admin-shell and pm-shell -->
+<header class="dev-topbar">
+  <div class="dev-brand">
+    <span class="dev-logo"><span class="mi">dashboard</span></span>
+    <span class="dev-brand-name">Project Sphere</span>
   </div>
-  <div class="dash-actions">
-    <button class="btn-outline" routerLink="/board">
-      <span class="mi">view_kanban</span> Sprint Board
-    </button>
-    <button class="btn-danger" (click)="logout()">
-      <span class="mi">logout</span> Sign Out
+  <div class="dev-user">
+    <span class="dev-avatar">{{ user()?.avatar || 'U' }}</span>
+    <span class="dev-user-name">{{ user()?.name || 'Welcome' }}</span>
+    <button class="dev-icon-btn" (click)="logout()" title="Logout">
+      <span class="mi">logout</span>
     </button>
   </div>
-</div>
+</header>
 
-<!-- Stats Cards -->
-<div class="stats-row">
-  <div class="stat-card" *ngFor="let s of stats">
-    <div class="stat-icon" [style.background]="s.color + '18'">
-      <span class="mi" [style.color]="s.color">{{ s.icon }}</span>
-    </div>
-    <div class="stat-body">
-      <div class="stat-val">{{ s.value }}</div>
-      <div class="stat-lbl">{{ s.label }}</div>
-    </div>
-  </div>
-</div>
+<main class="dev-page">
+  <!-- Project hero (compact) -->
+  <section class="dev-hero">
+    <div class="dev-hero-main">
+      <span class="dev-hero-pill">
+        <span class="mi">verified</span> Active
+      </span>
+      <h1 class="dev-hero-title">{{ project.name }}</h1>
+      <p class="dev-hero-sub">{{ project.description }}</p>
 
-<div class="dash-grid">
+      <div class="dev-hero-meta">
+        <span class="dev-meta-chip">
+          <span class="mi">domain</span>{{ project.domain }}
+        </span>
+        <span class="dev-meta-chip">
+          <span class="mi">person</span>PM · {{ project.manager }}
+        </span>
+        <span class="dev-meta-chip">
+          <span class="mi">timer</span>{{ project.activeSprint }} active
+        </span>
+      </div>
 
-  <!-- My Tickets -->
-  <div class="dash-card span-2">
-    <div class="card-head">
-      <h3><span class="mi">task</span> My Tickets</h3>
-      <button class="btn-sm" routerLink="/board">
-        <span class="mi">open_in_new</span> View Board
-      </button>
+      <div class="dev-hero-cta">
+        <button class="ax-btn primary dev-go-btn" (click)="enter()">
+          <span class="mi">arrow_forward</span> Move to Workspace
+        </button>
+        <span class="dev-cta-hint">Open the full board, backlog, timeline and analytics.</span>
+      </div>
     </div>
-    <div class="ticket-list">
-      <div class="ticket-row" *ngFor="let t of myTickets">
-        <div class="ticket-left">
-          <span class="tid">{{ t.id }}</span>
-          <span class="ticket-title">{{ t.title }}</span>
+
+    <div class="dev-hero-progress">
+      <div class="dev-progress-ring"
+           [style.background]="'conic-gradient(#0052CC ' + progressPct + '%, #DFE1E6 0)'">
+        <div class="dev-progress-inner">
+          <span class="dev-progress-value">{{ progressPct }}%</span>
+          <small class="dev-progress-label">Completed</small>
         </div>
-        <div class="ticket-right">
-          <span class="pts-badge">{{ t.pts }} pts</span>
-          <span class="chip" [ngClass]="statusClass(t.status)">
-            {{ t.status === 'IN_PROGRESS' ? 'In Progress' : t.status === 'TO_DO' ? 'To Do' : 'Done' }}
+      </div>
+      <div class="dev-progress-meta">
+        <span><strong>{{ doneTickets }}</strong> done · <strong>{{ openTickets }}</strong> open</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI cards -->
+  <div class="ax-kpi-grid">
+    <div class="ax-kpi">
+      <span class="ax-kpi-icon blue"><span class="mi">confirmation_number</span></span>
+      <span><span class="ax-kpi-label">Total Tickets</span><div class="ax-kpi-value">{{ totalTickets }}</div></span>
+    </div>
+    <div class="ax-kpi">
+      <span class="ax-kpi-icon amber"><span class="mi">schedule</span></span>
+      <span><span class="ax-kpi-label">Open Tickets</span><div class="ax-kpi-value">{{ openTickets }}</div></span>
+    </div>
+    <div class="ax-kpi">
+      <span class="ax-kpi-icon pink"><span class="mi">bug_report</span></span>
+      <span><span class="ax-kpi-label">Open Defects</span><div class="ax-kpi-value">{{ openDefects }}</div></span>
+    </div>
+    <div class="ax-kpi">
+      <span class="ax-kpi-icon purple"><span class="mi">group</span></span>
+      <span><span class="ax-kpi-label">Team Size</span><div class="ax-kpi-value">{{ teamSize }}</div></span>
+    </div>
+  </div>
+
+  <!-- Two-column: My open work + Recent tickets -->
+  <div class="dev-cols">
+    <section class="dev-card">
+      <div class="dev-card-head">
+        <h3>My Open Work</h3>
+        <button class="ax-btn ghost" (click)="enter()">
+          Open board <span class="mi">arrow_forward</span>
+        </button>
+      </div>
+      <div class="dev-card-body" *ngIf="myOpenTickets.length > 0; else noMine">
+        <div class="dev-ticket-row" *ngFor="let t of myOpenTickets">
+          <span class="ticket-type-chip" [ngClass]="typeClass(t.type)">
+            <span class="mi">{{ typeIcon(t.type) }}</span>
+            {{ ds.itLabel(t.type) }}
           </span>
+          <span class="dev-ticket-title">{{ t.sum }}</span>
+          <span class="lozenge" [ngClass]="statusClass(t.status)">{{ sl(t.status) }}</span>
+          <span class="dev-pri" [ngClass]="priClass(t.pri)" [title]="t.pri">
+            <span class="mi">{{ priIcon(t.pri) }}</span>
+          </span>
+          <span class="dev-pts" *ngIf="t.pts">{{ t.pts }} pt</span>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- My Defects -->
-  <div class="dash-card">
-    <div class="card-head">
-      <h3><span class="mi">bug_report</span> My Defects</h3>
-      <button class="btn-sm" routerLink="/defects">
-        <span class="mi">open_in_new</span> All
-      </button>
-    </div>
-    <div class="defect-list">
-      <div class="defect-row" *ngFor="let d of myDefects">
-        <div class="defect-top">
-          <span class="tid">{{ d.id }}</span>
-          <span class="chip" [ngClass]="sevClass(d.sev)">{{ d.sev }}</span>
-          <span class="chip" [ngClass]="statusClass(d.status)">{{ d.status }}</span>
+      <ng-template #noMine>
+        <div class="dev-empty">
+          <span class="mi">inbox</span>
+          <p>You have no open tickets. Enjoy the quiet!</p>
         </div>
-        <p class="defect-title">{{ d.title }}</p>
+      </ng-template>
+    </section>
+
+    <section class="dev-card">
+      <div class="dev-card-head">
+        <h3>Recent Tickets</h3>
       </div>
-    </div>
-  </div>
-
-  <!-- Activity Feed -->
-  <div class="dash-card">
-    <div class="card-head">
-      <h3><span class="mi">history</span> My Activity</h3>
-    </div>
-    <div class="activity-list">
-      <div class="activity-item" *ngFor="let a of activity">
-        <div class="activity-icon">
-          <span class="mi">{{ a.icon }}</span>
-        </div>
-        <div class="activity-body">
-          <p>{{ a.text }}</p>
-          <span>{{ a.time }}</span>
+      <div class="dev-card-body">
+        <div class="dev-activity-row" *ngFor="let t of recentActivity">
+          <span class="ticket-type-chip" [ngClass]="typeClass(t.type)">
+            <span class="mi">{{ typeIcon(t.type) }}</span>
+            {{ ds.itLabel(t.type) }}
+          </span>
+          <div class="dev-activity-text">
+            <strong>{{ t.sum }}</strong>
+            <small>{{ t.ass || 'Unassigned' }}</small>
+          </div>
+          <span class="lozenge" [ngClass]="statusClass(t.status)">{{ sl(t.status) }}</span>
         </div>
       </div>
-    </div>
+    </section>
   </div>
-
-  <!-- Quick Actions -->
-  <div class="dash-card span-2">
-    <div class="card-head">
-      <h3><span class="mi">bolt</span> Quick Access</h3>
-    </div>
-    <div class="quick-actions">
-      <button class="qa-btn" routerLink="/board">
-        <span class="mi">view_kanban</span><span>Sprint Board</span>
-      </button>
-      <button class="qa-btn" routerLink="/backlog">
-        <span class="mi">view_list</span><span>Backlog</span>
-      </button>
-      <button class="qa-btn" routerLink="/defects">
-        <span class="mi">bug_report</span><span>Log Defect</span>
-      </button>
-      <button class="qa-btn" routerLink="/timeline">
-        <span class="mi">timeline</span><span>Timeline</span>
-      </button>
-    </div>
-  </div>
-
-</div>
+</main>

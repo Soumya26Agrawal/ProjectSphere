@@ -1,6 +1,6 @@
 <div>
   <div class="breadcrumb">
-    <span class="bc-link" routerLink="/summary">ProjectSphere</span>
+    <span class="bc-link" routerLink="/board">ProjectSphere</span>
     <span class="bc-sep mi">chevron_right</span>Backlog
   </div>
 
@@ -46,28 +46,29 @@
     <div class="sprint-section-body" [style.display]="collapsed['backlog'] ? 'none' : ''">
       <table class="jira-table">
         <thead>
-          <tr><th></th><th>Summary</th><th>Type</th><th>Priority</th><th>Assignee</th><th>Pts</th></tr>
+          <tr><th style="width:110px">Type</th><th>Summary</th><th style="width:120px">Priority</th><th style="width:170px">Assignee</th><th style="width:60px">Pts</th></tr>
         </thead>
         <tbody>
           <tr *ngFor="let t of backlogTickets" (click)="ui.openTicket(t)">
-            <td width="30">
-              <div class="issue-type" [ngClass]="ds.itClass(t.type)">
-                <span class="mi" style="font-size:10px">{{ ds.itIcon(t.type) }}</span>
-              </div>
+            <td>
+              <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
+                <span class="mi">{{ ds.itIcon(t.type) }}</span>
+                {{ ds.itLabel(t.type) }}
+              </span>
             </td>
             <td style="font-weight:500">{{ t.sum }}</td>
-            <td><span class="lozenge" style="background:var(--surface3);color:var(--text2)">{{ t.type }}</span></td>
             <td>
-              <div style="display:flex;align-items:center;gap:4px">
+              <span style="display:inline-flex;align-items:center;gap:4px;vertical-align:middle">
                 <span class="mi pri-icon" [ngClass]="ds.priClass(t.pri)" style="font-size:14px">{{ ds.priIcon(t.pri) }}</span>
                 {{ t.pri }}
-              </div>
+              </span>
             </td>
             <td>
-              <div style="display:flex;align-items:center;gap:5px" *ngIf="t.ass; else unassigned">
-                <div class="k-card-av" [style.background]="ds.avColor(t.ass)" style="width:20px;height:20px;font-size:.54rem">{{ ds.ini(t.ass) }}</div>
+              <span *ngIf="t.ass; else unassigned"
+                    style="display:inline-flex;align-items:center;gap:6px;vertical-align:middle">
+                <span class="k-card-av" [style.background]="ds.avColor(t.ass)" style="width:22px;height:22px;font-size:10px">{{ ds.ini(t.ass) }}</span>
                 <span>{{ t.ass }}</span>
-              </div>
+              </span>
               <ng-template #unassigned><span style="color:var(--text3)">Unassigned</span></ng-template>
             </td>
             <td style="color:var(--jira-blue);font-weight:700">{{ t.pts || '—' }}</td>
@@ -107,23 +108,24 @@
       <div class="sprint-section-body" [style.display]="collapsed[sp.name] ? 'none' : ''">
         <table class="jira-table">
           <thead>
-            <tr><th></th><th>Summary</th><th>Type</th><th>Status</th><th>Assignee</th><th>Pts</th></tr>
+            <tr><th style="width:110px">Type</th><th>Summary</th><th style="width:120px">Status</th><th style="width:170px">Assignee</th><th style="width:60px">Pts</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let t of getSprintTickets(sp.name)" (click)="ui.openTicket(t)">
-              <td width="30">
-                <div class="issue-type" [ngClass]="ds.itClass(t.type)">
-                  <span class="mi" style="font-size:10px">{{ ds.itIcon(t.type) }}</span>
-                </div>
+              <td>
+                <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
+                  <span class="mi">{{ ds.itIcon(t.type) }}</span>
+                  {{ ds.itLabel(t.type) }}
+                </span>
               </td>
               <td style="font-weight:500">{{ t.sum }}</td>
-              <td><span class="lozenge" style="background:var(--surface3);color:var(--text2)">{{ t.type }}</span></td>
               <td><span class="lozenge" [ngClass]="ds.lozClass(t.status)">{{ ds.sl(t.status) }}</span></td>
               <td>
-                <div style="display:flex;align-items:center;gap:5px" *ngIf="t.ass">
-                  <div class="k-card-av" [style.background]="ds.avColor(t.ass)" style="width:20px;height:20px;font-size:.54rem">{{ ds.ini(t.ass) }}</div>
+                <span *ngIf="t.ass"
+                      style="display:inline-flex;align-items:center;gap:6px;vertical-align:middle">
+                  <span class="k-card-av" [style.background]="ds.avColor(t.ass)" style="width:22px;height:22px;font-size:10px">{{ ds.ini(t.ass) }}</span>
                   <span>{{ t.ass }}</span>
-                </div>
+                </span>
                 <span *ngIf="!t.ass" style="color:var(--text3)">—</span>
               </td>
               <td style="color:var(--jira-blue);font-weight:700">{{ t.pts || '—' }}</td>

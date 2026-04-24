@@ -23,9 +23,6 @@
     </main>
   </div>
 
-  <!-- Floating AI Chatbot -->
-  <app-chatbot></app-chatbot>
-
   <!-- Global Dialogs -->
   <app-ticket-detail
     [ticket]="ui.selectedTicket"
@@ -38,6 +35,11 @@
     (close)="ui.closeCreateIssue()"
     (created)="ui.closeCreateIssue()">
   </app-create-issue>
+
+  <app-report-defect
+    [open]="ui.reportDefectOpen"
+    (close)="ui.closeReportDefect()">
+  </app-report-defect>
 
   <!-- Toast Notification -->
   <div class="toast" [class.show]="ui.toastVisible">{{ ui.toastMessage }}</div>

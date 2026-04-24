@@ -31,40 +31,79 @@
       </div>
     </div>
     <div class="dx-kpi">
-      <span class="dx-kpi-icon red"><span class="mi">warning</span></span>
+      <span class="dx-kpi-icon" style="background:#E9F4FF;color:#0052CC"><span class="mi">note_add</span></span>
       <div class="dx-kpi-body">
-        <div class="dx-kpi-val">{{ criticalCount }}</div>
-        <div class="dx-kpi-lbl">Critical</div>
+        <div class="dx-kpi-val">{{ countByStatus('NEW') }}</div>
+        <div class="dx-kpi-lbl">New</div>
       </div>
     </div>
     <div class="dx-kpi">
-      <span class="dx-kpi-icon amber"><span class="mi">error_outline</span></span>
+      <span class="dx-kpi-icon" style="background:#FFF4E5;color:#7F5F01"><span class="mi">warning</span></span>
       <div class="dx-kpi-body">
-        <div class="dx-kpi-val">{{ openCount }}</div>
+        <div class="dx-kpi-val">{{ countByStatus('OPEN') }}</div>
         <div class="dx-kpi-lbl">Open</div>
       </div>
     </div>
     <div class="dx-kpi">
-      <span class="dx-kpi-icon purple"><span class="mi">hourglass_top</span></span>
+      <span class="dx-kpi-icon" style="background:#EEE5FF;color:#403294"><span class="mi">hourglass_top</span></span>
       <div class="dx-kpi-body">
-        <div class="dx-kpi-val">{{ inProgCount }}</div>
+        <div class="dx-kpi-val">{{ countByStatus('IN_PROGRESS') }}</div>
         <div class="dx-kpi-lbl">In Progress</div>
       </div>
     </div>
     <div class="dx-kpi">
-      <span class="dx-kpi-icon green"><span class="mi">check_circle</span></span>
+      <span class="dx-kpi-icon" style="background:#E3FCEF;color:#006644"><span class="mi">check_circle</span></span>
       <div class="dx-kpi-body">
-        <div class="dx-kpi-val">{{ resolvedCount }}</div>
-        <div class="dx-kpi-lbl">Resolved</div>
+        <div class="dx-kpi-val">{{ countByStatus('FIXED') }}</div>
+        <div class="dx-kpi-lbl">Fixed</div>
       </div>
     </div>
     <div class="dx-kpi">
-      <span class="dx-kpi-icon teal"><span class="mi">trending_up</span></span>
+      <span class="dx-kpi-icon" style="background:#E6FCFF;color:#00687D"><span class="mi">science</span></span>
       <div class="dx-kpi-body">
-        <div class="dx-kpi-val">{{ resolutionPct }}%</div>
-        <div class="dx-kpi-lbl">Resolution Rate</div>
+        <div class="dx-kpi-val">{{ countByStatus('RETEST') }}</div>
+        <div class="dx-kpi-lbl">Retest</div>
       </div>
     </div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon" style="background:#E8EAED;color:#42526E"><span class="mi">lock</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ countByStatus('CLOSED') }}</div>
+        <div class="dx-kpi-lbl">Closed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Defect flow board ═══ -->
+  <div class="dx-kanban-overview">
+    <section class="dx-kanban-column" *ngFor="let lane of kanbanStates">
+      <div class="dx-kanban-card-head">
+        <span class="dx-kanban-icon" [style.background]="lane.bg" [style.color]="lane.fg">
+          <span class="mi">{{ lane.icon }}</span>
+        </span>
+        <div>
+          <div class="dx-kanban-label">{{ lane.label }}</div>
+          <div class="dx-kanban-status">{{ lane.statusText }}</div>
+        </div>
+      </div>
+      <div class="dx-kanban-count">{{ statusCount(lane.id) }}</div>
+      <div class="dx-kanban-list" (dragover)="allowDrop($event)" (drop)="onDrop($event, lane.id)">
+        <article class="dx-kanban-item" *ngFor="let defect of defectsByState(lane.id)"
+          draggable="true"
+          (dragstart)="onDragStart($event, defect)"
+          (click)="openDefect(defect)">
+          <div class="dx-kanban-item-title">{{ defect.bid }}</div>
+          <div class="dx-kanban-item-sub">{{ defect.title }}</div>
+          <div class="dx-kanban-item-meta">
+            <span>{{ defect.ass }}</span>
+            <span>{{ defect.env }}</span>
+          </div>
+        </article>
+        <div class="dx-kanban-empty" *ngIf="defectsByState(lane.id).length === 0">
+          Drag defects here
+        </div>
+      </div>
+    </section>
   </div>
 
   <!-- ═══ Filters ═══ -->

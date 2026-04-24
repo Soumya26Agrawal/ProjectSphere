@@ -27,7 +27,7 @@ import { DefectsComponent }    from './features/defects/defects.component';
 import { AnalyticsComponent }  from './features/analytics/analytics.component';
 import { TeamComponent }       from './features/team/team.component';
 import { DocumentsComponent }  from './features/documents/documents.component';
-
+import { TestCaseComponent } from './features/testcase/testcase.component';
 export const routes: Routes = [
   // ── Public routes (no shell, no auth required) ──────────────────────────
   { path: '',        redirectTo: 'landing', pathMatch: 'full' },
@@ -76,6 +76,7 @@ export const routes: Routes = [
   { path: 'analytics',  component: AnalyticsComponent },
   { path: 'team',       component: TeamComponent      },
   { path: 'documents',  component: DocumentsComponent },
+  { path: 'test-cases', component: TestCaseComponent },
 
   { path: '**', redirectTo: 'landing' },
 ];

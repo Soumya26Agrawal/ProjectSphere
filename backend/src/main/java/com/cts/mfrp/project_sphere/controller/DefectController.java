@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/defect")
 @RequiredArgsConstructor
@@ -42,7 +44,23 @@ public class DefectController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping
+    public ResponseEntity<List<DefectResponseDTO>> getAllDefects(){
+        List<Defect> defects=defectService.getAllDefects();
 
+        List<DefectResponseDTO> response = defects.stream()
+                .map(defect -> DefectResponseDTO.builder()
+                        .defectId(defect.getDefectId())
+                        .reproducible(defect.getReproducible())
+                        .severity(defect.getSeverity())
+                        .expectedResult(defect.getTestCase().getExpectedResult())
+                        .actualResult(defect.getTestCase().getActualResult())
+                        .stepsToReproduce(defect.getStepsToReproduce())
+                        .status(defect.getStatus())
+                        .build())
+                .toList();
+        
+        return ResponseEntity.ok(response);
 
-
+    }
 }

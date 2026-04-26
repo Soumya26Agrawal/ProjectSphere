@@ -19,120 +19,176 @@
     </div>
   </div>
 
-  <!-- Active Sprints -->
-  <div *ngFor="let sp of activeSprints">
-    <ng-container [ngTemplateOutlet]="sprintTpl" [ngTemplateOutletContext]="{sp: sp}"></ng-container>
-  </div>
-
-  <!-- Done Sprints -->
-  <div *ngFor="let sp of doneSprints">
-    <ng-container [ngTemplateOutlet]="sprintTpl" [ngTemplateOutletContext]="{sp: sp}"></ng-container>
-  </div>
-
-  <!-- Backlog Section -->
-  <div class="sprint-section">
-    <div class="sprint-hdr" (click)="toggleSection('backlog')">
-      <span class="mi sprint-toggle" [class.open]="!collapsed['backlog']">chevron_right</span>
-      <span class="sprint-name">Backlog</span>
-      <span class="sprint-meta">
-        <span class="lozenge loz-backlog">{{ backlogTickets.length }} issues</span>
-      </span>
-      <div class="sprint-actions">
-        <button class="btn btn-secondary btn-sm" (click)="$event.stopPropagation(); ui.openCreateIssue()">
-          <span class="mi">add</span>Create Issue
+  <div class="backlog-grid" [class.one-panel]="expandedSection !== 'none'">
+    <section class="split-panel left-panel" *ngIf="expandedSection !== 'backlog'">
+      <div class="split-panel-header">
+        <div>
+          <div class="panel-label">Sprint workspace</div>
+          <!-- <h2>Active and completed sprints</h2> -->
+          <!-- <div class="panel-meta">Select one or more sprint lanes to focus the sprint list.</div> -->
+        </div>
+        <button class="panel-switch" [class.active]="expandedSection === 'sprints'" (click)="toggleFocus('sprints')">
+          <span class="mi">swap_horiz</span>
+          {{ expandedSection === 'sprints' ? 'View both sections' : 'Focus sprints' }}
         </button>
       </div>
-    </div>
-    <div class="sprint-section-body" [style.display]="collapsed['backlog'] ? 'none' : ''">
-      <table class="jira-table">
-        <thead>
-          <tr><th style="width:110px">Type</th><th>Summary</th><th style="width:120px">Priority</th><th style="width:170px">Assignee</th><th style="width:60px">Pts</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let t of backlogTickets" (click)="ui.openTicket(t)">
-            <td>
+      <!-- <div class="panel-intro">Drag tickets across sprint lanes or directly into backlog for fast planning.</div> -->
+
+      <div class="sprint-filter-bar">
+        <span class="filter-label">Show sprints:</span>
+        <button class="filter-chip" *ngFor="let sp of ds.sprints" [class.active]="isSprintVisible(sp.name)" (click)="toggleSprintFilter(sp.name)">
+          {{ sp.name }}
+        </button>
+      </div>
+
+      <div class="sprint-stack">
+        <ng-container *ngFor="let sp of filteredActiveSprints">
+          <article class="sprint-card">
+            <div class="sprint-card-header">
+              <div>
+                <span class="lozenge loz-active">{{ sp.status }}</span>
+                <h3>{{ sp.name }}</h3>
+                <div class="sprint-meta">
+                  <span>{{ sp.start }} – {{ sp.end }}</span>
+                  <span>{{ sprintDone(sp.name) }}/{{ sprintTotal(sp.name) }} done</span>
+                </div>
+              </div>
+            </div>
+            <div class="sprint-progress-bar">
+              <div class="sprint-progress-fill" [style.width.%]="sprintPct(sp.name)"></div>
+            </div>
+            <div class="drop-list" cdkDropList [id]="listId(sp.id)" [cdkDropListData]="getSprintTickets(sp.name)" [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onTicketDrop($event, sp.name)">
+              <div class="ticket-card compact" *ngFor="let t of getSprintTickets(sp.name)" cdkDrag>
+                <div class="drag-handle" cdkDragHandle>
+                  <span class="mi">drag_indicator</span>
+                </div>
+                <div class="ticket-body" (click)="ui.openTicket(t)">
+                  <div class="ticket-top">
+                    <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
+                      <span class="mi">{{ ds.itIcon(t.type) }}</span>
+                      {{ ds.itLabel(t.type) }}
+                    </span>
+                    <span class="lozenge" [ngClass]="ds.lozClass(t.status)">{{ ds.sl(t.status) }}</span>
+                  </div>
+                  <div class="ticket-title">{{ t.sum }}</div>
+                  <div class="ticket-info">
+                    <span class="pri-pill" [ngClass]="ds.priClass(t.pri)">
+                      <span class="mi pri-icon">{{ ds.priIcon(t.pri) }}</span>
+                      {{ t.pri }}
+                    </span>
+                    <span class="assignee">
+                      <span class="k-card-av" [style.background]="ds.avColor(t.ass || '')">{{ ds.ini(t.ass || '') }}</span>
+                      {{ t.ass || 'Unassigned' }}
+                    </span>
+                    <span class="pts">{{ t.pts || '—' }} pts</span>
+                  </div>
+                </div>
+              </div>
+              <div class="empty-state" *ngIf="getSprintTickets(sp.name).length === 0">
+                Drop issues here to plan the sprint.
+              </div>
+            </div>
+          </article>
+        </ng-container>
+
+        <ng-container *ngIf="filteredDoneSprints.length">
+          <div class="subsection-label">Completed sprints</div>
+          <ng-container *ngFor="let sp of filteredDoneSprints">
+            <article class="sprint-card done-card">
+              <div class="sprint-card-header">
+                <div>
+                  <span class="lozenge loz-done2">{{ sp.status }}</span>
+                  <h3>{{ sp.name }}</h3>
+                  <div class="sprint-meta">
+                    <span>{{ sp.start }} – {{ sp.end }}</span>
+                    <span>{{ sprintDone(sp.name) }}/{{ sprintTotal(sp.name) }} done</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sprint-progress-bar">
+                <div class="sprint-progress-fill" [style.width.%]="sprintPct(sp.name)"></div>
+              </div>
+              <div class="drop-list" cdkDropList [id]="listId(sp.id)" [cdkDropListData]="getSprintTickets(sp.name)" [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onTicketDrop($event, sp.name)">
+                <div class="ticket-card compact" *ngFor="let t of getSprintTickets(sp.name)" cdkDrag>
+                  <div class="drag-handle" cdkDragHandle>
+                    <span class="mi">drag_indicator</span>
+                  </div>
+                  <div class="ticket-body" (click)="ui.openTicket(t)">
+                    <div class="ticket-top">
+                      <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
+                        <span class="mi">{{ ds.itIcon(t.type) }}</span>
+                        {{ ds.itLabel(t.type) }}
+                      </span>
+                      <span class="lozenge" [ngClass]="ds.lozClass(t.status)">{{ ds.sl(t.status) }}</span>
+                    </div>
+                    <div class="ticket-title">{{ t.sum }}</div>
+                    <div class="ticket-info">
+                      <span class="pri-pill" [ngClass]="ds.priClass(t.pri)">
+                        <span class="mi pri-icon">{{ ds.priIcon(t.pri) }}</span>
+                        {{ t.pri }}
+                      </span>
+                      <span class="assignee">
+                        <span class="k-card-av" [style.background]="ds.avColor(t.ass || '')">{{ ds.ini(t.ass || '') }}</span>
+                        {{ t.ass || 'Unassigned' }}
+                      </span>
+                      <span class="pts">{{ t.pts || '—' }} pts</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="empty-state" *ngIf="getSprintTickets(sp.name).length === 0">
+                  Drop issues here to archive completed work.
+                </div>
+              </div>
+            </article>
+          </ng-container>
+        </ng-container>
+      </div>
+    </section>
+
+    <section class="split-panel right-panel" *ngIf="expandedSection !== 'sprints'">
+      <div class="split-panel-header">
+        <div>
+          <div class="panel-label">Backlog zone</div>
+          <!-- <h2>Product backlog</h2> -->
+        </div>
+        <button class="panel-switch" [class.active]="expandedSection === 'backlog'" (click)="toggleFocus('backlog')">
+          <span class="mi">swap_horiz</span>
+          {{ expandedSection === 'backlog' ? 'Balanced view' : 'Focus backlog' }}
+        </button>
+      </div>
+      <div class="panel-intro">Drag stories directly into any sprint lane. Backlog stays visible for fast planning.</div>
+
+      <div class="drop-list backlog-drop" cdkDropList id="backlog-drop" [cdkDropListData]="backlogTickets" [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onTicketDrop($event, null)">
+        <div class="ticket-card compact" *ngFor="let t of backlogTickets" cdkDrag>
+          <div class="drag-handle" cdkDragHandle>
+            <span class="mi">drag_indicator</span>
+          </div>
+          <div class="ticket-body" (click)="ui.openTicket(t)">
+            <div class="ticket-top">
               <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
                 <span class="mi">{{ ds.itIcon(t.type) }}</span>
                 {{ ds.itLabel(t.type) }}
               </span>
-            </td>
-            <td style="font-weight:500">{{ t.sum }}</td>
-            <td>
-              <span style="display:inline-flex;align-items:center;gap:4px;vertical-align:middle">
-                <span class="mi pri-icon" [ngClass]="ds.priClass(t.pri)" style="font-size:14px">{{ ds.priIcon(t.pri) }}</span>
+              <span class="lozenge loz-backlog">Backlog</span>
+            </div>
+            <div class="ticket-title">{{ t.sum }}</div>
+            <div class="ticket-info">
+              <span class="pri-pill" [ngClass]="ds.priClass(t.pri)">
+                <span class="mi pri-icon">{{ ds.priIcon(t.pri) }}</span>
                 {{ t.pri }}
               </span>
-            </td>
-            <td>
-              <span *ngIf="t.ass; else unassigned"
-                    style="display:inline-flex;align-items:center;gap:6px;vertical-align:middle">
-                <span class="k-card-av" [style.background]="ds.avColor(t.ass)" style="width:22px;height:22px;font-size:10px">{{ ds.ini(t.ass) }}</span>
-                <span>{{ t.ass }}</span>
+              <span class="assignee">
+                <span class="k-card-av" [style.background]="ds.avColor(t.ass || '')">{{ ds.ini(t.ass || '') }}</span>
+                {{ t.ass || 'Unassigned' }}
               </span>
-              <ng-template #unassigned><span style="color:var(--text3)">Unassigned</span></ng-template>
-            </td>
-            <td style="color:var(--jira-blue);font-weight:700">{{ t.pts || '—' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Sprint row template -->
-  <ng-template #sprintTpl let-sp="sp">
-    <div class="sprint-section">
-      <div class="sprint-hdr" (click)="toggleSection(sp.name)">
-        <span class="mi sprint-toggle" [class.open]="!collapsed[sp.name]">chevron_right</span>
-        <span class="sprint-name">{{ sp.name }}</span>
-        <span class="sprint-meta">
-          <span class="lozenge" [ngClass]="sp.status === 'ACTIVE' ? 'loz-active' : 'loz-done2'">{{ sp.status }}</span>
-          <span style="font-size:12px">{{ sp.start }} – {{ sp.end }}</span>
-          <div class="sprint-progress-bar">
-            <div class="sprint-progress-fill" [style.width.%]="sprintPct(sp.name)"></div>
+              <span class="pts">{{ t.pts || '—' }} pts</span>
+            </div>
           </div>
-          <span style="font-size:12px;font-weight:600;color:var(--jira-blue)">
-            {{ sprintDone(sp.name) }}/{{ sprintTotal(sp.name) }} done
-          </span>
-        </span>
-        <div class="sprint-actions">
-          <button *ngIf="sp.status === 'ACTIVE'" class="btn btn-secondary btn-sm"
-            (click)="$event.stopPropagation(); ui.toast('Complete Sprint dialog')">
-            Complete sprint
-          </button>
-          <button class="btn btn-secondary btn-sm"
-            (click)="$event.stopPropagation(); ui.openCreateIssue()">
-            <span class="mi">add</span>Create
-          </button>
+        </div>
+        <div class="empty-state" *ngIf="backlogTickets.length === 0">
+          The backlog is empty. All work has been scheduled.
         </div>
       </div>
-      <div class="sprint-section-body" [style.display]="collapsed[sp.name] ? 'none' : ''">
-        <table class="jira-table">
-          <thead>
-            <tr><th style="width:110px">Type</th><th>Summary</th><th style="width:120px">Status</th><th style="width:170px">Assignee</th><th style="width:60px">Pts</th></tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let t of getSprintTickets(sp.name)" (click)="ui.openTicket(t)">
-              <td>
-                <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
-                  <span class="mi">{{ ds.itIcon(t.type) }}</span>
-                  {{ ds.itLabel(t.type) }}
-                </span>
-              </td>
-              <td style="font-weight:500">{{ t.sum }}</td>
-              <td><span class="lozenge" [ngClass]="ds.lozClass(t.status)">{{ ds.sl(t.status) }}</span></td>
-              <td>
-                <span *ngIf="t.ass"
-                      style="display:inline-flex;align-items:center;gap:6px;vertical-align:middle">
-                  <span class="k-card-av" [style.background]="ds.avColor(t.ass)" style="width:22px;height:22px;font-size:10px">{{ ds.ini(t.ass) }}</span>
-                  <span>{{ t.ass }}</span>
-                </span>
-                <span *ngIf="!t.ass" style="color:var(--text3)">—</span>
-              </td>
-              <td style="color:var(--jira-blue);font-weight:700">{{ t.pts || '—' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </ng-template>
+    </section>
+  </div>
 </div>

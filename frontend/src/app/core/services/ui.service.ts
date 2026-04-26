@@ -14,6 +14,8 @@ export class UiService {
   createIssueOpen = false;
   reportDefectOpen = false;
   notifOpen = false;
+  sidebarOpen = true;
+  isMobile = window.innerWidth <= 900;
 
   /* ── Notifications ── */
   private _notifications = new BehaviorSubject<Notification[]>([
@@ -82,5 +84,17 @@ export class UiService {
 
   closeNotif(): void {
     this.notifOpen = false;
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  openSidebar(): void {
+    this.sidebarOpen = true;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

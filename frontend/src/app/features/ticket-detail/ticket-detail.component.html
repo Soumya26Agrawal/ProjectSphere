@@ -1,9 +1,9 @@
-<div class="overlay" [class.open]="!!ticket" (click)="onOverlayClick($event)">
-  <aside class="td-drawer" *ngIf="ticket">
+<div class="overlay" [class.open]="!!ticket" (click)="close.emit()">
+  <div class="dialog dialog-wide" *ngIf="ticket" (click)="$event.stopPropagation()">
 
     <!-- Header -->
-    <header class="td-drawer-hdr">
-      <div class="td-drawer-heading">
+    <div class="dialog-hdr">
+      <div>
         <div class="td-drawer-chips">
           <span class="ticket-type-chip" [ngClass]="ds.itClass(ticket.type)">
             <span class="mi">{{ ds.itIcon(ticket.type) }}</span>
@@ -11,7 +11,7 @@
           </span>
           <span class="td-drawer-id">PS-{{ ticket.id }}</span>
         </div>
-        <h2 class="td-drawer-title">{{ ticket.sum }}</h2>
+        <h2 class="dialog-hdr-title">{{ ticket.sum }}</h2>
       </div>
       <div class="td-drawer-actions">
         <button class="btn btn-secondary btn-sm" (click)="ui.toast('Share link copied!')">
@@ -36,10 +36,10 @@
         </div>
         <button class="icon-btn" (click)="close.emit()"><span class="mi">close</span></button>
       </div>
-    </header>
+    </div>
 
     <!-- Body -->
-    <div class="td-drawer-body">
+    <div class="dialog-body">
 
       <!-- Quick action row -->
       <div class="td-quick-actions">
@@ -155,5 +155,5 @@
       </section>
 
     </div>
-  </aside>
+  </div>
 </div>

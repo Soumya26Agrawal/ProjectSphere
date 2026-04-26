@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DataService } from '../../core/services/data.service';
 import { UiService } from '../../core/services/ui.service';
 import { DefectReproducibility, DefectSeverity } from '../../core/models/models';
+import { DefectApiService } from '../../core/services/defect-api.service';
 
 interface AttachedFile { name: string; size: string; }
 
@@ -32,7 +33,7 @@ export class ReportDefectComponent {
 
   attachments: AttachedFile[] = [];
 
-  constructor(public ds: DataService, public ui: UiService) {}
+  constructor(public ds: DataService, public ui: UiService, private defectApi: DefectApiService) {}
 
   onFilesSelected(ev: Event): void {
     const files = (ev.target as HTMLInputElement).files;
@@ -54,19 +55,29 @@ export class ReportDefectComponent {
       this.ui.toast('Summary is required');
       return;
     }
-    this.ds.addDefect({
+    const defect = {
       title: this.form.title,
-      env:   this.form.env || 'Not specified',
-      sev:   this.form.sev,
-      rep:   this.form.rep,
-      desc:  this.form.desc  || 'No description provided.',
-      exp:   this.form.exp   || '—',
-      act:   this.form.act   || '—',
+      env: this.form.env || 'Not specified',
+      sev: this.form.sev,
+      rep: this.form.rep,
+      desc: this.form.desc || 'No description provided.',
+      exp: this.form.exp || '—',
+      act: this.form.act || '—',
       steps: this.form.steps || 'No steps provided.',
+      ass: 'Unassigned',
+      status: 'NEW' as const,
+    };
+    this.defectApi.createDefect(defect).subscribe({
+      next: () => {
+        this.ui.toast('Defect reported ✓');
+        this.close.emit();
+        this.reset();
+      },
+      error: (err) => {
+        console.error('Error creating defect:', err);
+        this.ui.toast('Failed to report defect');
+      },
     });
-    this.close.emit();
-    this.ui.toast('Defect reported ✓');
-    this.reset();
   }
 
   onOverlayClick(e: MouseEvent): void {

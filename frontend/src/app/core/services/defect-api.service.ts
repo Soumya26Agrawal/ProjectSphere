@@ -25,10 +25,26 @@ export interface Page<T> {
 }
 
 const DEFECTS_BASE = 'http://localhost:8081/api/v1/defect';
+const TICKETS_BASE = 'http://localhost:8081/api/v1/ticket';
+const TESTCASES_BASE = 'http://localhost:8081/api/v1/testcase';
 
 @Injectable({ providedIn: 'root' })
 export class DefectApiService {
   constructor(private http: HttpClient) {}
+
+  /**
+   * Fetch all unmapped tickets (tickets not linked to any defect).
+   */
+  getUnMappedTickets(): Observable<any[]> {
+    return this.http.get<any[]>(`${TICKETS_BASE}/unmapped`);
+  }
+
+  /**
+   * Fetch all unmapped test cases (test cases not linked to any defect).
+   */
+  getUnMappedTestCases(): Observable<any[]> {
+    return this.http.get<any[]>(`${TESTCASES_BASE}/unmapped`);
+  }
 
   /**
    * Fetch all defects from the backend.
@@ -129,21 +145,17 @@ export class DefectApiService {
   }
 
   /**
-   * Create a new defect.
+   * Create a new defect using DefectRequestDTO format.
    */
-  createDefect(body: Omit<Defect, 'id' | 'bid' | 'status'>): Observable<Defect> {
-    // Map frontend model to backend DTO
-    const dto = {
-      ticketId: 1, // placeholder
-      testCaseId: 1, // placeholder
-      severity: body.sev,
-      reproducible: body.rep,
-      status: 'NEW',
-      steps: body.steps.split('\n'),
-    };
-    return this.http.post<DefectResponseDTO>(`${DEFECTS_BASE}`, dto).pipe(
-      map(dto => this.mapDtoToDefect(dto))
-    );
+  createDefect(defectRequest: {
+    ticketId: number;
+    testCaseId: number;
+    severity: string;
+    reproducible: string;
+    status: string;
+    steps: string[];
+  }): Observable<DefectResponseDTO> {
+    return this.http.post<DefectResponseDTO>(`${DEFECTS_BASE}`, defectRequest);
   }
 
   /**

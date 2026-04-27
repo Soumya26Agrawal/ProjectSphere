@@ -16,11 +16,12 @@
   </app-notification-panel>
 
   <!-- Main Layout -->
-  <div class="layout">
+  <div class="layout" [class.sidebar-closed]="!ui.sidebarOpen">
     <app-sidebar></app-sidebar>
     <main class="main">
       <router-outlet></router-outlet>
     </main>
+    <div class="sidebar-backdrop" *ngIf="ui.sidebarOpen && isMobile" (click)="ui.closeSidebar()"></div>
   </div>
 
   <!-- Global Dialogs -->
@@ -38,7 +39,8 @@
 
   <app-report-defect
     [open]="ui.reportDefectOpen"
-    (close)="ui.closeReportDefect()">
+    (close)="ui.closeReportDefect()"
+    (defectCreated)="onDefectCreated()">
   </app-report-defect>
 
   <!-- Toast Notification -->

@@ -1,9 +1,18 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../core/services/data.service';
 import { UiService } from '../../core/services/ui.service';
-import { DefectReproducibility, DefectSeverity } from '../../core/models/models';
+import { DefectApiService } from '../../core/services/defect-api.service';
+
+interface DefectRequestDTO {
+  ticketId: number;
+  testCaseId: number;
+  reproducible: string;
+  severity: string;
+  status: string;
+  steps: string[];
+}
 
 interface AttachedFile { name: string; size: string; }
 
@@ -14,25 +23,72 @@ interface AttachedFile { name: string; size: string; }
   templateUrl: './report-defect.component.html',
   styleUrl: './report-defect.component.css',
 })
-export class ReportDefectComponent {
+export class ReportDefectComponent implements OnInit {
   @Input() open = false;
   @Output() close = new EventEmitter<void>();
+  @Output() defectCreated = new EventEmitter<void>();
 
-  form: {
-    title: string; env: string;
-    sev: DefectSeverity; rep: DefectReproducibility;
-    desc: string; exp: string; act: string; steps: string;
-    remarks: string;
-  } = {
-    title: '', env: '',
-    sev: 'MEDIUM', rep: 'ALWAYS',
-    desc: '', exp: '', act: '', steps: '',
-    remarks: '',
+  form: DefectRequestDTO = {
+    ticketId: 0,
+    testCaseId: 0,
+    reproducible: 'ALWAYS',
+    severity: 'MEDIUM',
+    status: 'NEW',
+    steps: [''],
   };
 
+  // Dropdown options
+  unmappedTickets: any[] = [];
+  unmappedTestCases: any[] = [];
+  reproducibilityOptions = ['ALWAYS', 'SOMETIMES', 'ONCE'];
+  severityOptions = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
+  
   attachments: AttachedFile[] = [];
+  isSubmitting = false;
+  isLoadingData = false;
 
-  constructor(public ds: DataService, public ui: UiService) {}
+  constructor(
+    public ds: DataService,
+    public ui: UiService,
+    private defectApi: DefectApiService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadUnmappedData();
+  }
+
+  loadUnmappedData(): void {
+    this.isLoadingData = true;
+    this.defectApi.getUnMappedTickets().subscribe({
+      next: (tickets) => {
+        this.unmappedTickets = tickets;
+      },
+      error: (err) => {
+        console.error('Error loading unmapped tickets:', err);
+      },
+    });
+
+    this.defectApi.getUnMappedTestCases().subscribe({
+      next: (testCases) => {
+        this.unmappedTestCases = testCases;
+        this.isLoadingData = false;
+      },
+      error: (err) => {
+        console.error('Error loading unmapped test cases:', err);
+        this.isLoadingData = false;
+      },
+    });
+  }
+
+  addStep(): void {
+    this.form.steps.push('');
+  }
+
+  removeStep(index: number): void {
+    if (this.form.steps.length > 1) {
+      this.form.steps.splice(index, 1);
+    }
+  }
 
   onFilesSelected(ev: Event): void {
     const files = (ev.target as HTMLInputElement).files;
@@ -47,26 +103,55 @@ export class ReportDefectComponent {
     (ev.target as HTMLInputElement).value = '';
   }
 
-  removeAttachment(i: number): void { this.attachments.splice(i, 1); }
+  removeAttachment(i: number): void {
+    this.attachments.splice(i, 1);
+  }
 
   submit(): void {
-    if (!this.form.title.trim()) {
-      this.ui.toast('Summary is required');
+    if (this.form.ticketId == 0) {
+      this.ui.toast('Please select a ticket');
       return;
     }
-    this.ds.addDefect({
-      title: this.form.title,
-      env:   this.form.env || 'Not specified',
-      sev:   this.form.sev,
-      rep:   this.form.rep,
-      desc:  this.form.desc  || 'No description provided.',
-      exp:   this.form.exp   || '—',
-      act:   this.form.act   || '—',
-      steps: this.form.steps || 'No steps provided.',
+
+    if (this.form.testCaseId == 0) {
+      this.ui.toast('Please select a test case');
+      return;
+    }
+
+    if (this.form.steps.some(s => !s.trim())) {
+      this.ui.toast('All steps must be filled');
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    // Filter out empty steps
+    const validSteps = this.form.steps.filter(s => s.trim());
+
+    const defectRequest: DefectRequestDTO = {
+      ticketId: +this.form.ticketId,
+      testCaseId: +this.form.testCaseId,
+      reproducible: this.form.reproducible,
+      severity: this.form.severity,
+      status: 'NEW',
+      steps: validSteps,
+    };
+
+    this.defectApi.createDefect(defectRequest).subscribe({
+      next: (response) => {
+        this.ui.toast('Defect reported ✓');
+        this.isSubmitting = false;
+        this.ui.notifyDefectCreated();
+        this.defectCreated.emit();
+        this.close.emit();
+        this.reset();
+      },
+      error: (err) => {
+        console.error('Error creating defect:', err);
+        this.ui.toast('Failed to report defect');
+        this.isSubmitting = false;
+      },
     });
-    this.close.emit();
-    this.ui.toast('Defect reported ✓');
-    this.reset();
   }
 
   onOverlayClick(e: MouseEvent): void {
@@ -75,9 +160,18 @@ export class ReportDefectComponent {
 
   private reset(): void {
     this.form = {
-      title: '', env: '', sev: 'MEDIUM', rep: 'ALWAYS',
-      desc: '', exp: '', act: '', steps: '', remarks: '',
+      ticketId: 0,
+      testCaseId: 0,
+      reproducible: 'ALWAYS',
+      severity: 'MEDIUM',
+      status: 'NEW',
+      steps: [''],
     };
     this.attachments = [];
   }
+  
+trackByIndex(index: number): number {
+  return index;
+}
+
 }

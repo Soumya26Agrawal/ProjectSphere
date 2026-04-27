@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { UiService } from '../../core/services/ui.service';
 
 @Component({
   selector: 'app-topnav',
@@ -18,7 +19,7 @@ export class TopnavComponent {
   menuOpen = false;
   query = '';
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, public ui: UiService) {}
 
   toggleMenu(): void { this.menuOpen = !this.menuOpen; }
   closeMenu():  void { this.menuOpen = false; }

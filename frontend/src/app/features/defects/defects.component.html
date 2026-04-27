@@ -72,6 +72,34 @@
         <div class="dx-kpi-lbl">Closed</div>
       </div>
     </div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon" style="background:#FFE5F0;color:#8B2C6B"><span class="mi">restore</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ countByStatus('REOPENED') }}</div>
+        <div class="dx-kpi-lbl">Reopened</div>
+      </div>
+    </div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon" style="background:#FFFAE6;color:#974F0C"><span class="mi">schedule</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ countByStatus('DEFERRED') }}</div>
+        <div class="dx-kpi-lbl">Deferred</div>
+      </div>
+    </div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon" style="background:#F8E4EB;color:#943D73"><span class="mi">block</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ countByStatus('REJECTED') }}</div>
+        <div class="dx-kpi-lbl">Rejected</div>
+      </div>
+    </div>
+    <div class="dx-kpi">
+      <span class="dx-kpi-icon" style="background:#E5F2FF;color:#004B87"><span class="mi">content_copy</span></span>
+      <div class="dx-kpi-body">
+        <div class="dx-kpi-val">{{ countByStatus('DUPLICATE') }}</div>
+        <div class="dx-kpi-lbl">Duplicate</div>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ Defect flow board ═══ -->

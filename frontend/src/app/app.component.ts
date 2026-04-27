@@ -32,6 +32,7 @@ const PUBLIC_ROUTES = ['/landing', '/login', '/admin', '/pm', '/dev'];
 export class AppComponent implements OnInit {
   /** True when the current route should show the app shell. */
   isShellRoute = false;
+  isMobile = window.innerWidth <= 900;
 
   constructor(public ui: UiService, private router: Router) {}
 
@@ -42,6 +43,19 @@ export class AppComponent implements OnInit {
         const url = e.urlAfterRedirects ?? e.url;
         this.isShellRoute = !PUBLIC_ROUTES.some(p => url.startsWith(p));
       });
+    this.ui.isMobile = this.isMobile;
+    if (this.isMobile) {
+      this.ui.closeSidebar();
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.isMobile = window.innerWidth <= 900;
+    this.ui.isMobile = this.isMobile;
+    if (!this.isMobile) {
+      this.ui.openSidebar();
+    }
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -56,5 +70,13 @@ export class AppComponent implements OnInit {
       e.preventDefault();
       this.ui.openCreateIssue();
     }
+  }
+
+  /**
+   * Called when a defect is created from the report-defect form
+   */
+  onDefectCreated(): void {
+    // Emit an event that defects page can listen to
+    // For now, this just closes the dialog - the defects component handles refresh
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Notification, Ticket } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -14,6 +14,11 @@ export class UiService {
   createIssueOpen = false;
   reportDefectOpen = false;
   notifOpen = false;
+  sidebarOpen = true;
+  isMobile = window.innerWidth <= 900;
+  /* ── Defect Creation Events ── */
+  private _defectCreated = new BehaviorSubject<void>(undefined);
+  defectCreated$ = this._defectCreated.asObservable();
 
   /* ── Notifications ── */
   private _notifications = new BehaviorSubject<Notification[]>([
@@ -75,6 +80,10 @@ export class UiService {
     this.reportDefectOpen = false;
   }
 
+  notifyDefectCreated(): void {
+    this._defectCreated.next();
+  }
+
   /* ── Notification Panel ── */
   toggleNotif(): void {
     this.notifOpen = !this.notifOpen;
@@ -82,5 +91,17 @@ export class UiService {
 
   closeNotif(): void {
     this.notifOpen = false;
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  openSidebar(): void {
+    this.sidebarOpen = true;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 }

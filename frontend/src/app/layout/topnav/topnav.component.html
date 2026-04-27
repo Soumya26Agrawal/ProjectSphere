@@ -1,5 +1,8 @@
 <!-- Top bar — identical structure to admin-shell and pm-shell -->
 <header class="ax-topbar">
+  <button class="ax-hamburger-small" *ngIf="!ui.sidebarOpen" (click)="ui.toggleSidebar()">
+    <span class="mi">menu</span>
+  </button>
   <a class="ax-brand" routerLink="/board">
     <span class="ax-logo">
       <span class="mi">dashboard</span>

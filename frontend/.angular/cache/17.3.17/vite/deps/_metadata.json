@@ -1,61 +1,61 @@
 {
-  "hash": "d5d1a8d6",
-  "configHash": "8171fdab",
-  "lockfileHash": "79a427a3",
-  "browserHash": "1c05963b",
+  "hash": "1e250aa7",
+  "configHash": "b52ef121",
+  "lockfileHash": "50455a4a",
+  "browserHash": "4d07e203",
   "optimized": {
+    "@angular/cdk/drag-drop": {
+      "src": "../../../../../node_modules/@angular/cdk/fesm2022/drag-drop.mjs",
+      "file": "@angular_cdk_drag-drop.js",
+      "fileHash": "9d8f8b98",
+      "needsInterop": false
+    },
     "@angular/common": {
       "src": "../../../../../node_modules/@angular/common/fesm2022/common.mjs",
       "file": "@angular_common.js",
-      "fileHash": "e2c12e5c",
+      "fileHash": "08cb1e34",
       "needsInterop": false
     },
     "@angular/common/http": {
       "src": "../../../../../node_modules/@angular/common/fesm2022/http.mjs",
       "file": "@angular_common_http.js",
-      "fileHash": "a7758ef7",
+      "fileHash": "3ffa3533",
       "needsInterop": false
     },
     "@angular/core": {
       "src": "../../../../../node_modules/@angular/core/fesm2022/core.mjs",
       "file": "@angular_core.js",
-      "fileHash": "eb9cfdfc",
+      "fileHash": "0b7724af",
       "needsInterop": false
     },
     "@angular/forms": {
       "src": "../../../../../node_modules/@angular/forms/fesm2022/forms.mjs",
       "file": "@angular_forms.js",
-      "fileHash": "5506b659",
+      "fileHash": "1d26aa8b",
       "needsInterop": false
     },
     "@angular/platform-browser": {
       "src": "../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
       "file": "@angular_platform-browser.js",
-      "fileHash": "fd929ca1",
+      "fileHash": "6e27eec4",
       "needsInterop": false
     },
     "@angular/router": {
       "src": "../../../../../node_modules/@angular/router/fesm2022/router.mjs",
       "file": "@angular_router.js",
-      "fileHash": "64494b15",
+      "fileHash": "89df5f60",
       "needsInterop": false
     },
     "rxjs": {
       "src": "../../../../../node_modules/rxjs/dist/esm5/index.js",
       "file": "rxjs.js",
-      "fileHash": "f12c64af",
+      "fileHash": "a16f5a20",
       "needsInterop": false
     },
     "rxjs/operators": {
       "src": "../../../../../node_modules/rxjs/dist/esm5/operators/index.js",
       "file": "rxjs_operators.js",
-      "fileHash": "d0c56ba3",
-      "needsInterop": false
-    },
-    "@angular/cdk/drag-drop": {
-      "src": "../../../../../node_modules/@angular/cdk/fesm2022/drag-drop.mjs",
-      "file": "@angular_cdk_drag-drop.js",
-      "fileHash": "76c438ae",
+      "fileHash": "7bfd2aa7",
       "needsInterop": false
     }
   },

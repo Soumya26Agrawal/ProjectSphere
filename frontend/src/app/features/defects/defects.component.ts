@@ -63,6 +63,7 @@ export class DefectsComponent implements OnInit {
       this.sevFilter || undefined,
       this.statusFilter || undefined,
       this.assignedFilter || undefined,
+      this.repFilter || undefined,
     ).subscribe({
       next: (response: Page<Defect>) => {
         this.defectsPage = response.content;
@@ -117,7 +118,6 @@ export class DefectsComponent implements OnInit {
   }
 
   /* ── Status bucketing (collapse 10 backend states into 3 UI buckets) ── */
-  private static readonly BUCKET_OPEN:     ReadonlyArray<string> = ['NEW','OPEN','REOPENED'];
   private static readonly BUCKET_INPROG:   ReadonlyArray<string> = ['IN_PROGRESS','RETEST'];
   private static readonly BUCKET_RESOLVED: ReadonlyArray<string> = ['FIXED','CLOSED','DEFERRED','REJECTED','DUPLICATE'];
 

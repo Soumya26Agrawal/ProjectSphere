@@ -15,6 +15,6 @@ public class TestCaseRequestDTO {
     private String testData;
     private Complexity complexity;
     private String expectedResult;
-    private TestStatus status;
+    // private TestStatus status;
     private List<Long> userStoryIds;
 }

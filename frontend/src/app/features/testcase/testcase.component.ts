@@ -2,31 +2,25 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { UiService } from '../../core/services/ui.service';
+import { AuthService } from '../../core/services/auth.service';
+import { TestCaseApiService, TestCaseRequest, TestCaseResponse } from '../../core/services/testcase-api.service';
 
 interface TestCase {
   testCaseId: number;
   description: string;
-  designer: { userId: number; firstName: string; lastName: string };
+  designerName: string;
   type: 'UI' | 'FUNCTIONAL' | 'POSITIVE' | 'NEGATIVE';
   testData: string;
   complexity: 'SIMPLE' | 'MEDIUM' | 'COMPLEX' | 'CRITICAL';
   expectedResult: string;
-  actualResult: string;
   status: 'NEW' | 'PASSED' | 'FAILED';
-  userStories: Ticket[];
-  defect?: { defectId: string };
-}
-
-interface Ticket {
-  ticketId: number;
-  title: string;
-  // other fields as needed
+  userStoryTitles: string[];
+  defectId?: string;
 }
 
 interface TraceabilityItem {
-  userStory: Ticket;
+  storyTitle: string;
   testCases: TestCase[];
 }
 
@@ -41,14 +35,14 @@ export class TestCaseComponent implements OnInit {
   testCases: TestCase[] = [];
   traceabilityMatrix: TraceabilityItem[] = [];
   showCreateModal = false;
+  isSubmitting = false;
+
   form: {
     description: string;
-    type: 'UI' | 'FUNCTIONAL' | 'POSITIVE' | 'NEGATIVE';
+    type: string;
     testData: string;
-    complexity: 'SIMPLE' | 'MEDIUM' | 'COMPLEX' | 'CRITICAL';
+    complexity: string;
     expectedResult: string;
-    actualResult: string;
-    status: 'NEW' | 'PASSED' | 'FAILED';
     userStoryIds: string;
   } = {
     description: '',
@@ -56,94 +50,85 @@ export class TestCaseComponent implements OnInit {
     testData: '',
     complexity: 'MEDIUM',
     expectedResult: '',
-    actualResult: '',
-    status: 'NEW',
     userStoryIds: '',
   };
-  selectedFile: File | null = null;
-  uploading = false;
 
-  constructor(private http: HttpClient, private ui: UiService) {}
+  constructor(
+    private ui: UiService,
+    private auth: AuthService,
+    private testCaseApi: TestCaseApiService,
+  ) {}
 
   ngOnInit(): void {
     this.loadTestCases();
-    this.buildTraceabilityMatrix();
   }
 
   loadTestCases(): void {
-    // Mock data; replace with API
+    // Mock data — replace this block with testCaseApi.getAllTestCases() once the backend endpoint is ready.
     this.testCases = [
       {
         testCaseId: 1,
         description: 'Login with valid credentials',
-        designer: { userId: 1, firstName: 'John', lastName: 'Doe' },
+        designerName: 'John Doe',
         type: 'FUNCTIONAL',
         testData: 'username: test@example.com, password: pass123',
         complexity: 'SIMPLE',
         expectedResult: 'User logged in successfully',
-        actualResult: 'User logged in successfully',
         status: 'PASSED',
-        userStories: [{ ticketId: 101, title: 'User Login Feature' }],
+        userStoryTitles: ['User Login Feature'],
       },
       {
         testCaseId: 2,
         description: 'Login with invalid credentials',
-        designer: { userId: 1, firstName: 'John', lastName: 'Doe' },
+        designerName: 'John Doe',
         type: 'NEGATIVE',
         testData: 'username: wrong@example.com, password: wrong',
         complexity: 'SIMPLE',
         expectedResult: 'Error message displayed',
-        actualResult: 'Error message displayed',
         status: 'PASSED',
-        userStories: [{ ticketId: 101, title: 'User Login Feature' }],
+        userStoryTitles: ['User Login Feature'],
       },
       {
         testCaseId: 3,
         description: 'Upload image in profile',
-        designer: { userId: 2, firstName: 'Jane', lastName: 'Smith' },
+        designerName: 'Jane Smith',
         type: 'UI',
         testData: 'Image file: test.png',
         complexity: 'MEDIUM',
         expectedResult: 'Image uploaded and displayed',
-        actualResult: 'Upload failed',
         status: 'FAILED',
-        userStories: [{ ticketId: 102, title: 'Profile Image Upload' }],
-        defect: { defectId: 'BUG-001' },
+        userStoryTitles: ['Profile Image Upload'],
+        defectId: 'BUG-001',
       },
       {
         testCaseId: 4,
         description: 'New test case',
-        designer: { userId: 1, firstName: 'John', lastName: 'Doe' },
+        designerName: 'John Doe',
         type: 'POSITIVE',
         testData: '',
         complexity: 'COMPLEX',
         expectedResult: 'Expected result',
-        actualResult: '',
         status: 'NEW',
-        userStories: [{ ticketId: 103, title: 'New Feature' }],
+        userStoryTitles: ['New Feature'],
       },
     ];
+    this.buildTraceabilityMatrix();
   }
 
   buildTraceabilityMatrix(): void {
-    const userStoryMap = new Map<number, TraceabilityItem>();
-
+    const map = new Map<string, TraceabilityItem>();
     this.testCases.forEach(tc => {
-      tc.userStories.forEach(us => {
-        if (!userStoryMap.has(us.ticketId)) {
-          userStoryMap.set(us.ticketId, { userStory: us, testCases: [] });
+      tc.userStoryTitles.forEach(title => {
+        if (!map.has(title)) {
+          map.set(title, { storyTitle: title, testCases: [] });
         }
-        userStoryMap.get(us.ticketId)!.testCases.push(tc);
+        map.get(title)!.testCases.push(tc);
       });
     });
-
-    this.traceabilityMatrix = Array.from(userStoryMap.values());
+    this.traceabilityMatrix = Array.from(map.values());
   }
 
-  // KPIs
-  get totalTestCases(): number {
-    return this.testCases.length;
-  }
+  get totalTestCases(): number { return this.testCases.length; }
 
   get passRate(): number {
     const passed = this.testCases.filter(tc => tc.status === 'PASSED').length;
@@ -154,14 +139,11 @@ export class TestCaseComponent implements OnInit {
     return this.testCases.filter(tc => tc.status === 'NEW').length;
   }
 
-  openCreateModal(): void {
-    this.showCreateModal = true;
-  }
+  openCreateModal(): void { this.showCreateModal = true; }
 
   closeCreateModal(): void {
     this.showCreateModal = false;
     this.resetForm();
-    this.selectedFile = null;
   }
 
   private resetForm(): void {
@@ -171,8 +153,6 @@ export class TestCaseComponent implements OnInit {
       testData: '',
       complexity: 'MEDIUM',
       expectedResult: '',
-      actualResult: '',
-      status: 'NEW',
       userStoryIds: '',
     };
   }
@@ -185,35 +165,53 @@ export class TestCaseComponent implements OnInit {
     if (!this.form.description.trim()) { this.ui.toast('Description is required'); return; }
     if (!this.form.expectedResult.trim()) { this.ui.toast('Expected result is required'); return; }
 
-    this.uploading = true;
-    const formData = new FormData();
-    Object.keys(this.form).forEach(key => {
-      if (key === 'userStoryIds') {
-        const ids = this.form.userStoryIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
-        formData.append(key, JSON.stringify(ids));
-      } else {
-        formData.append(key, this.form[key as keyof typeof this.form]);
-      }
-    });
-    if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
-    }
+    const designerId = this.auth.currentUser()?.userId;
+    if (!designerId) { this.ui.toast('You must be logged in to create a test case'); return; }
 
-    // Replace with actual API
-    this.http.post<TestCase>('/api/v1/testcase', formData).subscribe({
-      next: (newTestCase) => {
-        this.testCases.push(newTestCase);
+    const userStoryIds = this.form.userStoryIds
+      .split(',')
+      .map(s => parseInt(s.trim(), 10))
+      .filter(n => !isNaN(n));
+
+    const request: TestCaseRequest = {
+      description: this.form.description.trim(),
+      designerId,
+      type: this.form.type,
+      testData: this.form.testData.trim(),
+      complexity: this.form.complexity,
+      expectedResult: this.form.expectedResult.trim(),
+      userStoryIds,
+    };
+
+    this.isSubmitting = true;
+    this.testCaseApi.createTestCase(request).subscribe({
+      next: (res: TestCaseResponse) => {
+        const created = this.mapResponseToModel(res);
+        this.testCases.push(created);
         this.buildTraceabilityMatrix();
         this.closeCreateModal();
         this.ui.toast('Test case created successfully');
+        this.isSubmitting = false;
       },
       error: (err) => {
         console.error('Error creating test case:', err);
         this.ui.toast('Failed to create test case');
+        this.isSubmitting = false;
       },
-      complete: () => {
-        this.uploading = false;
-      }
     });
+  }
+
+  private mapResponseToModel(res: TestCaseResponse): TestCase {
+    return {
+      testCaseId: res.testCaseId,
+      description: res.description,
+      designerName: res.designerName ?? 'Unknown',
+      type: res.type as TestCase['type'],
+      testData: res.testData ?? '',
+      complexity: res.complexity as TestCase['complexity'],
+      expectedResult: res.expectedResult ?? '',
+      status: (res.status as TestCase['status']) ?? 'NEW',
+      userStoryTitles: res.userStoryTitles ?? [],
+    };
   }
 }

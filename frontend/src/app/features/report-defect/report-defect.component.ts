@@ -3,16 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../core/services/data.service';
 import { UiService } from '../../core/services/ui.service';
-import { DefectApiService } from '../../core/services/defect-api.service';
-
-interface DefectRequestDTO {
-  ticketId: number;
-  testCaseId: number;
-  reproducible: string;
-  severity: string;
-  status: string;
-  steps: string[];
-}
+import { DefectApiService, DefectRequestDTO } from '../../core/services/defect-api.service';
 
 interface AttachedFile { name: string; size: string; }
 
@@ -37,9 +28,8 @@ export class ReportDefectComponent implements OnInit {
     steps: [''],
   };
 
-  // Dropdown options
-  unmappedTickets: any[] = [];
-  unmappedTestCases: any[] = [];
+  unmappedTickets: number[] = [];
+  unmappedTestCases: number[] = [];
   reproducibilityOptions = ['ALWAYS', 'SOMETIMES', 'ONCE'];
   severityOptions = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
   

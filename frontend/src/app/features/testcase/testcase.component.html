@@ -55,17 +55,16 @@
     <div class="traceability-matrix">
       <div *ngFor="let item of traceabilityMatrix" class="traceability-row">
         <div class="user-story-card">
-          <h3>{{ item.userStory.title }}</h3>
-          <p>Ticket ID: {{ item.userStory.ticketId }}</p>
+          <h3>{{ item.storyTitle }}</h3>
         </div>
         <div class="test-cases-grid">
           <div *ngFor="let tc of item.testCases" class="test-case-status"
                [ngClass]="{'passed': tc.status === 'PASSED', 'failed': tc.status === 'FAILED', 'new': tc.status === 'NEW'}">
-            <span class="mi" [class]="tc.status === 'PASSED' ? 'check_circle' : tc.status === 'FAILED' ? 'cancel' : 'schedule'"></span>
+            <span class="mi">{{ tc.status === 'PASSED' ? 'check_circle' : tc.status === 'FAILED' ? 'cancel' : 'schedule' }}</span>
             <div class="tc-info">
               <div class="tc-id">TC-{{ tc.testCaseId }}</div>
               <div class="tc-desc">{{ tc.description }}</div>
-              <div *ngIf="tc.defect" class="bug-id">Bug: {{ tc.defect.defectId }}</div>
+              <div *ngIf="tc.defectId" class="bug-id">Bug: {{ tc.defectId }}</div>
             </div>
           </div>
         </div>
@@ -89,7 +88,6 @@
             <th>Test Data</th>
             <th>Complexity</th>
             <th>Expected Result</th>
-            <th>Actual Result</th>
             <th>Status</th>
             <th>User Stories</th>
             <th>Defect</th>
@@ -97,19 +95,19 @@
         </thead>
         <tbody>
           <tr *ngFor="let tc of testCases">
-            <td>{{ tc.testCaseId }}</td>
+            <td>TC-{{ tc.testCaseId }}</td>
             <td>{{ tc.description }}</td>
-            <td>{{ tc.designer.firstName }} {{ tc.designer.lastName }}</td>
+            <td>{{ tc.designerName }}</td>
             <td><span class="badge" [ngClass]="tc.type.toLowerCase()">{{ tc.type }}</span></td>
             <td>{{ tc.testData || '-' }}</td>
             <td><span class="badge" [ngClass]="tc.complexity.toLowerCase()">{{ tc.complexity }}</span></td>
             <td>{{ tc.expectedResult }}</td>
-            <td>{{ tc.actualResult || '-' }}</td>
             <td><span class="status-badge" [ngClass]="tc.status.toLowerCase()">{{ tc.status }}</span></td>
             <td>
-              <div *ngFor="let us of tc.userStories">{{ us.title }} ({{ us.ticketId }})</div>
+              <div *ngFor="let title of tc.userStoryTitles">{{ title }}</div>
+              <span *ngIf="tc.userStoryTitles.length === 0">-</span>
             </td>
-            <td>{{ tc.defect?.defectId || '-' }}</td>
+            <td>{{ tc.defectId || '-' }}</td>
           </tr>
         </tbody>
       </table>
@@ -132,7 +130,7 @@
 
       <div class="dialog-body">
         <div class="form-field">
-          <label>Description *</label>
+          <label>Description <span style="color:#DE350B;font-weight:700">*</span></label>
           <div class="form-input">
             <textarea [(ngModel)]="form.description" rows="3" placeholder="Detailed description of the test case…"></textarea>
           </div>
@@ -140,7 +138,7 @@
 
         <div class="form-row">
           <div class="form-field">
-            <label>Test Type *</label>
+            <label>Test Type <span style="color:#DE350B;font-weight:700">*</span></label>
             <div class="form-input">
               <select [(ngModel)]="form.type">
                 <option value="FUNCTIONAL">Functional</option>
@@ -151,7 +149,7 @@
             </div>
           </div>
           <div class="form-field">
-            <label>Complexity *</label>
+            <label>Complexity <span style="color:#DE350B;font-weight:700">*</span></label>
             <div class="form-input">
               <select [(ngModel)]="form.complexity">
                 <option value="SIMPLE">Simple</option>
@@ -171,43 +169,24 @@
         </div>
 
         <div class="form-field">
-          <label>Expected Result *</label>
+          <label>Expected Result <span style="color:#DE350B;font-weight:700">*</span></label>
           <div class="form-input">
             <textarea [(ngModel)]="form.expectedResult" rows="2" placeholder="What should happen when test is executed…"></textarea>
           </div>
         </div>
 
         <div class="form-field">
-          <label>Actual Result</label>
+          <label>Linked User Story IDs</label>
           <div class="form-input">
-            <textarea [(ngModel)]="form.actualResult" rows="2" placeholder="Actual result after execution (leave blank for new tests)…"></textarea>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-field">
-            <label>Status *</label>
-            <div class="form-input">
-              <select [(ngModel)]="form.status">
-                <option value="NEW">New</option>
-                <option value="PASSED">Passed</option>
-                <option value="FAILED">Failed</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-field">
-            <label>User Story IDs</label>
-            <div class="form-input">
-              <input [(ngModel)]="form.userStoryIds" placeholder="e.g. 101,102,103"/>
-            </div>
+            <input [(ngModel)]="form.userStoryIds" placeholder="e.g. 101, 102, 103  (comma-separated ticket IDs)"/>
           </div>
         </div>
       </div>
 
       <div class="dialog-footer">
-        <button class="btn btn-secondary" (click)="closeCreateModal()">Cancel</button>
-        <button class="btn btn-primary" (click)="submitTestCase()">
-          <span class="mi">add</span>Create Test Case
+        <button class="btn btn-secondary" (click)="closeCreateModal()" [disabled]="isSubmitting">Cancel</button>
+        <button class="btn btn-primary" (click)="submitTestCase()" [disabled]="isSubmitting">
+          <span class="mi">add</span>{{ isSubmitting ? 'Creating...' : 'Create Test Case' }}
         </button>
       </div>
     </div>

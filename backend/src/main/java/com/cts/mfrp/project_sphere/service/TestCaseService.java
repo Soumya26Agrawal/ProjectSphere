@@ -50,4 +50,9 @@ public class TestCaseService {
                 .build();
         return result;
     }
+
+    public List<Long> getUnMappedTestCases(){
+        System.out.println("Received request to get unmapped test cases in service");
+        return testCaseRepository.getUnMappedTestCases();
+    }
 }

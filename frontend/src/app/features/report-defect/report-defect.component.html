@@ -5,77 +5,104 @@
         <span class="form-head-icon red"><span class="mi">bug_report</span></span>
         <div>
           <h2 style="margin:0">Report Defect</h2>
-          <small style="color:var(--text3);font-size:12px">Log a bug so the team can triage and fix it.</small>
+          <small style="color:var(--text3);font-size:12px">Link defect to a ticket and test case, then describe the issue.</small>
         </div>
       </div>
       <button class="icon-btn" (click)="close.emit()"><span class="mi">close</span></button>
     </div>
 
     <div class="dialog-body">
-      <div class="form-field">
-        <label>Summary <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
-        <div class="form-input">
-          <input [(ngModel)]="form.title" name="title" required #titleRef="ngModel" placeholder="Short description of the bug…"/>
-        </div>
-        <div *ngIf="titleRef.invalid && titleRef.touched" style="color:#DE350B;font-size:12px;margin-top:4px">Summary is required.</div>
-      </div>
-
-      <div class="form-field">
-        <label>Environment</label>
-        <div class="form-input">
-          <input [(ngModel)]="form.env" placeholder="e.g. Windows 11, Chrome 120, Staging"/>
-        </div>
-      </div>
-
+      <!-- ═══ Ticket & Test Case Selection ═══ -->
       <div class="form-row">
         <div class="form-field">
-          <label>Severity</label>
+          <label>Ticket <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
           <div class="form-input">
-            <select [(ngModel)]="form.sev">
-              <option>CRITICAL</option><option>HIGH</option>
-              <option>MEDIUM</option><option>LOW</option>
+            <select [(ngModel)]="form.ticketId" name="ticketId">
+              <option [ngValue]="0">Select an unmapped ticket...</option>
+              <option *ngFor="let ticket of unmappedTickets" [ngValue]="ticket.ticketId">
+                {{ ticket.ticketId }}
+              </option>
+            </select>
+            <!-- <select [(ngModel)]="form.ticketId" name="ticketId">
+  <option [ngValue]="null">Select an unmapped ticket...</option>
+  <option *ngFor="let ticket of unmappedTickets"
+          [ngValue]="ticket.ticketId">
+    {{ ticket.ticketId }}
+  </option>
+</select> -->
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Test Case <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
+          <div class="form-input">
+            <select [(ngModel)]="form.testCaseId" name="testCaseId">
+              <option [value]="0">Select an unmapped test case...</option>
+              <option *ngFor="let tc of unmappedTestCases" [value]="tc.testCaseId">
+                {{ tc.testCaseId }}
+              </option>
+            </select>
+            <!-- <select [(ngModel)]="form.testCaseId" name="testCaseId">
+  <option [ngValue]="null">Select an unmapped test case...</option>
+  <option *ngFor="let tc of unmappedTestCases"
+          [ngValue]="tc.testCaseId">
+    {{ tc.testCaseId }}
+  </option>
+</select> -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Severity & Reproducibility ═══ -->
+      <div class="form-row">
+        <div class="form-field">
+          <label>Severity <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
+          <div class="form-input">
+            <select [(ngModel)]="form.severity" name="severity">
+              <option *ngFor="let sev of severityOptions" [value]="sev">{{ sev }}</option>
             </select>
           </div>
         </div>
         <div class="form-field">
-          <label>Reproducibility</label>
+          <label>Reproducibility <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
           <div class="form-input">
-            <select [(ngModel)]="form.rep">
-              <option>ALWAYS</option><option>SOMETIMES</option><option>ONCE</option>
+            <select [(ngModel)]="form.reproducible" name="reproducible">
+              <option *ngFor="let rep of reproducibilityOptions" [value]="rep">{{ rep }}</option>
             </select>
           </div>
         </div>
       </div>
 
+      <!-- ═══ Steps to Reproduce ═══ -->
       <div class="form-field">
-        <label>Description</label>
-        <div class="form-input">
-          <textarea [(ngModel)]="form.desc" rows="3" placeholder="Detail what went wrong…"></textarea>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-field">
-          <label>Expected Result</label>
-          <div class="form-input expected">
-            <textarea [(ngModel)]="form.exp" rows="2" placeholder="What should happen…"></textarea>
+        <label>Steps to Reproduce <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
+        <div class="steps-container">
+          <!-- <div class="step-item" *ngFor="let step of form.steps; let i = index"> -->
+            <div class="step-item"
+     *ngFor="let step of form.steps; let i = index; trackBy: trackByIndex">
+            <span class="step-number">{{ i + 1 }}</span>
+            <input 
+              type="text" 
+              [(ngModel)]="form.steps[i]" 
+              [name]="'step-' + i"
+              placeholder="Describe what the user does..."
+              class="step-input"
+            />
+            <button 
+              *ngIf="form.steps.length > 1" 
+              type="button" 
+              class="step-remove"
+              (click)="removeStep(i)"
+              title="Remove step">
+              <span class="mi">close</span>
+            </button>
           </div>
-        </div>
-        <div class="form-field">
-          <label>Actual Result</label>
-          <div class="form-input actual">
-            <textarea [(ngModel)]="form.act" rows="2" placeholder="What actually happened…"></textarea>
-          </div>
+          <button type="button" class="btn btn-secondary" (click)="addStep()" style="align-self: flex-start;">
+            <span class="mi">add</span>Add Step
+          </button>
         </div>
       </div>
 
-      <div class="form-field">
-        <label>Steps to Reproduce</label>
-        <div class="form-input">
-          <textarea [(ngModel)]="form.steps" rows="3" placeholder="1. Navigate to…&#10;2. Click on…&#10;3. Observe…"></textarea>
-        </div>
-      </div>
-
+      <!-- ═══ Attachments ═══ -->
       <div class="form-field">
         <label>Attachments</label>
         <label class="rd-upload">
@@ -96,19 +123,12 @@
           </div>
         </div>
       </div>
-
-      <div class="form-field">
-        <label>Remarks</label>
-        <div class="form-input">
-          <textarea [(ngModel)]="form.remarks" rows="2" placeholder="Additional context for the triage team…"></textarea>
-        </div>
-      </div>
     </div>
 
     <div class="dialog-footer">
-      <button class="btn btn-secondary" (click)="close.emit()">Cancel</button>
-      <button class="btn btn-primary" (click)="submit()">
-        <span class="mi">bug_report</span>Submit Defect
+      <button class="btn btn-secondary" (click)="close.emit()" [disabled]="isSubmitting">Cancel</button>
+      <button class="btn btn-primary" (click)="submit()" [disabled]="isSubmitting || isLoadingData">
+        <span class="mi">bug_report</span>{{ isSubmitting ? 'Submitting...' : 'Report Defect' }}
       </button>
     </div>
   </div>

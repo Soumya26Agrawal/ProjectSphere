@@ -39,7 +39,8 @@
 
   <app-report-defect
     [open]="ui.reportDefectOpen"
-    (close)="ui.closeReportDefect()">
+    (close)="ui.closeReportDefect()"
+    (defectCreated)="onDefectCreated()">
   </app-report-defect>
 
   <!-- Toast Notification -->

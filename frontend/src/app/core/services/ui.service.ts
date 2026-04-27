@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Notification, Ticket } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -16,6 +16,9 @@ export class UiService {
   notifOpen = false;
   sidebarOpen = true;
   isMobile = window.innerWidth <= 900;
+  /* ── Defect Creation Events ── */
+  private _defectCreated = new BehaviorSubject<void>(undefined);
+  defectCreated$ = this._defectCreated.asObservable();
 
   /* ── Notifications ── */
   private _notifications = new BehaviorSubject<Notification[]>([
@@ -75,6 +78,10 @@ export class UiService {
 
   closeReportDefect(): void {
     this.reportDefectOpen = false;
+  }
+
+  notifyDefectCreated(): void {
+    this._defectCreated.next();
   }
 
   /* ── Notification Panel ── */

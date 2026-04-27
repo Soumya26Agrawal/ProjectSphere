@@ -71,4 +71,12 @@ export class AppComponent implements OnInit {
       this.ui.openCreateIssue();
     }
   }
+
+  /**
+   * Called when a defect is created from the report-defect form
+   */
+  onDefectCreated(): void {
+    // Emit an event that defects page can listen to
+    // For now, this just closes the dialog - the defects component handles refresh
+  }
 }

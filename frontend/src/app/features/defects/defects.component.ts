@@ -44,6 +44,12 @@ export class DefectsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDefects();
+    
+    // Listen for defect creation events
+    this.ui.defectCreated$.subscribe(() => {
+      this.currentPage = 0;
+      this.loadDefects();
+    });
   }
 
   /**
@@ -146,6 +152,10 @@ export class DefectsComponent implements OnInit {
     { id: 'FIXED' as DefectStatus, label: 'Fixed', statusText: 'Fix completed', icon: 'check_circle', bg: '#E3FCEF', fg: '#006644' },
     { id: 'RETEST' as DefectStatus, label: 'Retest', statusText: 'Ready for validation', icon: 'science', bg: '#E6FCFF', fg: '#00687D' },
     { id: 'CLOSED' as DefectStatus, label: 'Closed', statusText: 'Verified and closed', icon: 'lock', bg: '#E8EAED', fg: '#42526E' },
+    { id: 'REOPENED' as DefectStatus, label: 'Reopened', statusText: 'Issue found again', icon: 'restore', bg: '#FFE5F0', fg: '#8B2C6B' },
+    { id: 'DEFERRED' as DefectStatus, label: 'Deferred', statusText: 'Postponed', icon: 'schedule', bg: '#FFFAE6', fg: '#974F0C' },
+    { id: 'REJECTED' as DefectStatus, label: 'Rejected', statusText: 'Not a defect', icon: 'block', bg: '#F8E4EB', fg: '#943D73' },
+    { id: 'DUPLICATE' as DefectStatus, label: 'Duplicate', statusText: 'Already reported', icon: 'content_copy', bg: '#E5F2FF', fg: '#004B87' },
   ] as const;
 
   statusCount(status: DefectStatus): number {

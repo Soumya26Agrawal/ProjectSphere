@@ -180,23 +180,23 @@ INSERT INTO project_team_users (team_id, user_id) VALUES
 --  TICKETS (20) — mix of EPIC/USER_STORY/TASK/DEFECT/SUB_TASK
 -- ═══════════════════════════════════════════════════════════════════════
 INSERT INTO ticket (project_id, sprint_id, parent_id, assignee_id, reporter_id, type, status, story_points, title, description) VALUES
-(1,  1, NULL,  7, 2, 'EPIC',       'IN_PROGRESS', 20, 'Payment Gateway Integration',         'Integrate UPI, NEFT and card rails into the core-banking platform.'),
-(1,  1,    1,  8, 7, 'USER_STORY', 'IN_PROGRESS',  8, 'Customer pays vendor via UPI',        'As a customer I want to pay a vendor via UPI so that settlement is instant.'),
-(1,  2,    2,  8, 7, 'TASK',       'COMPLETED',    2, 'Add UPI SDK dependency',              'Add the vendor UPI SDK to the gradle build and wire up initialisation.'),
+(1,  1, NULL,  7, 2, 'DEFECT',       'IN_PROGRESS', 20, 'Payment Gateway Integration',         'Integrate UPI, NEFT and card rails into the core-banking platform.'),
+(1,  1,    1,  8, 7, 'DEFECT', 'IN_PROGRESS',  8, 'Customer pays vendor via UPI',        'As a customer I want to pay a vendor via UPI so that settlement is instant.'),
+(1,  2,    2,  8, 7, 'DEFECT',       'COMPLETED',    2, 'Add UPI SDK dependency',              'Add the vendor UPI SDK to the gradle build and wire up initialisation.'),
 (1,  2, NULL,  7, 2, 'DEFECT',     'IN_PROGRESS',  3, 'Timeout on bank verification',        'Bank verification intermittently times out after 30s.'),
-(2,  3, NULL,  9, 2, 'EPIC',       'IN_PROGRESS', 30, 'Patient Portal Rewrite',              'Rewrite the legacy JSP patient portal as an Angular SPA.'),
-(2,  4,    5, 10, 9, 'USER_STORY', 'TO_DO',        5, 'Book online appointment',             'As a patient I can book an appointment with a chosen doctor.'),
-(3,  6, NULL, 12,11, 'TASK',       'COMPLETED',    5, 'Finalise analytics dashboard',        'Complete the analytics dashboard before go-live.'),
-(4,  7, NULL, 13, 3, 'USER_STORY', 'IN_PROGRESS',  8, 'Auto-triage claim by severity',       'The system should auto-triage claims based on severity score.'),
+(2,  3, NULL,  9, 2, 'DEFECT',       'IN_PROGRESS', 30, 'Patient Portal Rewrite',              'Rewrite the legacy JSP patient portal as an Angular SPA.'),
+(2,  4,    5, 10, 9, 'DEFECT', 'TO_DO',        5, 'Book online appointment',             'As a patient I can book an appointment with a chosen doctor.'),
+(3,  6, NULL, 12,11, 'DEFECT',       'COMPLETED',    5, 'Finalise analytics dashboard',        'Complete the analytics dashboard before go-live.'),
+(4,  7, NULL, 13, 3, 'DEFECT', 'IN_PROGRESS',  8, 'Auto-triage claim by severity',       'The system should auto-triage claims based on severity score.'),
 (4,  7, NULL, 14,13, 'DEFECT',     'REVIEW',       3, 'Claim ID collision on bulk upload',   'Duplicate claim IDs are silently overwritten during bulk upload.'),
 (5,  9, NULL, 16,15, 'USER_STORY', 'IN_PROGRESS',  5, 'Teachers can schedule live classes',  'Teachers can schedule a live class and invite a cohort.'),
 (6, 11, NULL, 17, 3, 'TASK',       'COMPLETED',    2, 'Apply security hardening patch',      'Apply the portal hardening patch issued by InfoSec.'),
 (7, 13, NULL, 19, 4, 'USER_STORY', 'IN_PROGRESS', 13, 'Read legacy mainframe records',       'As a developer I can read records from the mainframe via the new adapter.'),
 (8, 15, NULL, 22,21, 'TASK',       'COMPLETED',    3, 'Publish analytics dashboard',         'Publish factory KPI dashboard for stakeholder review.'),
-(9, 17, NULL, 23, 4, 'USER_STORY', 'TO_DO',        5, 'Reward points redemption',            'As a customer I can redeem reward points against a voucher.'),
+(9, 17, NULL, 23, 4, 'DEFECT', 'TO_DO',        5, 'Reward points redemption',            'As a customer I can redeem reward points against a voucher.'),
 (10,19, NULL, 25, 5, 'USER_STORY', 'IN_PROGRESS',  8, 'Multi-factor authentication',         'As an employee I am prompted for MFA on privileged actions.'),
 (10,19,   15, 26,25, 'SUB_TASK',   'TO_DO',        2, 'Send OTP via SMS provider',           'Call the SMS provider API to deliver OTP.'),
-(11,21, NULL, 28,27, 'TASK',       'COMPLETED',    3, 'Archive old patient records',         'Move records older than 7 years to cold storage.'),
+(11,21, NULL, 28,27, 'DEFECT',       'COMPLETED',    3, 'Archive old patient records',         'Move records older than 7 years to cold storage.'),
 (12,23, NULL, 29, 5, 'USER_STORY', 'IN_PROGRESS',  5, 'e-KYC document upload',               'As a new customer I can upload my e-KYC documents during onboarding.'),
 (13,25, NULL, 32,31, 'DEFECT',     'IN_PROGRESS',  3, 'False-positive risk scoring',         'Model flags legitimate claims as fraud when balance is negative.'),
 (14,28, NULL, 34,33, 'TASK',       'COMPLETED',    5, 'Finalize driver app release',         'Cut the driver app 2.0 release and submit to app stores.');
@@ -236,21 +236,21 @@ INSERT INTO textcase_userstory (test_case_id, ticket_id) VALUES
 --  DEFECTS (15) — each bound to a distinct ticket (one-to-one)
 -- ═══════════════════════════════════════════════════════════════════════
 INSERT INTO defect (ticket_id, reproducible, severity, status, test_case_id) VALUES
-(4,  'SOMETIMES', 'HIGH',     'OPEN',        2),
-(9,  'ALWAYS',    'CRITICAL', 'IN_PROGRESS', 5),
-(19, 'SOMETIMES', 'HIGH',     'NEW',         13),
-(2,  'ONCE',      'LOW',      'CLOSED',      1),
-(6,  'ALWAYS',    'MEDIUM',   'OPEN',        3),
-(10, 'SOMETIMES', 'MEDIUM',   'FIXED',       6),
-(15, 'ALWAYS',    'HIGH',     'RETEST',      10),
-(18, 'SOMETIMES', 'MEDIUM',   'OPEN',        12),
-(8,  'ALWAYS',    'CRITICAL', 'REOPENED',    4),
-(12, 'ONCE',      'LOW',      'DEFERRED',    7),
-(14, 'ALWAYS',    'HIGH',     'OPEN',        8),
-(20, 'SOMETIMES', 'LOW',      'CLOSED',      14),
-(11, 'ONCE',      'LOW',      'REJECTED',    9),
-(16, 'ALWAYS',    'MEDIUM',   'NEW',         11),
-(17, 'SOMETIMES', 'CRITICAL', 'DUPLICATE',   15);
+(1,  'SOMETIMES', 'HIGH',     'OPEN',        1),
+(2,  'ALWAYS',    'CRITICAL', 'IN_PROGRESS', 2),
+(3, 'SOMETIMES', 'HIGH',     'NEW',         3),
+(4,  'ONCE',      'LOW',      'CLOSED',      4),
+(5,  'ALWAYS',    'MEDIUM',   'OPEN',        5),
+(6, 'SOMETIMES', 'MEDIUM',   'FIXED',       6),
+(7, 'ALWAYS',    'HIGH',     'RETEST',      7),
+(8, 'SOMETIMES', 'MEDIUM',   'OPEN',        8),
+(9,  'ALWAYS',    'CRITICAL', 'REOPENED',    9),
+(14, 'ONCE',      'LOW',      'DEFERRED',    10);
+-- (14, 'ALWAYS',    'HIGH',     'OPEN',        8),
+-- (20, 'SOMETIMES', 'LOW',      'CLOSED',      14),
+-- (11, 'ONCE',      'LOW',      'REJECTED',    9),
+-- (16, 'ALWAYS',    'MEDIUM',   'NEW',         11),
+-- (17, 'SOMETIMES', 'CRITICAL', 'DUPLICATE',   15);
 
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -273,10 +273,10 @@ INSERT INTO defect_steps_to_reproduce (defect_id, steps_to_reproduce) VALUES
 (7,  'Confirm that retry counter increments'),
 (8,  'Upload a 10MB PDF to KYC'),
 (9,  'Trigger mainframe read with 10k records'),
-(10, 'Redeem reward points beyond available balance'),
-(11, 'Re-run archival job on same cut-off date'),
-(12, 'Cut a driver app release and verify version code'),
-(15, 'Apply security patch and observe duplicate logging');
+(10, 'Redeem reward points beyond available balance');
+-- (11, 'Re-run archival job on same cut-off date'),
+-- (12, 'Cut a driver app release and verify version code'),
+-- (15, 'Apply security patch and observe duplicate logging');
 
 
 -- ═══════════════════════════════════════════════════════════════════════

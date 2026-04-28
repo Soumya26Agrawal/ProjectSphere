@@ -47,7 +47,7 @@ public class Sprint {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
-//    @JsonIgnore
+    @JsonIgnore
     private Project project;
 
     @OneToMany(mappedBy = "sprint",fetch=FetchType.LAZY, orphanRemoval = true)

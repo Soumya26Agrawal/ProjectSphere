@@ -140,28 +140,105 @@
     </div>
   </div>
 
-  <!-- ═══ Charts (4) ═══ -->
-  <h2 class="an-section-h">Visual Reports</h2>
-  <div class="an-charts-grid">
+  <!-- ═══ Analytics charts ═══ -->
+  <h2 class="an-section-h">
+    Analytics
+    <span class="an-section-tag" *ngIf="!burndownLoading && !burndownEmpty">
+      <span class="mi">cloud_done</span>live data
+    </span>
+    <span class="an-section-tag warn" *ngIf="!burndownLoading && burndownEmpty">
+      <span class="mi">cloud_off</span>backend unavailable
+    </span>
+  </h2>
+
+  <div class="an-burn-status" *ngIf="burndownLoading">
+    <span class="mi spin">progress_activity</span>
+    Loading project data from backend…
+  </div>
+  <div class="an-burn-status warn" *ngIf="!burndownLoading && burndownEmpty">
+    <span class="mi">info</span>
+    No data available for the selected project.
+  </div>
+
+  <div class="an-charts-grid an-burn-grid" *ngIf="!burndownLoading && !burndownEmpty">
+    <!-- 1. Velocity -->
     <div class="an-chart-card">
-      <h4>Task Status Distribution</h4>
-      <div class="ch-sub">Volume per workflow stage</div>
-      <div class="an-chart-box"><canvas #cTask></canvas></div>
+      <h4>Velocity</h4>
+      <div class="ch-sub">Planned vs completed story points per sprint.</div>
+      <div class="an-chart-box"><canvas #cVelocity></canvas></div>
     </div>
+
+    <!-- 2. Completion rate -->
     <div class="an-chart-card">
-      <h4>Priority &amp; Risk</h4>
-      <div class="ch-sub">Effort distribution by priority</div>
-      <div class="an-chart-box"><canvas #cPrio></canvas></div>
+      <h4>Completion Rate</h4>
+      <div class="ch-sub">Percent of committed points actually completed each sprint · target line at 85%.</div>
+      <div class="an-chart-box"><canvas #cCompletion></canvas></div>
     </div>
-    <div class="an-chart-card">
-      <h4>Defect Lifecycle</h4>
-      <div class="ch-sub">Open / in-progress / resolved</div>
-      <div class="an-chart-box"><canvas #cDef></canvas></div>
+
+    <!-- 3. Per-developer burndown — full width -->
+    <div class="an-chart-card span-2">
+      <h4>Per-Developer Burndown <span class="ch-sub-inline" *ngIf="activeBurndown">— {{ activeBurndown.sprintName }}</span></h4>
+      <div class="ch-sub">Remaining story points per day in the active sprint · ideal line dashed, one line per developer.</div>
+      <div class="an-chart-box tall"><canvas #cDevBurn></canvas></div>
     </div>
+
+    <!-- 4. Workload distribution -->
     <div class="an-chart-card">
-      <h4>Sprint Velocity</h4>
-      <div class="ch-sub">Planned vs completed story points</div>
-      <div class="an-chart-box"><canvas #cVel></canvas></div>
+      <h4>Workload Distribution</h4>
+      <div class="ch-sub">Total story points assigned to each developer across the project.</div>
+      <div class="an-chart-box"><canvas #cWorkload></canvas></div>
+    </div>
+
+    <!-- 5. Throughput -->
+    <div class="an-chart-card">
+      <h4>Throughput</h4>
+      <div class="ch-sub">Completed points per developer · last 3 sprints.</div>
+      <div class="an-chart-box"><canvas #cThroughput></canvas></div>
+    </div>
+
+    <!-- 6. Issue type breakdown -->
+    <div class="an-chart-card">
+      <h4>Issue Type Breakdown</h4>
+      <div class="ch-sub">Distribution across stories, tasks, and epics.</div>
+      <div class="an-chart-box"><canvas #cIssueType></canvas></div>
+    </div>
+
+    <!-- 8. Priority split -->
+    <div class="an-chart-card">
+      <h4>Priority Split</h4>
+      <div class="ch-sub">Tickets by priority · ticket counts shown in the legend.</div>
+      <div class="an-chart-box">
+        <canvas #cPriority></canvas>
+        <div class="an-empty-overlay" *ngIf="priorityEmpty">
+          <span class="mi">info</span>
+          No priority data on tickets yet.
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Epic progress — full width -->
+    <div class="an-chart-card span-2">
+      <div class="an-chart-head">
+        <div>
+          <h4>Epic Progress</h4>
+          <div class="ch-sub">For each epic · how many of its child stories are done vs remaining.</div>
+        </div>
+        <div class="an-chart-filter">
+          <label>Show as</label>
+          <select [(ngModel)]="epicMode" (ngModelChange)="onEpicModeChange()">
+            <option value="count">Number of stories</option>
+            <option value="points">Story points</option>
+            <option value="percent">Percentage</option>
+          </select>
+        </div>
+      </div>
+      <div class="an-chart-box tall">
+        <canvas #cEpic></canvas>
+        <div class="an-empty-overlay" *ngIf="epicEmpty">
+          <span class="mi">info</span>
+          No epics in this project yet.
+        </div>
+      </div>
     </div>
   </div>
 </div>

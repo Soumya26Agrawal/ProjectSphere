@@ -1,5 +1,6 @@
 package com.cts.mfrp.project_sphere.controller;
 
+import com.cts.mfrp.project_sphere.Enum.Status;
 import com.cts.mfrp.project_sphere.dto.*;
 import com.cts.mfrp.project_sphere.model.Ticket;
 import com.cts.mfrp.project_sphere.service.SprintService;
@@ -75,6 +76,59 @@ public class TicketController {
     @GetMapping
     public ResponseEntity<List<DefectSummaryDTO>> getDefectSummary(){
         return ResponseEntity.status(HttpStatus.OK).body(ticketService.getDefectSummary());
+    }
+
+    /** All tickets for a project regardless of sprint — used by the analytics
+     *  page to count epics and backlog items. */
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<Ticket>> getTicketsByProject(@PathVariable Long projectId) {
+        return ResponseEntity.ok(ticketService.getTicketsByProject(projectId));
+    }
+
+    /**
+     * Apply a partial update from the edit-issue dialog. Each changed field
+     * triggers a TicketHistory row.
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<TicketResponseDTO> updateTicket(@PathVariable("id") Long ticketId,
+                                                          @RequestBody TicketUpdateRequestDTO body) {
+        try {
+            com.cts.mfrp.project_sphere.model.Ticket t = ticketService.updateTicket(ticketId, body);
+            TicketResponseDTO dto = TicketResponseDTO.builder()
+                    .ticketId(t.getTicketId())
+                    .title(t.getTitle())
+                    .type(t.getType())
+                    .storyPoints(t.getStoryPoints())
+                    .description(t.getDescription())
+                    .status(t.getStatus())
+                    .build();
+            return ResponseEntity.ok(dto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Update a ticket's status and write a TicketHistory row.
+     * Called by the board's drag-and-drop handler.
+     */
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TicketResponseDTO> updateStatus(@PathVariable("id") Long ticketId,
+                                                          @RequestParam("status") Status status) {
+        try {
+            Ticket t = ticketService.updateStatus(ticketId, status);
+            TicketResponseDTO dto = TicketResponseDTO.builder()
+                    .ticketId(t.getTicketId())
+                    .title(t.getTitle())
+                    .type(t.getType())
+                    .storyPoints(t.getStoryPoints())
+                    .description(t.getDescription())
+                    .status(t.getStatus())
+                    .build();
+            return ResponseEntity.ok(dto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/defects")

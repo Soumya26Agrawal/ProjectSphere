@@ -21,4 +21,7 @@ public interface TicketRepository extends JpaRepository<Ticket,Long> {
 
     @Query("select t from Ticket t where t.sprint.sprintId in :ids and t.type=com.cts.mfrp.project_sphere.Enum.TicketType.DEFECT")
     List<Ticket> findDefectsInActiveSprints(@Param("ids") List<Long> activeSprintIds);
+
+    /** All tickets for a project, regardless of sprint (includes epics and backlog). */
+    List<Ticket> findByProjectProjectId(Long projectId);
 }

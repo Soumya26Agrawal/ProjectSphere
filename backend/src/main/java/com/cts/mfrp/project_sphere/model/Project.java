@@ -4,6 +4,7 @@ import com.cts.mfrp.project_sphere.Enum.Domain;
 import com.cts.mfrp.project_sphere.Enum.ProjectStatus;
 import com.cts.mfrp.project_sphere.Enum.Status;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
@@ -47,9 +48,11 @@ public class Project {
 //    @Builder.Default
     private Domain domain;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "project",cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Ticket> tickets=new ArrayList<>();
+    @JsonIgnore
     @OneToMany(mappedBy = "project")
     @Builder.Default
     private List<Sprint> sprints = new ArrayList<>();

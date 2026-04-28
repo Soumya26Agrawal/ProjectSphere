@@ -202,3 +202,193 @@
 @media (max-width: 720px) {
   .td-meta-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Edit mode ─────────────────────────────────────────────── */
+.td-edit-title {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+}
+.td-edit-title:focus {
+  outline: none;
+  border-color: var(--jira-blue);
+  box-shadow: 0 0 0 3px rgba(0,82,204,.12);
+}
+.td-edit-desc {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: #fff;
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.55;
+  transition: border-color .15s;
+}
+.td-edit-desc:focus { outline: none; border-color: var(--jira-blue); }
+
+/* Inputs / selects inside the edit meta grid */
+.td-meta-item select,
+.td-meta-item input[type="number"] {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.td-meta-item select:hover,
+.td-meta-item input[type="number"]:hover { border-color: var(--border2); }
+.td-meta-item select:focus,
+.td-meta-item input[type="number"]:focus { outline: none; border-color: var(--jira-blue); }
+
+/* Inline error banner */
+.td-error {
+  background: #FFEBE6;
+  border: 1px solid #FFBDAD;
+  color: #BF2600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  margin-bottom: 14px;
+}
+
+/* ── Activity tab counts ───────────────────────────────────── */
+.act-tab-count {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 600;
+}
+.act-tab.active .act-tab-count { color: var(--jira-blue); }
+
+/* ── Comments — slightly more padding so they breathe ──────── */
+.cmt {
+  background: var(--surface2);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: border-color .12s;
+}
+.cmt:hover { border-color: var(--border); }
+.cmt-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.cmt-input-row {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+.cmt-input-row textarea {
+  min-height: 56px;
+}
+
+/* ── History timeline ──────────────────────────────────────── */
+.td-history {
+  display: flex; flex-direction: column;
+  gap: 10px;
+  position: relative;
+  padding-left: 6px;
+}
+.td-history-row {
+  display: flex; gap: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: border-color .12s, background .12s;
+}
+.td-history-row:hover {
+  border-color: var(--border2);
+  background: #fff;
+}
+.td-history-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #DEEBFF;
+  color: var(--jira-blue);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.td-history-icon .mi { font-size: 16px; }
+.td-history-body { flex: 1; min-width: 0; }
+.td-history-line {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 6px;
+}
+.td-history-line strong { font-weight: 700; }
+.td-history-line .td-history-time {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--text3);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.td-history-single {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--text2);
+  display: inline-flex; align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.td-history-single em {
+  font-style: normal;
+  background: #F4F5F7;
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+}
+.td-history-changes {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex; flex-direction: column;
+  gap: 4px;
+}
+.td-history-changes li {
+  font-size: 12.5px;
+  color: var(--text2);
+  display: inline-flex; flex-wrap: wrap; align-items: center;
+  gap: 6px;
+}
+.td-history-changes li strong {
+  font-weight: 700;
+  color: var(--text);
+  text-transform: capitalize;
+}
+.td-history-changes li em {
+  font-style: normal;
+  background: #F4F5F7;
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+}
+.td-history-arrow {
+  font-size: 16px;
+  color: var(--text3);
+}

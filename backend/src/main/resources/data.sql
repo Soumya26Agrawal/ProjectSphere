@@ -340,3 +340,177 @@ INSERT INTO ticket_history (ticket_id, changed_by, field_changed, old_value, new
 (15, 5, 'status',      'TO_DO',       'IN_PROGRESS',  NOW() - INTERVAL 2 DAY),
 (19,31, 'status',      'TO_DO',       'IN_PROGRESS',  NOW() - INTERVAL 1 DAY),
 (20,33, 'status',      'IN_PROGRESS', 'COMPLETED',    NOW() - INTERVAL 1 DAY);
+
+
+-- ═══════════════════════════════════════════════════════════════════════
+--  DEV WORKSPACE — project for dev@projectsphere.com (project_id = 16)
+--  4 sprints; exactly one ACTIVE per project (today = 2026-04-28).
+--  dev@projectsphere.com is inserted with a real BCrypt hash of "dev123"
+--  so the bootstrap in ApplicationConfig sees it already exists and skips.
+-- ═══════════════════════════════════════════════════════════════════════
+
+-- Insert dev@projectsphere.com first so subsequent FKs resolve.
+-- Password hash below is BCrypt("dev123") generated with the same encoder
+-- (BCryptPasswordEncoder, strength 10) the runtime bootstrap uses.
+INSERT INTO users (employee_id, first_name, last_name, email, password, phone_number, role, is_active) VALUES
+(1002, 'Default', 'Developer', 'dev@projectsphere.com',
+ '$2a$10$dnDzHI3aG9uCrnXNujUW/.UdtsMrZHkHf4ECoJv50uVTbt1He8Qze',
+ 9999999997, 'DEVELOPER', true);
+-- → user_id = 41
+
+INSERT INTO project (project_name, product_description, project_status, domain, manager_id, created_at, completed_at) VALUES
+('ProjectSphere App',
+ 'Internal Jira-style tracker — workspace seeded for the dev@projectsphere.com demo user.',
+ 'IN_PROGRESS', 'TECHNOLOGY', 6, NOW() - INTERVAL 60 DAY, NULL);
+-- → project_id = 16
+
+INSERT INTO project_team (team_name, project_id, scrum_master_id) VALUES
+('Sphere Squad', 16, 38);
+-- → team_id = 16
+
+-- Three previously-unassigned developers + dev@projectsphere.com on the squad.
+INSERT INTO project_team_users (team_id, user_id) VALUES
+(16, 37),
+(16, 38),
+(16, 40),
+(16, 41);
+
+INSERT INTO sprint (sprint_name, start_date, end_date, status, project_id) VALUES
+('Sprint 1 · Discovery',  '2026-03-09', '2026-03-22', 'COMPLETED', 16),  -- → sprint_id = 31
+('Sprint 2 · Foundation', '2026-03-23', '2026-04-05', 'COMPLETED', 16),  -- → sprint_id = 32
+('Sprint 3 · Core Build', '2026-04-15', '2026-04-29', 'ACTIVE',    16),  -- → sprint_id = 33
+('Sprint 4 · Polish',     '2026-04-30', '2026-05-13', 'PLANNED',   16);  -- → sprint_id = 34
+
+-- Tickets distributed across the squad. dev@projectsphere.com (user 41) owns
+-- a meaningful slice across all 4 sprints so /board (active sprint = 33)
+-- shows his cards and /analytics has a real per-user line for him.
+INSERT INTO ticket (project_id, sprint_id, parent_id, assignee_id, reporter_id, type, status, story_points, title, description) VALUES
+-- Sprint 1 (id 31, COMPLETED)
+(16, 31, NULL, 41, 6, 'USER_STORY', 'COMPLETED',  5, 'Login and session bootstrap',     'Wire up Spring Security and the login form for the demo workspace.'),  -- 21
+(16, 31, NULL, 37, 6, 'TASK',       'COMPLETED',  8, 'Database schema and seed data',   'Author the schema migrations and a representative dataset.'),           -- 22
+(16, 31, NULL, 40, 6, 'USER_STORY', 'COMPLETED',  3, 'Project list page',               'List a user''s projects on the dashboard with filters.'),               -- 23
+(16, 31, NULL, 38, 6, 'TASK',       'COMPLETED',  5, 'CI pipeline scaffolding',         'Stand up GitHub Actions for build and test.'),                          -- 24
+-- Sprint 2 (id 32, COMPLETED)
+(16, 32, NULL, 41, 6, 'USER_STORY', 'COMPLETED',  8, 'Kanban board MVP',                'Drag-and-drop board with status changes persisted to the backend.'),    -- 25
+(16, 32, NULL, 37, 6, 'USER_STORY', 'COMPLETED',  5, 'Ticket detail panel',             'Side panel showing ticket details and comments.'),                       -- 26
+(16, 32, NULL, 41, 6, 'TASK',       'COMPLETED',  3, 'Avatar colour palette',           'Standardise avatar palette across all components.'),                     -- 27
+(16, 32, NULL, 38, 6, 'USER_STORY', 'COMPLETED',  8, 'Sprint CRUD',                     'Endpoints + UI for sprint create/update/complete.'),                     -- 28
+-- Sprint 3 (id 33, ACTIVE) — these show on /board
+(16, 33, NULL, 41, 6, 'USER_STORY', 'COMPLETED',  5, 'Backlog grooming view',           'Sortable backlog with quick edit.'),                                     -- 29
+(16, 33, NULL, 37, 6, 'TASK',       'COMPLETED',  3, 'Burndown endpoint',               'Sprint daily burndown derived from ticket history.'),                    -- 30
+(16, 33, NULL, 41, 6, 'USER_STORY', 'IN_PROGRESS',8, 'Per-user analytics charts',       'Velocity/burndown lines per assignee on the analytics page.'),           -- 31
+(16, 33, NULL, 38, 6, 'USER_STORY', 'IN_PROGRESS',5, 'Active sprint banner',            'Highlight the active sprint on the board header.'),                      -- 32
+(16, 33, NULL, 41, 6, 'USER_STORY', 'REVIEW',     3, 'Defect lifecycle widget',         'Lifecycle counts on the analytics page.'),                                -- 33
+(16, 33, NULL, 40, 6, 'TASK',       'TO_DO',      5, 'Backend ticket-history writes',   'Write a TicketHistory row on every status/assignee change.'),            -- 34
+-- Sprint 4 (id 34, PLANNED)
+(16, 34, NULL, 41, 6, 'USER_STORY', 'TO_DO',      8, 'Ticket history audit log',        'Show a per-ticket audit trail in the detail panel.');                    -- 35
+
+-- Ticket history — drives the day-by-day actual line in the burndown chart.
+INSERT INTO ticket_history (ticket_id, changed_by, field_changed, old_value, new_value, time_stamp) VALUES
+-- Sprint 1 (Mar 9–22) completions
+(21, 41, 'status', 'TO_DO',       'IN_PROGRESS', '2026-03-09 09:00:00'),
+(21, 41, 'status', 'IN_PROGRESS', 'COMPLETED',   '2026-03-15 16:00:00'),
+(22, 37, 'status', 'TO_DO',       'IN_PROGRESS', '2026-03-09 09:30:00'),
+(22, 37, 'status', 'IN_PROGRESS', 'COMPLETED',   '2026-03-18 14:00:00'),
+(23, 40, 'status', 'TO_DO',       'IN_PROGRESS', '2026-03-12 10:00:00'),
+(23, 40, 'status', 'IN_PROGRESS', 'COMPLETED',   '2026-03-21 11:00:00'),
+(24, 38, 'status', 'TO_DO',       'COMPLETED',   '2026-03-22 09:00:00'),
+-- Sprint 2 (Mar 23–Apr 5) completions
+(25, 41, 'status', 'TO_DO',       'IN_PROGRESS', '2026-03-23 10:00:00'),
+(25, 41, 'status', 'IN_PROGRESS', 'COMPLETED',   '2026-03-30 17:00:00'),
+(26, 37, 'status', 'TO_DO',       'IN_PROGRESS', '2026-03-23 11:00:00'),
+(26, 37, 'status', 'IN_PROGRESS', 'COMPLETED',   '2026-04-01 15:00:00'),
+(27, 41, 'status', 'TO_DO',       'COMPLETED',   '2026-03-28 13:00:00'),
+(28, 38, 'status', 'TO_DO',       'IN_PROGRESS', '2026-03-26 10:00:00'),
+(28, 38, 'status', 'IN_PROGRESS', 'COMPLETED',   '2026-04-04 16:00:00'),
+-- Sprint 3 (Apr 15–29, ACTIVE — today is Apr 28) progress
+(29, 41, 'status', 'TO_DO',       'IN_PROGRESS', '2026-04-15 09:00:00'),
+(29, 41, 'status', 'IN_PROGRESS', 'COMPLETED',   '2026-04-19 17:00:00'),
+(30, 37, 'status', 'TO_DO',       'IN_PROGRESS', '2026-04-16 10:00:00'),
+(30, 37, 'status', 'IN_PROGRESS', 'COMPLETED',   '2026-04-23 14:00:00'),
+(31, 41, 'status', 'TO_DO',       'IN_PROGRESS', '2026-04-22 09:00:00'),
+(32, 38, 'status', 'TO_DO',       'IN_PROGRESS', '2026-04-24 11:00:00'),
+(33, 41, 'status', 'TO_DO',       'IN_PROGRESS', '2026-04-20 09:00:00'),
+(33, 41, 'status', 'IN_PROGRESS', 'REVIEW',      '2026-04-26 16:00:00');
+
+
+-- ═══════════════════════════════════════════════════════════════════════
+--  PAST PROJECT for dev@projectsphere.com (project_id = 17, COMPLETED).
+--  Demonstrates the home page's "past projects" section with a limited
+--  read-only overview. dev was a member; project shipped 2 months ago.
+-- ═══════════════════════════════════════════════════════════════════════
+INSERT INTO project (project_name, product_description, project_status, domain, manager_id, created_at, completed_at) VALUES
+('Sphere Migration',
+ 'Mainframe-to-microservices migration for the legacy contracts platform — completed and handed off to Ops.',
+ 'COMPLETED', 'TECHNOLOGY', 5,
+ NOW() - INTERVAL 240 DAY,
+ NOW() - INTERVAL 60 DAY);
+-- → project_id = 17
+
+INSERT INTO project_team (team_name, project_id, scrum_master_id) VALUES
+('Atlas Squad', 17, 41);
+-- → team_id = 17
+
+-- dev@projectsphere.com (41) led this team. Two more members from the existing
+-- developer pool simulate a small archived squad.
+INSERT INTO project_team_users (team_id, user_id) VALUES
+(17, 7),
+(17, 8),
+(17, 41);
+
+INSERT INTO sprint (sprint_name, start_date, end_date, status, project_id) VALUES
+('Sprint 1 · Inception',  '2025-09-01', '2025-09-14', 'COMPLETED', 17),  -- → sprint_id = 35
+('Sprint 2 · Cutover',    '2025-09-15', '2025-09-28', 'COMPLETED', 17),  -- → sprint_id = 36
+('Sprint 3 · Stabilise',  '2025-09-29', '2025-10-12', 'COMPLETED', 17);  -- → sprint_id = 37
+
+INSERT INTO ticket (project_id, sprint_id, parent_id, assignee_id, reporter_id, type, status, story_points, title, description) VALUES
+-- Sprint 35 (Inception)
+(17, 35, NULL, 41, 5, 'USER_STORY', 'COMPLETED',  8, 'Inventory legacy contract APIs',  'Catalogue the existing endpoints to migrate.'),                          -- 36
+(17, 35, NULL,  7, 5, 'TASK',       'COMPLETED',  5, 'Stand up new auth service',        'Spring Security + JWT scaffolding for the new platform.'),               -- 37
+-- Sprint 36 (Cutover)
+(17, 36, NULL, 41, 5, 'USER_STORY', 'COMPLETED',  8, 'Migrate contracts read API',       'Read-only endpoints behind a feature flag.'),                            -- 38
+(17, 36, NULL,  8, 5, 'USER_STORY', 'COMPLETED',  5, 'Migrate contracts write API',      'Write endpoints with idempotency keys.'),                                 -- 39
+-- Sprint 37 (Stabilise)
+(17, 37, NULL, 41, 5, 'TASK',       'COMPLETED',  3, 'Cutover monitoring dashboards',    'Grafana boards for the new service.'),                                    -- 40
+(17, 37, NULL,  7, 5, 'USER_STORY', 'COMPLETED',  5, 'Decommission mainframe traffic',   'Drain remaining traffic and shut down old endpoints.');                   -- 41
+
+-- A few completion-event history rows so the burndown endpoint can serve
+-- this project too (even though it's no longer the active one).
+INSERT INTO ticket_history (ticket_id, changed_by, field_changed, old_value, new_value, time_stamp) VALUES
+(36, 41, 'status', 'TO_DO',       'IN_PROGRESS', '2025-09-01 09:00:00'),
+(36, 41, 'status', 'IN_PROGRESS', 'COMPLETED',   '2025-09-12 16:00:00'),
+(37,  7, 'status', 'TO_DO',       'COMPLETED',   '2025-09-13 10:00:00'),
+(38, 41, 'status', 'TO_DO',       'IN_PROGRESS', '2025-09-15 09:00:00'),
+(38, 41, 'status', 'IN_PROGRESS', 'COMPLETED',   '2025-09-25 17:00:00'),
+(39,  8, 'status', 'TO_DO',       'COMPLETED',   '2025-09-27 14:00:00'),
+(40, 41, 'status', 'TO_DO',       'COMPLETED',   '2025-10-04 11:00:00'),
+(41,  7, 'status', 'TO_DO',       'COMPLETED',   '2025-10-10 16:00:00');
+
+
+-- ═══════════════════════════════════════════════════════════════════════
+--  EPICS — give the Epic Progress chart something to show.
+--  Epics live outside any sprint (sprint_id = NULL) and group child tickets
+--  via the parent_id column. We append the four epic rows here, then run
+--  UPDATEs to wire the existing tickets up as their children.
+-- ═══════════════════════════════════════════════════════════════════════
+INSERT INTO ticket (project_id, sprint_id, parent_id, assignee_id, reporter_id, type, status, story_points, title, description) VALUES
+-- Project 17 (past) epics
+(17, NULL, NULL, 41, 5, 'EPIC', 'COMPLETED', 26, 'Platform Migration',
+ 'Inventory, auth scaffolding, and read/write migration of the contracts platform.'),                    -- → ticket_id = 42
+(17, NULL, NULL, 41, 5, 'EPIC', 'COMPLETED',  8, 'Cutover and Operations',
+ 'Monitoring dashboards and decommission of the legacy mainframe traffic.'),                              -- → ticket_id = 43
+-- Project 16 (active) epics
+(16, NULL, NULL, 41, 6, 'EPIC', 'IN_PROGRESS', 24, 'Workspace Foundation',
+ 'Login, schema, board MVP, and sprint CRUD — the foundation of the demo workspace.'),                    -- → ticket_id = 44
+(16, NULL, NULL, 41, 6, 'EPIC', 'IN_PROGRESS', 24, 'Analytics and Reporting',
+ 'Burndown engine, per-user analytics charts, and the active-sprint banner.');                            -- → ticket_id = 45
+
+-- Re-parent existing tickets so they roll up under the right epic.
+-- Project 17: Sprints 1 + 2 (Inception, Cutover) → Platform Migration.
+UPDATE ticket SET parent_id = 42 WHERE ticket_id IN (36, 37, 38, 39);
+-- Project 17: Sprint 3 (Stabilise) → Cutover and Operations.
+UPDATE ticket SET parent_id = 43 WHERE ticket_id IN (40, 41);
+-- Project 16: Sprints 1 + 2 (Discovery, Foundation) → Workspace Foundation.
+UPDATE ticket SET parent_id = 44 WHERE ticket_id IN (21, 22, 23, 24, 25, 26, 27, 28);
+-- Project 16: Sprints 3 + 4 (Core Build, Polish) → Analytics and Reporting.
+UPDATE ticket SET parent_id = 45 WHERE ticket_id IN (29, 30, 31, 32, 33, 34, 35);

@@ -1,5 +1,6 @@
 package com.cts.mfrp.project_sphere.controller;
 
+import com.cts.mfrp.project_sphere.dto.SprintBurndownResponseDTO;
 import com.cts.mfrp.project_sphere.dto.SprintCompletionResponseDTO;
 import com.cts.mfrp.project_sphere.dto.SprintRequestDTO;
 import com.cts.mfrp.project_sphere.dto.SprintResponseDTO;
@@ -106,6 +107,19 @@ public class SprintController {
     public ResponseEntity<String> forcedCompleteSprint(@RequestParam Long from, @RequestParam Long to){
         String response=sprintService.forcedCompleteSprint(from,to);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /**
+     * Daily burndown for a sprint, walked from {@code TicketHistory}.
+     * Returns ideal + actual + per-user remaining-points series.
+     */
+    @GetMapping("/{id}/burndown")
+    public ResponseEntity<SprintBurndownResponseDTO> getSprintBurndown(@PathVariable("id") Long sprintId){
+        try {
+            return ResponseEntity.ok(sprintService.getSprintBurndown(sprintId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

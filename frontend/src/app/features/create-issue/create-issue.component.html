@@ -5,140 +5,108 @@
         <span class="form-head-icon"><span class="mi">add_task</span></span>
         <div>
           <h2 style="margin:0">Create Issue</h2>
-          <small style="color:var(--text3);font-size:12px">Add a new story, task or sub-task to the project.</small>
+          <small style="color:var(--text3);font-size:12px">
+            <ng-container *ngIf="project">{{ project.projectName }} · </ng-container>
+            Reporter · {{ reporterName }}
+          </small>
         </div>
       </div>
       <button class="icon-btn" (click)="close.emit()"><span class="mi">close</span></button>
     </div>
 
     <div class="dialog-body">
-      <div class="form-row">
-        <div class="form-field">
-          <label>Project <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
-          <div class="form-input">
-            <select><option>ProjectSphere</option></select>
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Issue Type <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
-          <div class="form-input">
-            <select [(ngModel)]="form.type" name="type" (ngModelChange)="onTypeChange()">
-              <option value="EPIC">Epic</option>
-              <option value="USER_STORY">User Story</option>
-              <option value="TASK">Task</option>
-              <option value="SUB_TASK">Sub-task</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <div *ngIf="loading" style="padding:14px;color:var(--text3);font-size:13px">Loading project…</div>
+      <div *ngIf="errorMsg" style="padding:10px;background:#FFEBE6;border:1px solid #FFBDAD;border-radius:6px;color:#BF2600;font-size:12px;margin-bottom:12px">{{ errorMsg }}</div>
 
-      <div class="form-field">
-        <label>Summary <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
-        <div class="form-input">
-          <input [(ngModel)]="form.sum" name="sum" required #sumRef="ngModel" placeholder="Brief summary of the issue…"/>
+      <ng-container *ngIf="!loading && project">
+        <div class="form-row">
+          <div class="form-field">
+            <label>Issue Type <span style="color:#DE350B;font-weight:700">*</span></label>
+            <div class="form-input">
+              <select [(ngModel)]="form.type" name="type" (ngModelChange)="onTypeChange()">
+                <option value="EPIC">Epic</option>
+                <option value="USER_STORY">User Story</option>
+                <option value="TASK">Task</option>
+                <option value="SUB_TASK">Sub-task</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Status</label>
+            <div class="form-input">
+              <select [(ngModel)]="form.status" name="status">
+                <option value="TO_DO">To Do</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="REVIEW">In Review</option>
+                <option value="COMPLETED">Done</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <div *ngIf="sumRef.invalid && sumRef.touched" style="color:#DE350B;font-size:12px;margin-top:4px">Summary is required.</div>
-      </div>
 
-      <div class="form-field">
-        <label>Description</label>
-        <div class="form-input">
-          <textarea [(ngModel)]="form.desc" rows="3" placeholder="Add more detail…"></textarea>
+        <div class="form-field">
+          <label>Summary <span style="color:#DE350B;font-weight:700">*</span></label>
+          <div class="form-input">
+            <input [(ngModel)]="form.title" name="title" required #titleRef="ngModel" placeholder="Brief summary of the issue…"/>
+          </div>
+          <div *ngIf="titleRef.invalid && titleRef.touched" style="color:#DE350B;font-size:12px;margin-top:4px">Summary is required.</div>
         </div>
-      </div>
 
-      <div class="form-row">
         <div class="form-field">
-          <label>Assignee</label>
+          <label>Description</label>
           <div class="form-input">
-            <select [(ngModel)]="form.ass">
-              <option value="">Unassigned</option>
-              <option>Arjun Kumar</option><option>Priya Sharma</option>
-              <option>Ravi Patel</option><option>Sneha Iyer</option><option>Mohan Tej</option>
-            </select>
+            <textarea [(ngModel)]="form.description" name="description" rows="3" placeholder="Add more detail…"></textarea>
           </div>
         </div>
-        <div class="form-field">
-          <label>Reporter <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
-          <div class="form-input">
-            <select><option>Arjun Kumar</option></select>
-          </div>
-        </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-field">
-          <label>Priority</label>
-          <div class="form-input">
-            <select [(ngModel)]="form.pri">
-              <option>MEDIUM</option><option>LOW</option><option>HIGH</option><option>CRITICAL</option>
-            </select>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Assignee</label>
+            <div class="form-input">
+              <select [(ngModel)]="form.assigneeId" name="assignee">
+                <option [ngValue]="null">Unassigned</option>
+                <option *ngFor="let m of teamMembers" [ngValue]="m.userId">{{ fullName(m) }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Story Points</label>
+            <div class="form-input">
+              <input [(ngModel)]="form.storyPoints" name="storyPoints" type="number" placeholder="e.g. 5" min="1" max="100"/>
+            </div>
           </div>
         </div>
-        <div class="form-field">
-          <label>Story Points</label>
-          <div class="form-input">
-            <input [(ngModel)]="form.pts" type="number" placeholder="e.g. 5" min="1" max="100"/>
-          </div>
-        </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-field">
-          <label>Sprint</label>
-          <div class="form-input">
-            <select [(ngModel)]="form.sprint" [disabled]="form.type === 'EPIC'">
-              <option value="">Backlog</option>
-              <option *ngFor="let s of ds.sprints" [value]="s.name">{{ s.name }}</option>
-            </select>
+        <div class="form-row" *ngIf="form.type !== 'EPIC'">
+          <div class="form-field">
+            <label>Sprint</label>
+            <div class="form-input">
+              <select [(ngModel)]="form.sprintId" name="sprint">
+                <option [ngValue]="null">Backlog</option>
+                <option *ngFor="let s of sprints" [ngValue]="s.sprintId">
+                  {{ s.sprintName }}<span *ngIf="s.status === 'ACTIVE'"> (active)</span>
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>{{ parentLabel }}</label>
+            <div class="form-input">
+              <select [(ngModel)]="form.parentId" name="parent">
+                <option [ngValue]="null">None</option>
+                <option *ngFor="let p of availableParents" [ngValue]="p.ticketId">
+                  PS-{{ p.ticketId }} · {{ p.title }}
+                </option>
+              </select>
+            </div>
           </div>
         </div>
-        <div class="form-field">
-          <label>{{ parentLabel }}</label>
-          <!-- USER_STORY / TASK → pick from Epics -->
-          <div class="form-input" *ngIf="form.type === 'USER_STORY' || form.type === 'TASK'">
-            <select [(ngModel)]="form.parentId">
-              <option value="">No parent epic</option>
-              <option *ngFor="let e of epicTickets" [value]="e.id">
-                {{ e.sum }}
-              </option>
-            </select>
-          </div>
-          <!-- SUB_TASK → pick from Stories -->
-          <div class="form-input" *ngIf="form.type === 'SUB_TASK'">
-            <select [(ngModel)]="form.parentId">
-              <option value="">No parent story</option>
-              <option *ngFor="let s of storyTickets" [value]="s.id">
-                {{ s.sum }}
-              </option>
-            </select>
-          </div>
-          <!-- EPIC → no parent allowed -->
-          <div class="form-input disabled" *ngIf="form.type === 'EPIC'">
-            <input disabled value="Epics have no parent"/>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-field">
-          <label>Epic Name</label>
-          <div class="form-input">
-            <input [(ngModel)]="form.epic" placeholder="e.g. Authentication"/>
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Labels</label>
-          <div class="form-input">
-            <input [(ngModel)]="form.labels" placeholder="frontend, backend, api…"/>
-          </div>
-        </div>
-      </div>
+      </ng-container>
     </div>
 
     <div class="dialog-footer">
       <button class="btn btn-secondary" (click)="close.emit()">Cancel</button>
-      <button class="btn btn-primary" (click)="submit()">
+      <button class="btn btn-primary" (click)="submit()" [disabled]="loading || !project">
         <span class="mi">add</span>Create Issue
       </button>
     </div>

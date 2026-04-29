@@ -13,4 +13,14 @@ public interface TicketHistoryRepository extends JpaRepository<TicketHistory, Lo
     
     @Query("SELECT th FROM TicketHistory th WHERE th.ticket.ticketId = :ticketId ORDER BY th.timeStamp DESC")
     List<TicketHistory> findByTicketTicketIdOrderByTimeStampDesc(@Param("ticketId") long ticketId);
+
+    /**
+     * Status-change history for every ticket currently parked in a sprint, oldest first.
+     * Used by the sprint burndown endpoint to walk completion timestamps day-by-day.
+     */
+    @Query("SELECT th FROM TicketHistory th " +
+           "WHERE th.ticket.sprint.sprintId = :sprintId " +
+           "  AND th.fieldChanged = 'status' " +
+           "ORDER BY th.timeStamp ASC")
+    List<TicketHistory> findStatusHistoryForSprint(@Param("sprintId") Long sprintId);
 }

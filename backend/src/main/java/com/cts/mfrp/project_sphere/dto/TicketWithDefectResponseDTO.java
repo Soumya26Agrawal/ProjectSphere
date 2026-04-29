@@ -18,6 +18,7 @@ public class TicketWithDefectResponseDTO {
     private Integer storyPoints;
     private Status status;
     private TicketType type;
+    private String fullName;
 
     private DefectResponseDTO defect;
 }

@@ -171,6 +171,15 @@ export class DataService {
     this._tickets.next(tickets);
   }
 
+  addTicketWithId(t: Ticket): void {
+    const existing = this.tickets.find(x => x.id === t.id);
+    if (existing) {
+      this._tickets.next(this.tickets.map(x => x.id === t.id ? t : x));
+    } else {
+      this._tickets.next([...this.tickets, t]);
+    }
+  }
+
   updateTicket(id: number, changes: Partial<Ticket>): void {
     const tickets = this.tickets.map(t => t.id === id ? {...t, ...changes} : t);
     this._tickets.next(tickets);

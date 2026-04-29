@@ -1,7 +1,7 @@
 package com.cts.mfrp.project_sphere.service;
 
-import com.cts.mfrp.project_sphere.dto.DefectSummaryDTO;
-import com.cts.mfrp.project_sphere.dto.TicketRequestDTO;
+import com.cts.mfrp.project_sphere.dto.*;
+
 import com.cts.mfrp.project_sphere.model.Project;
 import com.cts.mfrp.project_sphere.model.Sprint;
 import com.cts.mfrp.project_sphere.model.Ticket;
@@ -65,5 +65,17 @@ public class TicketService {
 
     public List<Ticket> getDefectsInActiveSprints(List<Long> activeSprintIds) {
         return ticketRepository.findDefectsInActiveSprints(activeSprintIds);
+    }
+
+    public List<Long> findUserStories(){
+        return ticketRepository.findUserStories();
+    }
+
+    public List<Ticket> getActiveUserStories(){
+        return ticketRepository.getActiveUserStories();
+    }
+
+    public Ticket getUserStoryById(Long userStoryId){
+        return ticketRepository.findById(userStoryId).orElseThrow();
     }
 }

@@ -51,4 +51,7 @@ public class TestCase {
 
     @OneToOne(mappedBy="testCase", cascade = CascadeType.REMOVE)
     private Defect defect;
+
+    //pre-requisites
+    //remarks
 }

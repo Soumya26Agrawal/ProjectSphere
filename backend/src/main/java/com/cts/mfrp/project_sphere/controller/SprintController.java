@@ -30,9 +30,22 @@ public class SprintController {
         return ResponseEntity.ok(sprints);
     }
 
-    @GetMapping("/incomplete")
-    public ResponseEntity<List<SprintResponseDTO>> getNonCompletedSprints(@RequestParam Long projectId) {
-        List<SprintResponseDTO> sprints = sprintService.getNonCompletedSprints(projectId).stream().map((s)->{
+    // @GetMapping("/incomplete")
+    // public ResponseEntity<List<SprintResponseDTO>> getNonCompletedSprints(@RequestParam Long projectId) {
+    //     List<SprintResponseDTO> sprints = sprintService.getNonCompletedSprints(projectId).stream().map((s)->{
+    //         return SprintResponseDTO.builder().sprintId(s.getSprintId())
+    //                 .sprintName(s.getSprintName())
+    //                 .endDate(s.getEndDate())
+    //                 .startDate(s.getStartDate())
+    //                 .status(s.getStatus())
+    //                 .build();
+    //     }).toList();
+    //     return ResponseEntity.status(HttpStatus.OK).body(sprints);
+    // }
+
+     @GetMapping("/incomplete")
+    public ResponseEntity<List<SprintResponseDTO>> getNonCompletedSprints() {
+        List<SprintResponseDTO> sprints = sprintService.getNonCompletedSprints().stream().map((s)->{
             return SprintResponseDTO.builder().sprintId(s.getSprintId())
                     .sprintName(s.getSprintName())
                     .endDate(s.getEndDate())
@@ -98,6 +111,7 @@ public class SprintController {
 
     @PatchMapping("/complete/{sprintId}")
     public ResponseEntity<SprintCompletionResponseDTO> completeSprint(@PathVariable("sprintId") Long id){
+        System.out.println("Sprint ID received for completion: " + id);
         SprintCompletionResponseDTO response=sprintService.completeSprint(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

@@ -87,9 +87,15 @@ public class SprintService {
         return sprintRepository.findActiveSprints(SprintStatus.ACTIVE);
     }
 
-    public List<Sprint> getNonCompletedSprints(Long projectId) {
-        return sprintRepository.findInCompleteSprints(SprintStatus.PLANNED,SprintStatus.ACTIVE,projectId);
+    // public List<Sprint> getNonCompletedSprints(Long projectId) {
+    //     return sprintRepository.findInCompleteSprints(SprintStatus.PLANNED,SprintStatus.ACTIVE,projectId);
+    // }
+
+    
+    public List<Sprint> getNonCompletedSprints() {
+        return sprintRepository.findInCompleteSprints(SprintStatus.PLANNED,SprintStatus.ACTIVE);
     }
+
 
     @Transactional
     public String activateSprint(Long id) {
@@ -98,9 +104,51 @@ public class SprintService {
         return "Sprint is activated successfully";
     }
 
-    public SprintCompletionResponseDTO completeSprint(Long id) {
+    // public SprintCompletionResponseDTO completeSprint(Long id) {
+    //     Sprint sprint=sprintRepository.findById(id).orElseThrow();
+    //     Long projectId=sprint.getProject().getProjectId();
+    //     List<Ticket> tickets=sprint.getTickets();
+    //     List<Ticket> filtered=tickets.stream().filter((t)->{
+    //         if(t.getType()== TicketType.DEFECT){
+    //             return t.getDefect().getStatus()!= DefectStatus.CLOSED;
+    //         }
+    //         else{
+    //             return t.getStatus()!= Status.COMPLETED;
+    //         }
+    //     }).toList();
+    //     if(filtered.isEmpty()){
+    //         sprint.setStatus(SprintStatus.COMPLETED);
+    //         sprintRepository.save(sprint);
+    //         return SprintCompletionResponseDTO.builder()
+    //                 .isCompleted("PASS")
+    //                 .completedWorkItems((long)tickets.size())
+    //                 .openWorkItems(0L)
+    //                 .build();
+    //     }
+    //     else{
+    //         List<Sprint> sprints=getNonCompletedSprints(projectId);
+    //         List<Sprint> filteredSprints=sprints.stream().filter((s)-> s.getSprintId()!=id).toList();
+    //         List<SprintResponseDTO> dto=filteredSprints.stream().map((s)->{
+    //             return SprintResponseDTO.builder().sprintId(s.getSprintId())
+    //                     .sprintName(s.getSprintName())
+    //                     .endDate(s.getEndDate())
+    //                     .startDate(s.getStartDate())
+    //                     .status(s.getStatus())
+    //                     .build();
+    //         }).toList();
+
+    //         return SprintCompletionResponseDTO.builder()
+    //                 .isCompleted("FAIL")
+    //                 .completedWorkItems((long)(tickets.size()-filtered.size()))
+    //                 .openWorkItems((long)filtered.size())
+    //                 .dto(dto)
+    //                 .build();
+    //     }
+    // }
+
+      public SprintCompletionResponseDTO completeSprint(Long id) {
         Sprint sprint=sprintRepository.findById(id).orElseThrow();
-        Long projectId=sprint.getProject().getProjectId();
+        // Long projectId=sprint.getProject().getProjectId();
         List<Ticket> tickets=sprint.getTickets();
         List<Ticket> filtered=tickets.stream().filter((t)->{
             if(t.getType()== TicketType.DEFECT){
@@ -120,7 +168,7 @@ public class SprintService {
                     .build();
         }
         else{
-            List<Sprint> sprints=getNonCompletedSprints(projectId);
+            List<Sprint> sprints=getNonCompletedSprints();
             List<Sprint> filteredSprints=sprints.stream().filter((s)-> s.getSprintId()!=id).toList();
             List<SprintResponseDTO> dto=filteredSprints.stream().map((s)->{
                 return SprintResponseDTO.builder().sprintId(s.getSprintId())
@@ -142,6 +190,8 @@ public class SprintService {
 
     public String forcedCompleteSprint(Long from, Long to) {
         Sprint sprint=sprintRepository.findById(from).orElseThrow();
+        sprint.setStatus(SprintStatus.COMPLETED);
+        sprintRepository.save(sprint);
         Long projectId=sprint.getProject().getProjectId();
         List<Ticket> tickets=sprint.getTickets();
         List<Ticket> filteredTickets=tickets.stream().filter((t)->{

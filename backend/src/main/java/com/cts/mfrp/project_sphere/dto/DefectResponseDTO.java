@@ -20,11 +20,10 @@ public class DefectResponseDTO {
     private Severity severity;
     private String expectedResult;
     private String actualResult;
+    private String title;
+    private String firstName;
+    private String lastName;
     private DefectStatus status;
     private List<String> stepsToReproduce;
 
-    // Flattened Ticket details
-//    private Long ticketId;
-//    private String ticketTitle;
-//    private String ticketStatus;
 }

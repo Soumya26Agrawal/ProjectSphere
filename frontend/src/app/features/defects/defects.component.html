@@ -120,11 +120,17 @@
           draggable="true"
           (dragstart)="onDragStart($event, defect)"
           (click)="openDefect(defect)">
-          <div class="dx-kanban-item-title">{{ defect.bid }}</div>
-          <div class="dx-kanban-item-sub">{{ defect.title }}</div>
+          <div class="dx-kanban-item-header">
+            <span class="dx-kanban-item-bid">{{ defect.bid }}</span>
+            <span [ngStyle]="sevStyle(defect.sev)" class="dx-kanban-sev-chip">{{ defect.sev }}</span>
+          </div>
+          <div class="dx-kanban-item-title">{{ defect.title }}</div>
           <div class="dx-kanban-item-meta">
-            <span>{{ defect.ass }}</span>
-            <span>{{ defect.env }}</span>
+            <span class="dx-kanban-assignee" [title]="defect.ass">
+              <span class="k-card-av k-card-av--sm" [style.background]="ds.avColor(defect.ass)">{{ ds.ini(defect.ass) }}</span>
+              <span class="dx-kanban-assignee-name">{{ defect.ass }}</span>
+            </span>
+            <span class="dx-kanban-rep-tag">{{ defect.rep }}</span>
           </div>
         </article>
         <div class="dx-kanban-empty" *ngIf="defectsByState(lane.id).length === 0">
@@ -178,7 +184,7 @@
       <span class="mi">chevron_right</span>
     </button>
     <div class="pag-dots">
-      <button class="pag-dot" 
+      <button class="pag-dot"
         *ngFor="let p of [].constructor(totalPages); let i = index"
         [class.active]="i === currentPage"
         (click)="goToPage(i)">
@@ -192,12 +198,11 @@
     <table class="dx-table">
       <thead>
         <tr>
-          <th style="width:90px">ID</th>
+          <th style="width:100px">ID</th>
           <th style="width:90px">Severity</th>
           <th>Title</th>
-          <th>Environment</th>
-          <th style="width:120px">Reproducibility</th>
-          <th style="width:170px">Assignee</th>
+          <th style="width:130px">Reproducibility</th>
+          <th style="width:180px">Assignee</th>
           <th style="width:130px">Status</th>
         </tr>
       </thead>
@@ -206,12 +211,6 @@
           <td><span class="dx-id">{{ d.bid }}</span></td>
           <td><span [ngStyle]="sevStyle(d.sev)">{{ d.sev }}</span></td>
           <td class="dx-title">{{ d.title }}</td>
-          <td>
-            <span class="dx-env" [title]="d.env">
-              <span class="mi">computer</span>
-              <span class="dx-env-text">{{ d.env }}</span>
-            </span>
-          </td>
           <td>
             <span class="dx-rep-chip">{{ d.rep }}</span>
           </td>
@@ -236,21 +235,24 @@
     </div>
   </ng-template>
 
-  <!-- ═══ Detail slide-over (Zephyr-style) ═══ -->
+  <!-- ═══ Defect Detail — Centered Modal ═══ -->
   <div class="overlay" [class.open]="!!selectedDefect" (click)="onOverlayClick($event, 'detail')">
-    <aside class="dx-drawer" *ngIf="selectedDefect">
-      <!-- Drawer header -->
-      <header class="dx-drawer-hdr">
-        <div class="dx-drawer-heading">
-          <div class="dx-drawer-id">{{ selectedDefect.bid }}</div>
-          <h2 class="dx-drawer-title">{{ selectedDefect.title }}</h2>
-          <div class="dx-drawer-chips">
-            <span [ngStyle]="sevStyle(selectedDefect.sev)">{{ selectedDefect.sev }}</span>
-            <span class="lozenge" [ngClass]="ds.dfLoz(selectedDefect.status)">{{ ds.sl(selectedDefect.status) }}</span>
-            <span class="dx-rep-chip">{{ selectedDefect.rep }}</span>
+    <div class="dx-modal" *ngIf="selectedDefect" (click)="$event.stopPropagation()">
+
+      <!-- Modal header -->
+      <header class="dx-modal-hdr">
+        <div class="dx-modal-heading">
+          <div class="dx-modal-meta-row">
+            <span class="dx-modal-bid">{{ selectedDefect.bid }}</span>
+            <div class="dx-modal-chips">
+              <span [ngStyle]="sevStyle(selectedDefect.sev)">{{ selectedDefect.sev }}</span>
+              <span class="lozenge" [ngClass]="ds.dfLoz(selectedDefect.status)">{{ ds.sl(selectedDefect.status) }}</span>
+              <span class="dx-rep-chip">{{ selectedDefect.rep }}</span>
+            </div>
           </div>
+          <h2 class="dx-modal-title">{{ selectedDefect.title }}</h2>
         </div>
-        <div class="dx-drawer-actions">
+        <div class="dx-modal-hdr-actions">
           <button class="icon-btn" (click)="moreOpen = !moreOpen; $event.stopPropagation()">
             <span class="mi">more_horiz</span>
           </button>
@@ -273,7 +275,7 @@
         </div>
       </header>
 
-      <!-- Drawer tabs -->
+      <!-- Modal tabs -->
       <nav class="dx-tabs">
         <button class="dx-tab" [class.active]="detailTab==='details'"  (click)="detailTab='details'">Details</button>
         <button class="dx-tab" [class.active]="detailTab==='tests'"    (click)="detailTab='tests'">
@@ -282,27 +284,16 @@
         <button class="dx-tab" [class.active]="detailTab==='activity'" (click)="detailTab='activity'">Activity</button>
       </nav>
 
-      <!-- Drawer body -->
-      <div class="dx-drawer-body">
+      <!-- Modal scrollable body -->
+      <div class="dx-modal-body">
 
         <!-- DETAILS TAB -->
         <div *ngIf="detailTab === 'details'">
-          <section class="dx-section">
-            <h4>Description</h4>
-            <p>{{ selectedDefect.desc }}</p>
-          </section>
 
+          <!-- Metadata grid -->
           <section class="dx-section">
-            <h4>Details</h4>
+            <h4>Defect Details</h4>
             <div class="dx-detail-grid">
-              <div class="dx-detail">
-                <small>Environment</small>
-                <strong><span class="mi">computer</span>{{ selectedDefect.env }}</strong>
-              </div>
-              <div class="dx-detail">
-                <small>Reproducibility</small>
-                <strong>{{ selectedDefect.rep }}</strong>
-              </div>
               <div class="dx-detail">
                 <small>Assignee</small>
                 <strong>
@@ -316,11 +307,25 @@
                   <span [ngStyle]="sevStyle(selectedDefect.sev)">{{ selectedDefect.sev }}</span>
                 </strong>
               </div>
+              <div class="dx-detail">
+                <small>Reproducibility</small>
+                <strong>
+                  <span class="mi" style="font-size:16px;color:var(--text3)">repeat</span>
+                  {{ selectedDefect.rep }}
+                </strong>
+              </div>
+              <div class="dx-detail">
+                <small>Status</small>
+                <strong>
+                  <span class="lozenge" [ngClass]="ds.dfLoz(selectedDefect.status)">{{ ds.sl(selectedDefect.status) }}</span>
+                </strong>
+              </div>
             </div>
           </section>
 
+          <!-- Expected vs Actual -->
           <section class="dx-section">
-            <h4>Expected vs Actual</h4>
+            <h4>Expected vs Actual Result</h4>
             <div class="dx-result-pair">
               <div class="dx-result dx-result-expected">
                 <header><span class="mi">check_circle</span> Expected</header>
@@ -333,31 +338,28 @@
             </div>
           </section>
 
-          <section class="dx-section">
+          <!-- Steps to reproduce -->
+          <section class="dx-section" *ngIf="getSteps(selectedDefect.steps).length > 0">
             <h4>Steps to Reproduce</h4>
             <ol class="dx-steps">
               <li *ngFor="let step of getSteps(selectedDefect.steps)">{{ step }}</li>
             </ol>
           </section>
+          <section class="dx-section" *ngIf="getSteps(selectedDefect.steps).length === 0">
+            <h4>Steps to Reproduce</h4>
+            <div class="dx-empty-inline">
+              <span class="mi">list_alt</span>
+              <p>No reproduction steps recorded.</p>
+            </div>
+          </section>
 
-          <div class="dx-drawer-quick">
-            <button class="btn btn-primary btn-sm" (click)="ui.toast('Status moved to In Progress'); closeDefect()">
-              <span class="mi">play_arrow</span>Start Progress
-            </button>
-            <button class="btn btn-secondary btn-sm" (click)="ui.toast('Status moved to Fixed'); closeDefect()">
-              <span class="mi">check</span>Mark Fixed
-            </button>
-            <button class="btn btn-secondary btn-sm" (click)="ui.toast('Status moved to Retest'); closeDefect()">
-              <span class="mi">science</span>Retest
-            </button>
-          </div>
         </div>
 
         <!-- LINKED TESTS TAB -->
         <div *ngIf="detailTab === 'tests'">
           <section class="dx-section">
             <h4>Linked Test Cases</h4>
-            <p class="dx-note">Test cases that surfaced this defect — click to jump to the test run.</p>
+            <p class="dx-note">Test cases that surfaced this defect.</p>
             <div class="dx-tc-list">
               <div class="dx-tc-row" *ngFor="let tc of linkedTests(selectedDefect)">
                 <span class="dx-tc-id">{{ tc.id }}</span>
@@ -372,7 +374,6 @@
               </div>
             </div>
           </section>
-
           <section class="dx-section">
             <h4>Attachments</h4>
             <div class="dx-empty-inline">
@@ -401,9 +402,22 @@
         </div>
 
       </div>
-    </aside>
+
+      <!-- Modal footer actions -->
+      <footer class="dx-modal-footer">
+        <button class="btn btn-secondary btn-sm" (click)="ui.toast('Status moved to Retest'); closeDefect()">
+          <span class="mi">science</span>Retest
+        </button>
+        <button class="btn btn-secondary btn-sm" (click)="ui.toast('Status moved to Fixed'); closeDefect()">
+          <span class="mi">check</span>Mark Fixed
+        </button>
+        <button class="btn btn-primary btn-sm" (click)="ui.toast('Status moved to In Progress'); closeDefect()">
+          <span class="mi">play_arrow</span>Start Progress
+        </button>
+      </footer>
+
+    </div>
   </div>
 
-  <!-- Report-defect dialog lives globally in AppComponent; this page just
-       triggers it via ui.openReportDefect(). -->
+  <!-- Report-defect dialog lives globally in AppComponent -->
 </div>

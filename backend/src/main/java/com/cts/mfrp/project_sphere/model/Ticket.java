@@ -72,6 +72,7 @@ public class Ticket {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+
     private Integer storyPoints;
     private String title;
     private String description;

@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.*;
 
 @Data
 @Builder
@@ -23,5 +23,5 @@ public class TestCaseResponseDTO {
     private Complexity complexity;
     private String expectedResult;
     private TestStatus status;
-    private List<String> userStoryTitles; // Simplified view of related tickets
+    private List<String> userStoryTitles=new ArrayList<>(); // Simplified view of related tickets
 }

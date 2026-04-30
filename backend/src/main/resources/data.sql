@@ -34,7 +34,7 @@ INSERT INTO users (employee_id, first_name, last_name, email, password, phone_nu
 -- Admin
 (1001, 'Arjun',    'Mehra',     'arjun.mehra@cts.com',     '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876500001, 'ADMIN',           true),
 -- Project Managers
-(2001, 'Priya',    'Sharma',    'priya.sharma@cts.com',    '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876500002, 'PROJECT_MANAGER', true),
+(2001, 'Priya',    'Sharma',    'pm@projectsphere.com',    '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876500002, 'PROJECT_MANAGER', true),
 (2002, 'Rahul',    'Kapoor',    'rahul.kapoor@cts.com',    '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876500003, 'PROJECT_MANAGER', true),
 (2003, 'Neha',     'Gupta',     'neha.gupta@cts.com',      '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876500004, 'PROJECT_MANAGER', true),
 (2004, 'Vikram',   'Singh',     'vikram.singh@cts.com',    '$2a$10$8.UnS8zQX9uSShutnY3Q6Ou0ssA6Y.mD.Z46lS8bSxS.XG.XG.XG.', 9876500005, 'PROJECT_MANAGER', true),

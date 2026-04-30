@@ -27,4 +27,6 @@ public interface TicketRepository extends JpaRepository<Ticket,Long> {
     @Query("select t from Ticket t where t.type=com.cts.mfrp.project_sphere.Enum.TicketType.USER_STORY and t.sprint is not null and t.sprint.status=com.cts.mfrp.project_sphere.Enum.SprintStatus.ACTIVE")
     List<Ticket> getActiveUserStories();
 
+    List<Ticket> findByProjectProjectId(Long projectId);
+
 }

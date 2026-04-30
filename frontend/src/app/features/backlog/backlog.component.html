@@ -20,175 +20,558 @@
   </div>
 
   <div class="backlog-grid" [class.one-panel]="expandedSection !== 'none'">
+
+    <!-- ══════════════ LEFT PANEL — Sprints ══════════════ -->
     <section class="split-panel left-panel" *ngIf="expandedSection !== 'backlog'">
       <div class="split-panel-header">
         <div>
           <div class="panel-label">Sprint workspace</div>
-          <!-- <h2>Active and completed sprints</h2> -->
-          <!-- <div class="panel-meta">Select one or more sprint lanes to focus the sprint list.</div> -->
         </div>
         <button class="panel-switch" [class.active]="expandedSection === 'sprints'" (click)="toggleFocus('sprints')">
           <span class="mi">swap_horiz</span>
           {{ expandedSection === 'sprints' ? 'View both sections' : 'Focus sprints' }}
         </button>
       </div>
-      <!-- <div class="panel-intro">Drag tickets across sprint lanes or directly into backlog for fast planning.</div> -->
 
-      <div class="sprint-filter-bar">
+      <!-- Sprint filter chips -->
+      <div class="sprint-filter-bar" *ngIf="!isLoadingSprints && incompleteSprints.length > 0">
         <span class="filter-label">Show sprints:</span>
-        <button class="filter-chip" *ngFor="let sp of ds.sprints" [class.active]="isSprintVisible(sp.name)" (click)="toggleSprintFilter(sp.name)">
-          {{ sp.name }}
+        <button class="filter-chip" *ngFor="let sp of incompleteSprints"
+          [class.active]="isSprintVisible(sp.sprintName)"
+          (click)="toggleSprintFilter(sp.sprintName)">
+          {{ sp.sprintName }}
         </button>
       </div>
 
-      <div class="sprint-stack">
+      <!-- Sprint loading -->
+      <div class="bl-loading" *ngIf="isLoadingSprints">
+        <span class="mi bl-spin">sync</span> Loading sprints…
+      </div>
+
+      <!-- No sprints -->
+      <div class="sprint-empty" *ngIf="!isLoadingSprints && incompleteSprints.length === 0">
+        <span class="mi">event_available</span>
+        <p>No active or planned sprints.</p>
+      </div>
+
+      <div class="sprint-stack" *ngIf="!isLoadingSprints && incompleteSprints.length > 0">
+
+        <!-- ── ACTIVE sprints ── -->
         <ng-container *ngFor="let sp of filteredActiveSprints">
           <article class="sprint-card">
             <div class="sprint-card-header">
-              <div>
-                <span class="lozenge loz-active">{{ sp.status }}</span>
-                <h3>{{ sp.name }}</h3>
+              <div class="sprint-header-info">
+                <span class="lozenge" [ngClass]="sprintStatusClass(sp.status)">{{ sp.status }}</span>
+                <h3>{{ sp.sprintName }}</h3>
                 <div class="sprint-meta">
-                  <span>{{ sp.start }} – {{ sp.end }}</span>
-                  <span>{{ sprintDone(sp.name) }}/{{ sprintTotal(sp.name) }} done</span>
+                  <span>{{ sp.startDate | date:'MMM d' }} – {{ sp.endDate | date:'MMM d' }}</span>
+                  <span>{{ sprintDone(sp.sprintName) }}/{{ sprintTotal(sp.sprintName) }} done</span>
                 </div>
+              </div>
+              <div class="sprint-actions">
+                <button class="btn-complete-sprint"
+                  [disabled]="isSprintProcessing(sp.sprintId)"
+                  (click)="onCompleteSprint(sp)">
+                  <span class="mi" *ngIf="!isSprintProcessing(sp.sprintId)">check_circle</span>
+                  <span class="mi bl-spin" *ngIf="isSprintProcessing(sp.sprintId)">sync</span>
+                  {{ isSprintProcessing(sp.sprintId) ? 'Processing…' : 'Complete Sprint' }}
+                </button>
               </div>
             </div>
             <div class="sprint-progress-bar">
-              <div class="sprint-progress-fill" [style.width.%]="sprintPct(sp.name)"></div>
+              <div class="sprint-progress-fill" [style.width.%]="sprintPct(sp.sprintName)"></div>
             </div>
-            <div class="drop-list" cdkDropList [id]="listId(sp.id)" [cdkDropListData]="getSprintTickets(sp.name)" [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onTicketDrop($event, sp.name)">
-              <div class="ticket-card compact" *ngFor="let t of getSprintTickets(sp.name)" cdkDrag>
-                <div class="drag-handle" cdkDragHandle>
+            <div class="drop-list" cdkDropList
+              [id]="listId(sp.sprintId)"
+              [cdkDropListData]="getSprintTickets(sp.sprintName)"
+              [cdkDropListConnectedTo]="dropListIds"
+              (cdkDropListDropped)="onTicketDrop($event, sp.sprintName)">
+              <div class="bl-card" [ngClass]="sprintCardClass(t.type)"
+                *ngFor="let t of getSprintTickets(sp.sprintName)" cdkDrag>
+                <div class="bl-drag-handle" cdkDragHandle>
                   <span class="mi">drag_indicator</span>
                 </div>
-                <div class="ticket-body" (click)="ui.openTicket(t)">
-                  <div class="ticket-top">
-                    <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
-                      <span class="mi">{{ ds.itIcon(t.type) }}</span>
-                      {{ ds.itLabel(t.type) }}
-                    </span>
-                    <span class="lozenge" [ngClass]="ds.lozClass(t.status)">{{ ds.sl(t.status) }}</span>
-                  </div>
-                  <div class="ticket-title">{{ t.sum }}</div>
-                  <div class="ticket-info">
-                    <span class="pri-pill" [ngClass]="ds.priClass(t.pri)">
-                      <span class="mi pri-icon">{{ ds.priIcon(t.pri) }}</span>
-                      {{ t.pri }}
-                    </span>
-                    <span class="assignee">
-                      <span class="k-card-av" [style.background]="ds.avColor(t.ass || '')">{{ ds.ini(t.ass || '') }}</span>
-                      {{ t.ass || 'Unassigned' }}
-                    </span>
-                    <span class="pts">{{ t.pts || '—' }} pts</span>
+                <div class="bl-card-content">
+                  <div class="bl-card-main" (click)="ui.openTicket(t)">
+                    <div class="bl-card-left">
+                      <span class="bl-ticket-id">#{{ t.id }}</span>
+                      <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
+                        <span class="mi">{{ ds.itIcon(t.type) }}</span>
+                        {{ ds.itLabel(t.type) }}
+                      </span>
+                      <div class="bl-card-title">{{ t.sum }}</div>
+                    </div>
+                    <div class="bl-card-right">
+                      <span class="bl-pts" *ngIf="t.pts">
+                        <span class="mi">star_outline</span>{{ t.pts }}
+                      </span>
+                      <span class="pri-pill" [ngClass]="ds.priClass(t.pri)">
+                        <span class="mi pri-icon">{{ ds.priIcon(t.pri) }}</span>
+                      </span>
+                      <span class="bl-av" [title]="t.ass || 'Unassigned'" [style.background]="ds.avColor(t.ass || '')">
+                        {{ ds.ini(t.ass || '') }}
+                      </span>
+                      <span class="lozenge" [ngClass]="ds.lozClass(t.status)">{{ ds.sl(t.status) }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="empty-state" *ngIf="getSprintTickets(sp.name).length === 0">
+              <div class="empty-state" *ngIf="getSprintTickets(sp.sprintName).length === 0">
                 Drop issues here to plan the sprint.
               </div>
             </div>
           </article>
         </ng-container>
 
-        <ng-container *ngIf="filteredDoneSprints.length">
-          <div class="subsection-label">Completed sprints</div>
-          <ng-container *ngFor="let sp of filteredDoneSprints">
-            <article class="sprint-card done-card">
+        <!-- ── PLANNED sprints ── -->
+        <ng-container *ngIf="filteredPlannedSprints.length">
+          <div class="subsection-label" *ngIf="filteredActiveSprints.length > 0">Planned sprints</div>
+          <ng-container *ngFor="let sp of filteredPlannedSprints">
+            <article class="sprint-card planned-card">
               <div class="sprint-card-header">
-                <div>
-                  <span class="lozenge loz-done2">{{ sp.status }}</span>
-                  <h3>{{ sp.name }}</h3>
+                <div class="sprint-header-info">
+                  <span class="lozenge" [ngClass]="sprintStatusClass(sp.status)">{{ sp.status }}</span>
+                  <h3>{{ sp.sprintName }}</h3>
                   <div class="sprint-meta">
-                    <span>{{ sp.start }} – {{ sp.end }}</span>
-                    <span>{{ sprintDone(sp.name) }}/{{ sprintTotal(sp.name) }} done</span>
+                    <span>{{ sp.startDate | date:'MMM d' }} – {{ sp.endDate | date:'MMM d' }}</span>
                   </div>
                 </div>
+                <div class="sprint-actions">
+                  <button class="btn-start-sprint"
+                    [disabled]="isSprintProcessing(sp.sprintId)"
+                    (click)="confirmStartSprint(sp)">
+                    <span class="mi" *ngIf="!isSprintProcessing(sp.sprintId)">play_arrow</span>
+                    <span class="mi bl-spin" *ngIf="isSprintProcessing(sp.sprintId)">sync</span>
+                    {{ isSprintProcessing(sp.sprintId) ? 'Starting…' : 'Start Sprint' }}
+                  </button>
+                </div>
               </div>
-              <div class="sprint-progress-bar">
-                <div class="sprint-progress-fill" [style.width.%]="sprintPct(sp.name)"></div>
-              </div>
-              <div class="drop-list" cdkDropList [id]="listId(sp.id)" [cdkDropListData]="getSprintTickets(sp.name)" [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onTicketDrop($event, sp.name)">
-                <div class="ticket-card compact" *ngFor="let t of getSprintTickets(sp.name)" cdkDrag>
-                  <div class="drag-handle" cdkDragHandle>
+              <div class="drop-list" cdkDropList
+                [id]="listId(sp.sprintId)"
+                [cdkDropListData]="getSprintTickets(sp.sprintName)"
+                [cdkDropListConnectedTo]="dropListIds"
+                (cdkDropListDropped)="onTicketDrop($event, sp.sprintName)">
+                <div class="bl-card" [ngClass]="sprintCardClass(t.type)"
+                  *ngFor="let t of getSprintTickets(sp.sprintName)" cdkDrag>
+                  <div class="bl-drag-handle" cdkDragHandle>
                     <span class="mi">drag_indicator</span>
                   </div>
-                  <div class="ticket-body" (click)="ui.openTicket(t)">
-                    <div class="ticket-top">
-                      <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
-                        <span class="mi">{{ ds.itIcon(t.type) }}</span>
-                        {{ ds.itLabel(t.type) }}
-                      </span>
-                      <span class="lozenge" [ngClass]="ds.lozClass(t.status)">{{ ds.sl(t.status) }}</span>
-                    </div>
-                    <div class="ticket-title">{{ t.sum }}</div>
-                    <div class="ticket-info">
-                      <span class="pri-pill" [ngClass]="ds.priClass(t.pri)">
-                        <span class="mi pri-icon">{{ ds.priIcon(t.pri) }}</span>
-                        {{ t.pri }}
-                      </span>
-                      <span class="assignee">
-                        <span class="k-card-av" [style.background]="ds.avColor(t.ass || '')">{{ ds.ini(t.ass || '') }}</span>
-                        {{ t.ass || 'Unassigned' }}
-                      </span>
-                      <span class="pts">{{ t.pts || '—' }} pts</span>
+                  <div class="bl-card-content">
+                    <div class="bl-card-main" (click)="ui.openTicket(t)">
+                      <div class="bl-card-left">
+                        <span class="bl-ticket-id">#{{ t.id }}</span>
+                        <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
+                          <span class="mi">{{ ds.itIcon(t.type) }}</span>
+                          {{ ds.itLabel(t.type) }}
+                        </span>
+                        <div class="bl-card-title">{{ t.sum }}</div>
+                      </div>
+                      <div class="bl-card-right">
+                        <span class="bl-pts" *ngIf="t.pts">
+                          <span class="mi">star_outline</span>{{ t.pts }}
+                        </span>
+                        <span class="pri-pill" [ngClass]="ds.priClass(t.pri)">
+                          <span class="mi pri-icon">{{ ds.priIcon(t.pri) }}</span>
+                        </span>
+                        <span class="bl-av" [title]="t.ass || 'Unassigned'" [style.background]="ds.avColor(t.ass || '')">
+                          {{ ds.ini(t.ass || '') }}
+                        </span>
+                        <span class="lozenge" [ngClass]="ds.lozClass(t.status)">{{ ds.sl(t.status) }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="empty-state" *ngIf="getSprintTickets(sp.name).length === 0">
-                  Drop issues here to archive completed work.
+                <div class="empty-state" *ngIf="getSprintTickets(sp.sprintName).length === 0">
+                  Drop issues here to plan the sprint.
                 </div>
               </div>
             </article>
           </ng-container>
         </ng-container>
-      </div>
+
+      </div><!-- /sprint-stack -->
     </section>
 
+    <!-- ══════════════ RIGHT PANEL — Backlog ══════════════ -->
     <section class="split-panel right-panel" *ngIf="expandedSection !== 'sprints'">
+
       <div class="split-panel-header">
         <div>
           <div class="panel-label">Backlog zone</div>
-          <!-- <h2>Product backlog</h2> -->
         </div>
-        <button class="panel-switch" [class.active]="expandedSection === 'backlog'" (click)="toggleFocus('backlog')">
-          <span class="mi">swap_horiz</span>
-          {{ expandedSection === 'backlog' ? 'Balanced view' : 'Focus backlog' }}
-        </button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="bl-refresh-btn" (click)="loadBacklog()" title="Refresh backlog">
+            <span class="mi">refresh</span>
+          </button>
+          <button class="panel-switch" [class.active]="expandedSection === 'backlog'" (click)="toggleFocus('backlog')">
+            <span class="mi">swap_horiz</span>
+            {{ expandedSection === 'backlog' ? 'Balanced view' : 'Focus backlog' }}
+          </button>
+        </div>
       </div>
-      <div class="panel-intro">Drag stories directly into any sprint lane. Backlog stays visible for fast planning.</div>
 
-      <div class="drop-list backlog-drop" cdkDropList id="backlog-drop" [cdkDropListData]="backlogTickets" [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onTicketDrop($event, null)">
-        <div class="ticket-card compact" *ngFor="let t of backlogTickets" cdkDrag>
-          <div class="drag-handle" cdkDragHandle>
-            <span class="mi">drag_indicator</span>
+      <!-- KPI row -->
+      <div class="bl-kpi-row" *ngIf="!isLoadingBacklog && backlogItems.length > 0">
+        <div class="bl-kpi"><span class="mi">inventory_2</span><strong>{{ backlogItems.length }}</strong><span>Total Items</span></div>
+        <div class="bl-kpi"><span class="mi">bookmarks</span><strong>{{ storyCount }}</strong><span>Stories</span></div>
+        <div class="bl-kpi"><span class="mi">task_alt</span><strong>{{ taskCount }}</strong><span>Tasks</span></div>
+        <div class="bl-kpi bl-kpi--red"><span class="mi">bug_report</span><strong>{{ defectCount }}</strong><span>Defects</span></div>
+        <div class="bl-kpi bl-kpi--purple"><span class="mi">star</span><strong>{{ totalPoints }}</strong><span>Total Pts</span></div>
+      </div>
+
+      <div class="bl-loading" *ngIf="isLoadingBacklog">
+        <span class="mi bl-spin">sync</span> Loading backlog…
+      </div>
+
+      <div class="bl-empty" *ngIf="!isLoadingBacklog && backlogItems.length === 0">
+        <span class="mi">inbox</span>
+        <p>The backlog is empty. All work has been scheduled.</p>
+      </div>
+
+      <div class="bl-sections" *ngIf="!isLoadingBacklog">
+
+        <!-- USER STORIES -->
+        <div class="bl-section">
+          <div class="bl-section-hdr bl-section-hdr--story" (click)="toggleBLSection('stories')">
+            <div class="bl-section-left">
+              <span class="mi bl-section-icon">bookmarks</span>
+              <span class="bl-section-title">User Stories</span>
+              <span class="bl-section-badge bl-badge--story">{{ storyBacklog.length }}</span>
+            </div>
+            <div class="bl-section-right">
+              <span class="bl-section-pts" *ngIf="storyPoints > 0"><span class="mi">star_outline</span>{{ storyPoints }} pts</span>
+              <span class="mi bl-section-chevron">{{ blSectionCollapsed['stories'] ? 'expand_more' : 'expand_less' }}</span>
+            </div>
           </div>
-          <div class="ticket-body" (click)="ui.openTicket(t)">
-            <div class="ticket-top">
-              <span class="ticket-type-chip" [ngClass]="ds.itClass(t.type)">
-                <span class="mi">{{ ds.itIcon(t.type) }}</span>
-                {{ ds.itLabel(t.type) }}
-              </span>
-              <span class="lozenge loz-backlog">Backlog</span>
+          <div class="bl-section-cards" *ngIf="!blSectionCollapsed['stories']"
+            cdkDropList id="bl-drop-stories" [cdkDropListData]="storyBacklog"
+            [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onBacklogDrop($event, storyBacklog)">
+            <div class="bl-card bl-card--story" *ngFor="let t of storyBacklog"
+              [class.bl-card--expanded]="isExpanded(t.ticketId)" cdkDrag>
+              <div class="bl-drag-handle" cdkDragHandle><span class="mi">drag_indicator</span></div>
+              <div class="bl-card-content">
+                <div class="bl-card-main" (click)="toggleCard(t.ticketId)">
+                  <div class="bl-card-left">
+                    <span class="bl-ticket-id">#{{ t.ticketId }}</span>
+                    <div class="bl-card-title">{{ t.title }}</div>
+                  </div>
+                  <div class="bl-card-right">
+                    <span class="bl-pts" *ngIf="t.storyPoints"><span class="mi">star_outline</span>{{ t.storyPoints }}</span>
+                    <span class="bl-av" [title]="t.fullName || 'Unassigned'" [style.background]="t.fullName ? '#0052CC' : '#8993A4'">{{ ini(t.fullName) }}</span>
+                    <span class="lozenge" [ngClass]="statusClass(t.status)">{{ statusLabel(t.status) }}</span>
+                    <span class="mi bl-chevron">expand_more</span>
+                  </div>
+                </div>
+                <div class="bl-card-body" *ngIf="isExpanded(t.ticketId)">
+                  <div class="bl-desc" *ngIf="t.description"><div class="bl-field-lbl">Description</div><div class="bl-field-val">{{ t.description }}</div></div>
+                  <div class="bl-meta-row">
+                    <div class="bl-meta-cell" *ngIf="t.fullName"><div class="bl-field-lbl">Assignee</div><div class="bl-field-val bl-assignee"><span class="bl-av bl-av--lg">{{ ini(t.fullName) }}</span>{{ t.fullName }}</div></div>
+                    <div class="bl-meta-cell" *ngIf="t.storyPoints"><div class="bl-field-lbl">Story Points</div><div class="bl-field-val"><span class="bl-pts-badge">{{ t.storyPoints }}</span></div></div>
+                    <div class="bl-meta-cell"><div class="bl-field-lbl">Status</div><div class="bl-field-val"><span class="lozenge" [ngClass]="statusClass(t.status)">{{ statusLabel(t.status) }}</span></div></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="ticket-title">{{ t.sum }}</div>
-            <div class="ticket-info">
-              <span class="pri-pill" [ngClass]="ds.priClass(t.pri)">
-                <span class="mi pri-icon">{{ ds.priIcon(t.pri) }}</span>
-                {{ t.pri }}
-              </span>
-              <span class="assignee">
-                <span class="k-card-av" [style.background]="ds.avColor(t.ass || '')">{{ ds.ini(t.ass || '') }}</span>
-                {{ t.ass || 'Unassigned' }}
-              </span>
-              <span class="pts">{{ t.pts || '—' }} pts</span>
-            </div>
+            <div class="bl-section-empty" *ngIf="storyBacklog.length === 0"><span class="mi">vertical_align_bottom</span> Drop user stories here</div>
           </div>
         </div>
-        <div class="empty-state" *ngIf="backlogTickets.length === 0">
-          The backlog is empty. All work has been scheduled.
+
+        <!-- TASKS -->
+        <div class="bl-section">
+          <div class="bl-section-hdr bl-section-hdr--task" (click)="toggleBLSection('tasks')">
+            <div class="bl-section-left">
+              <span class="mi bl-section-icon">task_alt</span>
+              <span class="bl-section-title">Tasks</span>
+              <span class="bl-section-badge bl-badge--task">{{ taskBacklog.length }}</span>
+            </div>
+            <div class="bl-section-right">
+              <span class="bl-section-pts" *ngIf="taskPoints > 0"><span class="mi">star_outline</span>{{ taskPoints }} pts</span>
+              <span class="mi bl-section-chevron">{{ blSectionCollapsed['tasks'] ? 'expand_more' : 'expand_less' }}</span>
+            </div>
+          </div>
+          <div class="bl-section-cards" *ngIf="!blSectionCollapsed['tasks']"
+            cdkDropList id="bl-drop-tasks" [cdkDropListData]="taskBacklog"
+            [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onBacklogDrop($event, taskBacklog)">
+            <div class="bl-card bl-card--task" *ngFor="let t of taskBacklog"
+              [class.bl-card--expanded]="isExpanded(t.ticketId)" cdkDrag>
+              <div class="bl-drag-handle" cdkDragHandle><span class="mi">drag_indicator</span></div>
+              <div class="bl-card-content">
+                <div class="bl-card-main" (click)="toggleCard(t.ticketId)">
+                  <div class="bl-card-left">
+                    <span class="bl-ticket-id">#{{ t.ticketId }}</span>
+                    <div class="bl-card-title">{{ t.title }}</div>
+                  </div>
+                  <div class="bl-card-right">
+                    <span class="bl-pts" *ngIf="t.storyPoints"><span class="mi">star_outline</span>{{ t.storyPoints }}</span>
+                    <span class="bl-av" [title]="t.fullName || 'Unassigned'" [style.background]="t.fullName ? '#006644' : '#8993A4'">{{ ini(t.fullName) }}</span>
+                    <span class="lozenge" [ngClass]="statusClass(t.status)">{{ statusLabel(t.status) }}</span>
+                    <span class="mi bl-chevron">expand_more</span>
+                  </div>
+                </div>
+                <div class="bl-card-body" *ngIf="isExpanded(t.ticketId)">
+                  <div class="bl-desc" *ngIf="t.description"><div class="bl-field-lbl">Description</div><div class="bl-field-val">{{ t.description }}</div></div>
+                  <div class="bl-meta-row">
+                    <div class="bl-meta-cell" *ngIf="t.fullName"><div class="bl-field-lbl">Assignee</div><div class="bl-field-val bl-assignee"><span class="bl-av bl-av--lg" style="background:#006644">{{ ini(t.fullName) }}</span>{{ t.fullName }}</div></div>
+                    <div class="bl-meta-cell" *ngIf="t.storyPoints"><div class="bl-field-lbl">Story Points</div><div class="bl-field-val"><span class="bl-pts-badge">{{ t.storyPoints }}</span></div></div>
+                    <div class="bl-meta-cell"><div class="bl-field-lbl">Status</div><div class="bl-field-val"><span class="lozenge" [ngClass]="statusClass(t.status)">{{ statusLabel(t.status) }}</span></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bl-section-empty" *ngIf="taskBacklog.length === 0"><span class="mi">vertical_align_bottom</span> Drop tasks here</div>
+          </div>
+        </div>
+
+        <!-- DEFECT TICKETS -->
+        <div class="bl-section">
+          <div class="bl-section-hdr bl-section-hdr--defect" (click)="toggleBLSection('defects')">
+            <div class="bl-section-left">
+              <span class="mi bl-section-icon">bug_report</span>
+              <span class="bl-section-title">Defect Tickets</span>
+              <span class="bl-section-badge bl-badge--defect">{{ defectBacklog.length }}</span>
+            </div>
+            <div class="bl-section-right">
+              <span class="bl-section-linked" *ngIf="linkedDefectCount > 0"><span class="mi">link</span>{{ linkedDefectCount }} linked</span>
+              <span class="mi bl-section-chevron">{{ blSectionCollapsed['defects'] ? 'expand_more' : 'expand_less' }}</span>
+            </div>
+          </div>
+          <div class="bl-section-cards" *ngIf="!blSectionCollapsed['defects']"
+            cdkDropList id="bl-drop-defects" [cdkDropListData]="defectBacklog"
+            [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onBacklogDrop($event, defectBacklog)">
+            <div class="bl-card bl-card--defect-ticket" *ngFor="let t of defectBacklog"
+              [class.bl-card--expanded]="isExpanded(t.ticketId)" [class.bl-card--has-defect]="!!t.defect" cdkDrag>
+              <div class="bl-drag-handle" cdkDragHandle><span class="mi">drag_indicator</span></div>
+              <div class="bl-card-content">
+                <div class="bl-card-main" (click)="toggleCard(t.ticketId)">
+                  <div class="bl-card-left">
+                    <span class="bl-ticket-id">#{{ t.ticketId }}</span>
+                    <div class="bl-card-title">{{ t.title }}</div>
+                    <span class="bl-sev bl-sev--inline" *ngIf="t.defect" [ngClass]="sevClass(t.defect.severity)">{{ t.defect.severity }}</span>
+                    <span class="bl-unlinked-badge" *ngIf="!t.defect"><span class="mi">link_off</span>No defect linked</span>
+                  </div>
+                  <div class="bl-card-right">
+                    <span class="bl-pts" *ngIf="t.storyPoints"><span class="mi">star_outline</span>{{ t.storyPoints }}</span>
+                    <span class="bl-av" [title]="t.fullName || 'Unassigned'" [style.background]="t.fullName ? '#BF2600' : '#8993A4'">{{ ini(t.fullName) }}</span>
+                    <span *ngIf="t.defect" class="bl-dloz" [ngClass]="defectStatusClass(t.defect.status)">{{ t.defect.status.replace('_', ' ') }}</span>
+                    <span *ngIf="!t.defect" class="lozenge" [ngClass]="statusClass(t.status)">{{ statusLabel(t.status) }}</span>
+                    <span class="mi bl-chevron">expand_more</span>
+                  </div>
+                </div>
+                <div class="bl-card-body" *ngIf="isExpanded(t.ticketId)">
+                  <div class="bl-expanded-section">
+                    <div class="bl-expanded-section-lbl"><span class="mi">confirmation_number</span> Ticket Info</div>
+                    <div class="bl-desc" *ngIf="t.description"><div class="bl-field-lbl">Description</div><div class="bl-field-val">{{ t.description }}</div></div>
+                    <div class="bl-meta-row">
+                      <div class="bl-meta-cell" *ngIf="t.fullName"><div class="bl-field-lbl">Assignee</div><div class="bl-field-val bl-assignee"><span class="bl-av bl-av--lg" style="background:#BF2600">{{ ini(t.fullName) }}</span>{{ t.fullName }}</div></div>
+                      <div class="bl-meta-cell" *ngIf="t.storyPoints"><div class="bl-field-lbl">Story Points</div><div class="bl-field-val"><span class="bl-pts-badge">{{ t.storyPoints }}</span></div></div>
+                      <div class="bl-meta-cell"><div class="bl-field-lbl">Ticket Status</div><div class="bl-field-val"><span class="lozenge" [ngClass]="statusClass(t.status)">{{ statusLabel(t.status) }}</span></div></div>
+                    </div>
+                  </div>
+                  <div class="bl-defect-section" *ngIf="t.defect">
+                    <div class="bl-defect-hdr"><span class="mi">bug_report</span>Linked Defect &nbsp;·&nbsp; BUG-{{ t.defect.defectId }}</div>
+                    <div class="bl-defect-grid">
+                      <div class="bl-defect-cell"><div class="bl-field-lbl">Severity</div><div class="bl-field-val"><span class="bl-sev" [ngClass]="sevClass(t.defect.severity)">{{ t.defect.severity }}</span></div></div>
+                      <div class="bl-defect-cell"><div class="bl-field-lbl">Reproducibility</div><div class="bl-field-val"><span class="bl-rep-chip">{{ t.defect.reproducible }}</span></div></div>
+                      <div class="bl-defect-cell"><div class="bl-field-lbl">Defect Status</div><div class="bl-field-val"><span class="bl-dloz" [ngClass]="defectStatusClass(t.defect.status)">{{ t.defect.status }}</span></div></div>
+                      <div class="bl-defect-cell" *ngIf="t.defect.stepsToReproduce?.length"><div class="bl-field-lbl">Steps</div><div class="bl-field-val">{{ t.defect.stepsToReproduce.length }} step(s) recorded</div></div>
+                    </div>
+                    <div class="bl-defect-results" *ngIf="t.defect.expectedResult || t.defect.actualResult">
+                      <div class="bl-result bl-result--expected" *ngIf="t.defect.expectedResult"><div class="bl-result-lbl"><span class="mi">check_circle</span>Expected</div><div class="bl-result-val">{{ t.defect.expectedResult }}</div></div>
+                      <div class="bl-result bl-result--actual" *ngIf="t.defect.actualResult"><div class="bl-result-lbl"><span class="mi">cancel</span>Actual</div><div class="bl-result-val">{{ t.defect.actualResult }}</div></div>
+                    </div>
+                    <div class="bl-steps" *ngIf="t.defect.stepsToReproduce?.length">
+                      <div class="bl-field-lbl">Steps to Reproduce</div>
+                      <ol class="bl-steps-list"><li *ngFor="let step of t.defect.stepsToReproduce">{{ step }}</li></ol>
+                    </div>
+                  </div>
+                  <div class="bl-no-defect-notice" *ngIf="!t.defect"><span class="mi">info</span>This defect ticket has not been linked to a defect report yet.</div>
+                </div>
+              </div>
+            </div>
+            <div class="bl-section-empty" *ngIf="defectBacklog.length === 0"><span class="mi">vertical_align_bottom</span> Drop defect tickets here</div>
+          </div>
+        </div>
+
+        <!-- OTHER -->
+        <div class="bl-section">
+          <div class="bl-section-hdr bl-section-hdr--other" (click)="toggleBLSection('other')">
+            <div class="bl-section-left">
+              <span class="mi bl-section-icon">more_horiz</span>
+              <span class="bl-section-title">Other</span>
+              <span class="bl-section-badge bl-badge--other">{{ otherBacklog.length }}</span>
+            </div>
+            <div class="bl-section-right">
+              <span class="mi bl-section-chevron">{{ blSectionCollapsed['other'] ? 'expand_more' : 'expand_less' }}</span>
+            </div>
+          </div>
+          <div class="bl-section-cards" *ngIf="!blSectionCollapsed['other']"
+            cdkDropList id="bl-drop-other" [cdkDropListData]="otherBacklog"
+            [cdkDropListConnectedTo]="dropListIds" (cdkDropListDropped)="onBacklogDrop($event, otherBacklog)">
+            <div class="bl-card" *ngFor="let t of otherBacklog"
+              [class.bl-card--expanded]="isExpanded(t.ticketId)" cdkDrag>
+              <div class="bl-drag-handle" cdkDragHandle><span class="mi">drag_indicator</span></div>
+              <div class="bl-card-content">
+                <div class="bl-card-main" (click)="toggleCard(t.ticketId)">
+                  <div class="bl-card-left">
+                    <span class="bl-type-chip" [ngClass]="typeClass(t.type)"><span class="mi">{{ typeIcon(t.type) }}</span>{{ typeLabel(t.type) }}</span>
+                    <span class="bl-ticket-id">#{{ t.ticketId }}</span>
+                    <div class="bl-card-title">{{ t.title }}</div>
+                  </div>
+                  <div class="bl-card-right">
+                    <span class="bl-pts" *ngIf="t.storyPoints"><span class="mi">star_outline</span>{{ t.storyPoints }}</span>
+                    <span class="bl-av" [title]="t.fullName || 'Unassigned'">{{ ini(t.fullName) }}</span>
+                    <span class="lozenge" [ngClass]="statusClass(t.status)">{{ statusLabel(t.status) }}</span>
+                    <span class="mi bl-chevron">expand_more</span>
+                  </div>
+                </div>
+                <div class="bl-card-body" *ngIf="isExpanded(t.ticketId)">
+                  <div class="bl-desc" *ngIf="t.description"><div class="bl-field-lbl">Description</div><div class="bl-field-val">{{ t.description }}</div></div>
+                  <div class="bl-meta-row">
+                    <div class="bl-meta-cell" *ngIf="t.fullName"><div class="bl-field-lbl">Assignee</div><div class="bl-field-val bl-assignee"><span class="bl-av bl-av--lg">{{ ini(t.fullName) }}</span>{{ t.fullName }}</div></div>
+                    <div class="bl-meta-cell" *ngIf="t.storyPoints"><div class="bl-field-lbl">Story Points</div><div class="bl-field-val"><span class="bl-pts-badge">{{ t.storyPoints }}</span></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bl-section-empty" *ngIf="otherBacklog.length === 0"><span class="mi">vertical_align_bottom</span> Drop other items here</div>
+          </div>
+        </div>
+
+      </div><!-- /bl-sections -->
+    </section>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     Confirm Start Sprint Modal
+     ════════════════════════════════════════════════════════════ -->
+<div class="sc-modal-overlay" *ngIf="confirmStartModal.show" (click)="cancelStartSprint()">
+  <div class="sc-modal sc-modal--confirm" (click)="$event.stopPropagation()">
+
+    <div class="sc-modal-header sc-modal-header--start">
+      <div class="sc-modal-title">
+        <span class="mi sc-modal-icon sc-modal-icon--start">play_circle</span>
+        Start Sprint
+      </div>
+      <button class="sc-modal-close" (click)="cancelStartSprint()">
+        <span class="mi">close</span>
+      </button>
+    </div>
+
+    <div class="sc-modal-body">
+      <div class="sc-sprint-info sc-sprint-info--start">
+        <div class="sc-sprint-name">{{ confirmStartModal.sprint?.sprintName }}</div>
+        <div class="sc-sprint-dates">
+          <span class="mi">calendar_today</span>
+          {{ confirmStartModal.sprint?.startDate | date:'MMM d, yyyy' }}
+          &nbsp;→&nbsp;
+          {{ confirmStartModal.sprint?.endDate | date:'MMM d, yyyy' }}
         </div>
       </div>
-    </section>
+      <div class="sc-confirm-notice">
+        <span class="mi">info_outline</span>
+        <p>Starting this sprint will mark it as <strong>Active</strong>. The team can begin working on the items in it. You can complete the sprint when all work is done.</p>
+      </div>
+    </div>
+
+    <div class="sc-modal-footer">
+      <button class="sc-btn-cancel" (click)="cancelStartSprint()">Cancel</button>
+      <button class="sc-btn-start" (click)="executeStartSprint()">
+        <span class="mi">play_arrow</span>
+        Start Sprint
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     Complete Sprint Modal — shown on FAIL response
+     ════════════════════════════════════════════════════════════ -->
+<div class="sc-modal-overlay" *ngIf="completionModal.show" (click)="cancelCompletion()">
+  <div class="sc-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="sc-modal-header">
+      <div class="sc-modal-title">
+        <span class="mi sc-modal-icon">warning_amber</span>
+        Complete Sprint
+      </div>
+      <button class="sc-modal-close" (click)="cancelCompletion()" [disabled]="completionModal.isProcessing">
+        <span class="mi">close</span>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="sc-modal-body">
+
+      <!-- Sprint info card -->
+      <div class="sc-sprint-info">
+        <div class="sc-sprint-name">{{ completionModal.sprint?.sprintName }}</div>
+        <div class="sc-sprint-dates">
+          <span class="mi">calendar_today</span>
+          {{ completionModal.sprint?.startDate | date:'MMM d, yyyy' }}
+          &nbsp;→&nbsp;
+          {{ completionModal.sprint?.endDate | date:'MMM d, yyyy' }}
+        </div>
+      </div>
+
+      <!-- Work item stats -->
+      <div class="sc-stats">
+        <div class="sc-stat sc-stat--done">
+          <span class="mi">check_circle</span>
+          <strong>{{ completionModal.response?.completedWorkItems }}</strong>
+          <span>Completed</span>
+        </div>
+        <div class="sc-stat sc-stat--open">
+          <span class="mi">radio_button_unchecked</span>
+          <strong>{{ completionModal.response?.openWorkItems }}</strong>
+          <span>Open Items</span>
+        </div>
+      </div>
+
+      <!-- Warning notice -->
+      <div class="sc-warning">
+        <span class="mi">info_outline</span>
+        <p>
+          <strong>{{ completionModal.response?.openWorkItems }}</strong> work item(s) are not yet completed.
+          Select where to move them before completing this sprint.
+        </p>
+      </div>
+
+      <!-- Destination dropdown -->
+      <div class="sc-field">
+        <label class="sc-field-label">Move open items to</label>
+        <div class="sc-select-wrap">
+          <select class="sc-select" [(ngModel)]="completionModal.selectedTarget"
+            [disabled]="completionModal.isProcessing">
+            <option [ngValue]="null" disabled>— Select destination —</option>
+            <option *ngFor="let sp of completionModal.response?.dto" [ngValue]="sp.sprintId">
+              {{ sp.sprintName }}
+            </option>
+            <option [ngValue]="-1">
+              <span class="mi">inbox</span> Backlog
+            </option>
+          </select>
+          <span class="sc-select-icon mi">expand_more</span>
+        </div>
+      </div>
+
+    </div><!-- /sc-modal-body -->
+
+    <!-- Footer -->
+    <div class="sc-modal-footer">
+      <button class="sc-btn-cancel" (click)="cancelCompletion()" [disabled]="completionModal.isProcessing">
+        Cancel
+      </button>
+      <button class="sc-btn-complete"
+        [disabled]="completionModal.selectedTarget === null || completionModal.isProcessing"
+        (click)="forceCompleteSprint()">
+        <span class="mi" *ngIf="!completionModal.isProcessing">check</span>
+        <span class="mi bl-spin" *ngIf="completionModal.isProcessing">sync</span>
+        {{ completionModal.isProcessing ? 'Completing…' : 'Complete Sprint' }}
+      </button>
+    </div>
+
   </div>
 </div>

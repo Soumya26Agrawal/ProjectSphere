@@ -2,7 +2,8 @@ package com.cts.mfrp.project_sphere.controller;
 
 import com.cts.mfrp.project_sphere.Enum.Status;
 import com.cts.mfrp.project_sphere.dto.*;
-import com.cts.mfrp.project_sphere.model.Ticket;
+import com.cts.mfrp.project_sphere.model.*;
+import com.cts.mfrp.project_sphere.Enum.*;
 import com.cts.mfrp.project_sphere.service.SprintService;
 import com.cts.mfrp.project_sphere.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,7 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/ticket")
@@ -38,6 +39,20 @@ public class TicketController {
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
 
     }
+    @GetMapping("/{userStoryId}")
+    public ResponseEntity<TicketResponseDTO> getUserStoryById(@PathVariable Long userStoryId){
+        Ticket t=ticketService.getUserStoryById(userStoryId);
+        TicketResponseDTO dto=TicketResponseDTO.builder()
+                .ticketId(t.getTicketId())
+                .title(t.getTitle())
+                .type(t.getType())
+                .storyPoints(t.getStoryPoints())
+                .description(t.getDescription())
+                .status(t.getStatus())
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+
+    }
 
     @GetMapping("/unmapped")
     public ResponseEntity<List<Long>> getUnMappedTickets(){
@@ -48,16 +63,45 @@ public class TicketController {
 
     @GetMapping("/backlog")
     public ResponseEntity<List<TicketWithDefectResponseDTO>> getBacklog(){
+        // List<Ticket> tickets=ticketService.getBacklog();
+        // List<TicketWithDefectResponseDTO> list=tickets.stream().map(ticket -> {
+        //     DefectResponseDTO defectDTO = null;
+        //     if(ticket.getDefect() != null ) {
+                // || ticket.getType()==TicketType.DEFECT
+        //         defectDTO = DefectResponseDTO.builder()
+        //                 .defectId(ticket.getDefect()!=null?ticket.getDefect().getDefectId():0L)
+        //                 .reproducible(ticket.getDefect()!=null?ticket.getDefect().getReproducible():Reproducibility.DEMO)
+        //                 .severity(ticket.getDefect()!=null?ticket.getDefect().getSeverity():Severity.DEMO)
+        //                 .status(ticket.getDefect()!=null?ticket.getDefect().getStatus():DefectStatus.NEW)
+        //                 .expectedResult((ticket.getDefect()!=null && ticket.getDefect().getTestCase()!=null)?ticket.getDefect().getTestCase().getExpectedResult():"No expected result specified")
+        //                    .actualResult((ticket.getDefect()!=null && ticket.getDefect().getTestCase()!=null)?ticket.getDefect().getTestCase().getActualResult():"No actual result specified")
+        //                 .stepsToReproduce(ticket.getDefect()!=null?ticket.getDefect().getStepsToReproduce():new ArrayList<>())
+        //                 .build();
+        //     }
+        //     return TicketWithDefectResponseDTO.builder()
+        //             .ticketId(ticket.getTicketId())
+        //             .title(ticket.getTitle())
+        //             .description(ticket.getDescription())
+        //             .storyPoints(ticket.getStoryPoints())
+        //             .status(ticket.getStatus())
+        //             .type(ticket.getType())
+        //             .fullName(ticket.getAssignee()!=null?(ticket.getAssignee().getFirstName()+" "+ticket.getAssignee().getLastName()):"No User Assigned")
+        //             .defect(defectDTO)
+        //             .build();
+        // }).toList();
+        // return ResponseEntity.status(HttpStatus.OK).body(list);
         List<Ticket> tickets=ticketService.getBacklog();
         List<TicketWithDefectResponseDTO> list=tickets.stream().map(ticket -> {
             DefectResponseDTO defectDTO = null;
-            if(ticket.getDefect() != null) {
+            if(ticket.getDefect() != null ) {
                 defectDTO = DefectResponseDTO.builder()
                         .defectId(ticket.getDefect().getDefectId())
                         .reproducible(ticket.getDefect().getReproducible())
                         .severity(ticket.getDefect().getSeverity())
                         .status(ticket.getDefect().getStatus())
                         .stepsToReproduce(ticket.getDefect().getStepsToReproduce())
+                        .expectedResult(ticket.getDefect().getTestCase()!=null?ticket.getDefect().getTestCase().getExpectedResult():"No expected result specified")
+                           .actualResult(ticket.getDefect().getTestCase()!=null?ticket.getDefect().getTestCase().getActualResult():"No actual result specified")
                         .build();
             }
             return TicketWithDefectResponseDTO.builder()
@@ -67,6 +111,7 @@ public class TicketController {
                     .storyPoints(ticket.getStoryPoints())
                     .status(ticket.getStatus())
                     .type(ticket.getType())
+                     .fullName(ticket.getAssignee()!=null?(ticket.getAssignee().getFirstName()+" "+ticket.getAssignee().getLastName()):"No User Assigned")
                     .defect(defectDTO)
                     .build();
         }).toList();
@@ -157,6 +202,29 @@ public class TicketController {
                     .build();
         }).toList();
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/user-stories")
+    public ResponseEntity<List<Long>> findUserStories(){
+        return ResponseEntity.status(HttpStatus.OK).body(ticketService.findUserStories());
+    }
+
+    @GetMapping("/user-stories-active")
+    public ResponseEntity<List<UserStoryResponseDTO>> getActiveUserStories(){
+        List<Ticket> userStories=ticketService.getActiveUserStories();
+         List<UserStoryResponseDTO> response=userStories.stream().map((us)->{
+            return UserStoryResponseDTO.builder()
+            .userStoryId(us.getTicketId())
+            .userStoryTitle(us.getTitle())
+            .testCases(us.getTestCases().stream().map(tCase->{
+                return TestCaseResponseDTO2.builder()
+                .testCaseId(tCase.getTestCaseId())
+                .status(tCase.getStatus())
+                .build();
+            }).toList())
+            .build();
+        }).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 //    @GetMapping("/getTicketsBySprint")

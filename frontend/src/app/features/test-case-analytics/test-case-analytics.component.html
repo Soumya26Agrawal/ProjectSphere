@@ -1,0 +1,73 @@
+<div class="analytics-wrapper">
+  <div class="top-bar">
+    <div class="stat-group">
+      <h3>Testing Velocity</h3>
+      <div class="main-stats">
+        <div class="stat-box">
+          <span class="label">Executed (M-T-D)</span>
+          <span class="value">{{summaryData.executed}}</span>
+        </div>
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="(summaryData.executed/summaryData.total)*100"></div>
+          <span class="progress-text">{{(summaryData.executed/summaryData.total)*100 | number:'1.0-0'}}% of Total Suite</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="vertical-divider"></div>
+
+    <div class="mini-grid">
+      <div class="mini-item">
+        <span class="mini-label">Blocked Tests</span>
+        <span class="mini-val text-red">{{summaryData.blockedByDefects}}</span>
+      </div>
+      <div class="mini-item">
+        <span class="mini-label">Avg Repair Time</span>
+        <span class="mini-val">{{summaryData.avgRepairTime}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" *ngFor="let m of detailedMetrics">
+      <div class="kpi-header">
+        <span class="kpi-label">{{m.label}}</span>
+        <span class="kpi-badge" [ngClass]="m.status">{{m.trend}}</span>
+      </div>
+      <div class="kpi-body">
+        <h2>{{m.value}}</h2>
+        <p>{{m.desc}}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-layout">
+    <div class="viz-card span-2">
+      <div class="card-title">Multi-Cycle Execution Trend</div>
+      <div class="chart-holder">
+        <canvas #executionTrendChart></canvas>
+      </div>
+    </div>
+
+    <div class="viz-card">
+      <div class="card-title">Test Coverage Radar</div>
+      <div class="chart-holder">
+        <canvas #coverageRadarChart></canvas>
+      </div>
+    </div>
+
+    <div class="viz-card">
+      <div class="card-title">Automation Distribution</div>
+      <div class="chart-holder">
+        <canvas #automationRatioChart></canvas>
+      </div>
+    </div>
+
+    <div class="viz-card span-2">
+      <div class="card-title">Test Density vs. Defect Yield</div>
+      <div class="chart-holder">
+        <canvas #defectCorrelationChart></canvas>
+      </div>
+    </div>
+  </div>
+</div>

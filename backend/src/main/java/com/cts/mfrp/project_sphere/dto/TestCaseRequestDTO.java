@@ -5,7 +5,7 @@ import com.cts.mfrp.project_sphere.Enum.TestCaseType;
 import com.cts.mfrp.project_sphere.Enum.TestStatus;
 import lombok.Data;
 
-import java.util.List;
+import java.util.*;
 
 @Data
 public class TestCaseRequestDTO {
@@ -15,6 +15,6 @@ public class TestCaseRequestDTO {
     private String testData;
     private Complexity complexity;
     private String expectedResult;
-    // private TestStatus status;
-    private List<Long> userStoryIds;
+    private TestStatus status;
+    private List<Long> userStoryIds=new ArrayList<>();
 }

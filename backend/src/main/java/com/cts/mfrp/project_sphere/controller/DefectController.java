@@ -43,6 +43,9 @@ public class DefectController {
                 .expectedResult(expectedResult)
                 .actualResult(actualResult)
                 .stepsToReproduce(defect.getStepsToReproduce())
+                .title(defect.getTicket()!=null ? defect.getTicket().getTitle() : "No title")
+                        .firstName(defect.getTicket()!=null && defect.getTicket().getAssignee()!=null ? defect.getTicket().getAssignee().getFirstName() : "No first name")
+                        .lastName(defect.getTicket()!=null && defect.getTicket().getAssignee()!=null ? defect.getTicket().getAssignee().getLastName() : "No last name")
                 .status(defect.getStatus())
                 .build();
 
@@ -70,6 +73,9 @@ public class DefectController {
                         .severity(defect.getSeverity())
                         .expectedResult(expectedResult)
                         .actualResult(actualResult)
+                        .title(defect.getTicket()!=null ? defect.getTicket().getTitle() : "No title")
+                        .firstName(defect.getTicket()!=null && defect.getTicket().getAssignee()!=null ? defect.getTicket().getAssignee().getFirstName() : "No first name")
+                        .lastName(defect.getTicket()!=null && defect.getTicket().getAssignee()!=null ? defect.getTicket().getAssignee().getLastName() : "No last name")
                         .stepsToReproduce(defect.getStepsToReproduce())
                         .status(defect.getStatus())
                         .build();

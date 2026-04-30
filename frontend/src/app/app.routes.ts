@@ -28,6 +28,8 @@ import { AnalyticsComponent }  from './features/analytics/analytics.component';
 import { TeamComponent }       from './features/team/team.component';
 import { DocumentsComponent }  from './features/documents/documents.component';
 import { TestCaseComponent } from './features/testcase/testcase.component';
+import { DefectAnalyticsComponent } from './features/defect-analytics/defect-analytics.component';
+import { TestCaseAnalyticsComponent } from './features/test-case-analytics/test-case-analytics.component';
 export const routes: Routes = [
   // ── Public routes (no shell, no auth required) ──────────────────────────
   { path: '',        redirectTo: 'landing', pathMatch: 'full' },
@@ -77,6 +79,8 @@ export const routes: Routes = [
   { path: 'team',       component: TeamComponent      },
   { path: 'documents',  component: DocumentsComponent },
   { path: 'test-cases', component: TestCaseComponent },
+  {path:'defect-analytics', component: DefectAnalyticsComponent},
+  {path:'test-case-analytics', component: TestCaseAnalyticsComponent},
 
   { path: '**', redirectTo: 'landing' },
 ];

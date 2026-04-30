@@ -18,10 +18,8 @@
           <label>Ticket <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
           <div class="form-input">
             <select [(ngModel)]="form.ticketId" name="ticketId">
-              <option [ngValue]="0">Select an unmapped ticket...</option>
-              <option *ngFor="let ticket of unmappedTickets" [ngValue]="ticket">
-                Ticket #{{ ticket }}
-              </option>
+              <option [ngValue]="0">{{ isLoadingData ? 'Loading...' : 'Select a ticket…' }}</option>
+              <option *ngFor="let id of unmappedTickets" [ngValue]="id">Ticket #{{ id }}</option>
             </select>
           </div>
         </div>
@@ -29,10 +27,8 @@
           <label>Test Case <span style="color:#DE350B;font-weight:700" aria-hidden="true">*</span></label>
           <div class="form-input">
             <select [(ngModel)]="form.testCaseId" name="testCaseId">
-              <option [ngValue]="0">Select an unmapped test case...</option>
-              <option *ngFor="let tc of unmappedTestCases" [ngValue]="tc">
-                TC-{{ tc }}
-              </option>
+              <option [ngValue]="0">{{ isLoadingData ? 'Loading...' : 'Select a test case…' }}</option>
+              <option *ngFor="let id of unmappedTestCases" [ngValue]="id">Test Case #{{ id }}</option>
             </select>
           </div>
         </div>

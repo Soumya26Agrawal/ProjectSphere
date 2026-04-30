@@ -10,6 +10,9 @@ export interface DefectResponseDTO {
   severity: string;
   expectedResult: string;
   actualResult: string;
+  title: string;
+  firstName: string;
+  lastName: string;
   status: string;
   stepsToReproduce: string[];
 }
@@ -41,12 +44,10 @@ const TESTCASES_BASE = 'http://localhost:8081/api/v1/testcase';
 export class DefectApiService {
   constructor(private http: HttpClient) {}
 
-  /** Fetch unmapped ticket IDs (not yet linked to any defect). */
   getUnMappedTickets(): Observable<number[]> {
     return this.http.get<number[]>(`${TICKETS_BASE}/unmapped`);
   }
 
-  /** Fetch unmapped test-case IDs (not yet linked to any defect). */
   getUnMappedTestCases(): Observable<number[]> {
     return this.http.get<number[]>(`${TESTCASES_BASE}/unmapped`);
   }
@@ -94,23 +95,26 @@ export class DefectApiService {
       throw new Error('Invalid defect DTO: null or undefined');
     }
 
-    const title = (dto.expectedResult || 'Untitled Defect').substring(0, 50);
-    const steps = dto.stepsToReproduce && Array.isArray(dto.stepsToReproduce) 
-      ? dto.stepsToReproduce.join('\n') 
-      : 'No steps provided';
+    const steps = dto.stepsToReproduce && Array.isArray(dto.stepsToReproduce)
+      ? dto.stepsToReproduce.join('\n')
+      : '';
+
+    const defectIdStr = String(dto.defectId || 0).padStart(3, '0');
+    const title = dto.title || `Defect #${defectIdStr}`;
+    const fullName = [dto.firstName, dto.lastName].filter(Boolean).join(' ') || 'Unassigned';
 
     return {
       id: dto.defectId || 0,
-      bid: `BUG-${String(dto.defectId || 0).padStart(3, '0')}`,
-      title: title || 'Untitled Defect',
-      env: 'Unknown Environment',
+      bid: `BUG-${defectIdStr}`,
+      title,
+      env: dto.reproducible || 'SOMETIMES',
       sev: (dto.severity || 'MEDIUM') as any,
       rep: (dto.reproducible || 'SOMETIMES') as any,
-      desc: 'No description provided',
+      desc: dto.expectedResult || 'No description provided',
       exp: dto.expectedResult || 'No expected result',
       act: dto.actualResult || 'No actual result',
-      steps: steps,
-      ass: 'Unassigned',
+      steps,
+      ass: fullName,
       status: (dto.status || 'NEW') as any,
     };
   }

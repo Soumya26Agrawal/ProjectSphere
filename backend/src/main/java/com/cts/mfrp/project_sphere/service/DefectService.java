@@ -24,6 +24,7 @@ public class DefectService {
 
     public Defect raiseDefect(DefectRequestDTO dto){
         Ticket ticket= ticketRepository.getReferenceById(dto.getTicketId());
+
         TestCase testCase=testCaseRepository.getReferenceById(dto.getTestCaseId());
         Defect defect=Defect.builder()
                 .ticket(ticket)

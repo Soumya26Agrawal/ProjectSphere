@@ -23,7 +23,11 @@ public class TestCaseService {
     private final UserRepository userRepository;
     private final TicketRepository ticketRepository;
     public TestCaseResponseDTO createTestCase(TestCaseRequestDTO dto){
-        User user=userRepository.getReferenceById(dto.getDesignerId());
+        User user=null;
+        if(dto.getDesignerId()!=null){
+             user=userRepository.getReferenceById(dto.getDesignerId());
+        }
+       
         List<Long> userStoryIds=dto.getUserStoryIds();
         List<Ticket> userStories= userStoryIds.stream().map((id) -> ticketRepository.getReferenceById(id)).toList();
 
@@ -40,10 +44,10 @@ public class TestCaseService {
         TestCaseResponseDTO result=TestCaseResponseDTO.builder()
                 .testData(tCase.getTestData())
                 .expectedResult(tCase.getExpectedResult())
-                .testCaseId(testCase.getTestCaseId())
+                .testCaseId(tCase.getTestCaseId())
                 .complexity(tCase.getComplexity())
                 .type(tCase.getType())
-                .designerName(tCase.getDesigner().getFirstName()+tCase.getDesigner().getLastName())
+                .designerName(tCase.getDesigner()!=null?(tCase.getDesigner().getFirstName()+tCase.getDesigner().getLastName()):"No designer")
                 .description(tCase.getDescription())
                 .status(tCase.getStatus())
                 .userStoryTitles(tCase.getUserStories().stream().map((us)->us.getTitle()).toList())
@@ -55,4 +59,14 @@ public class TestCaseService {
         System.out.println("Received request to get unmapped test cases in service");
         return testCaseRepository.getUnMappedTestCases();
     }
+
+    public List<TestCase> getTestCases(){
+        return testCaseRepository.findAll();
+    }
+
+    public TestCase getTestCaseById(Long testCaseId){
+        return testCaseRepository.findById(testCaseId).orElseThrow();
+    }
+
+    
 }

@@ -1,0 +1,71 @@
+<div class="dashboard-wrapper">
+  <div class="summary-ribbon">
+    <div class="summary-item">
+      <span class="title">Total Lifecycle Defects</span>
+      <div class="value-group">
+        <span class="main-val">{{summary.total}}</span>
+        <span class="sub-val text-muted">Across all versions</span>
+      </div>
+    </div>
+    <div class="summary-item">
+      <span class="title">Active Backlog</span>
+      <div class="value-group">
+        <span class="main-val">{{summary.active}}</span>
+        <span class="badge bg-red">{{summary.critical}} CRITICAL</span>
+      </div>
+    </div>
+    <div class="summary-item">
+      <span class="title">Regression Ratio</span>
+      <div class="value-group">
+        <span class="main-val">{{summary.regression}}</span>
+        <span class="sub-val text-orange">Needs attention</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric-card" *ngFor="let m of metrics">
+      <div class="metric-header">
+        <span class="metric-label">{{m.label}}</span>
+        <span class="trend-indicator" [ngClass]="m.status">{{m.trend}}</span>
+      </div>
+      <div class="metric-body">
+        <h2 class="metric-value">{{m.value}}</h2>
+        <p class="metric-desc">{{m.desc}}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-charts">
+    <div class="chart-card span-2">
+      <div class="card-header">
+        <h3>Defect Velocity & Stability Trend</h3>
+        <button class="btn-export">Export Report</button>
+      </div>
+      <div class="chart-box">
+        <canvas #trendChart></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Severity Impact Analysis</h3>
+      <div class="chart-box">
+        <canvas #severityChart></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Defect Density (Bugs per Module)</h3>
+      <div class="chart-box">
+        <canvas #densityChart></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Defect Leakage per Release</h3>
+      <div class="chart-box">
+        <canvas #leakageChart></canvas>
+      </div>
+    </div>
+  </div>
+</div>

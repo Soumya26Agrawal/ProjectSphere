@@ -180,9 +180,9 @@ INSERT INTO project_team_users (team_id, user_id) VALUES
 --  TICKETS (20) — mix of EPIC/USER_STORY/TASK/DEFECT/SUB_TASK
 -- ═══════════════════════════════════════════════════════════════════════
 INSERT INTO ticket (project_id, sprint_id, parent_id, assignee_id, reporter_id, type, status, story_points, title, description) VALUES
-(1,  1, NULL,  7, 2, 'DEFECT',       'IN_PROGRESS', 20, 'Payment Gateway Integration',         'Integrate UPI, NEFT and card rails into the core-banking platform.'),
+(1,  NULL, NULL,  7, 2, 'DEFECT',       'IN_PROGRESS', 20, 'Payment Gateway Integration',         'Integrate UPI, NEFT and card rails into the core-banking platform.'),
 (1,  1,    1,  8, 7, 'DEFECT', 'IN_PROGRESS',  8, 'Customer pays vendor via UPI',        'As a customer I want to pay a vendor via UPI so that settlement is instant.'),
-(1,  2,    2,  8, 7, 'DEFECT',       'COMPLETED',    2, 'Add UPI SDK dependency',              'Add the vendor UPI SDK to the gradle build and wire up initialisation.'),
+(1,  NULL,    2,  8, 7, 'USER_STORY',       'COMPLETED',    2, 'Add UPI SDK dependency',              'Add the vendor UPI SDK to the gradle build and wire up initialisation.'),
 (1,  2, NULL,  7, 2, 'DEFECT',     'IN_PROGRESS',  3, 'Timeout on bank verification',        'Bank verification intermittently times out after 30s.'),
 (2,  3, NULL,  9, 2, 'DEFECT',       'IN_PROGRESS', 30, 'Patient Portal Rewrite',              'Rewrite the legacy JSP patient portal as an Angular SPA.'),
 (2,  4,    5, 10, 9, 'DEFECT', 'TO_DO',        5, 'Book online appointment',             'As a patient I can book an appointment with a chosen doctor.'),
@@ -190,7 +190,7 @@ INSERT INTO ticket (project_id, sprint_id, parent_id, assignee_id, reporter_id, 
 (4,  7, NULL, 13, 3, 'DEFECT', 'IN_PROGRESS',  8, 'Auto-triage claim by severity',       'The system should auto-triage claims based on severity score.'),
 (4,  7, NULL, 14,13, 'DEFECT',     'REVIEW',       3, 'Claim ID collision on bulk upload',   'Duplicate claim IDs are silently overwritten during bulk upload.'),
 (5,  9, NULL, 16,15, 'USER_STORY', 'IN_PROGRESS',  5, 'Teachers can schedule live classes',  'Teachers can schedule a live class and invite a cohort.'),
-(6, 11, NULL, 17, 3, 'TASK',       'COMPLETED',    2, 'Apply security hardening patch',      'Apply the portal hardening patch issued by InfoSec.'),
+(6, NULL, NULL, 17, 3, 'TASK',       'COMPLETED',    2, 'Apply security hardening patch',      'Apply the portal hardening patch issued by InfoSec.'),
 (7, 13, NULL, 19, 4, 'USER_STORY', 'IN_PROGRESS', 13, 'Read legacy mainframe records',       'As a developer I can read records from the mainframe via the new adapter.'),
 (8, 15, NULL, 22,21, 'TASK',       'COMPLETED',    3, 'Publish analytics dashboard',         'Publish factory KPI dashboard for stakeholder review.'),
 (9, 17, NULL, 23, 4, 'DEFECT', 'TO_DO',        5, 'Reward points redemption',            'As a customer I can redeem reward points against a voucher.'),
@@ -209,15 +209,15 @@ INSERT INTO test_case (description, designer_id, type, test_data, complexity, ex
 ('Verify UPI payment happy path',              8,  'FUNCTIONAL', 'amount=500 vendor=VPA1', 'MEDIUM',   'Payment succeeds',        'Payment succeeds',       'PASSED'),
 ('UPI timeout returns graceful error',         8,  'NEGATIVE',   'network=slow timeout=30s','COMPLEX',  'Timeout banner shown',    'App froze',              'FAILED'),
 ('Appointment form client-side validation',    10, 'UI',         'all-fields-empty',       'SIMPLE',   'Errors under each field', 'Errors under each field','PASSED'),
-('Bulk claim upload with valid CSV',           14, 'POSITIVE',   '100 rows valid',         'MEDIUM',   'All accepted',            'All accepted',           'PASSED'),
+('Bulk claim upload with valid CSV',           14, 'POSITIVE',   '100 rows valid',         'MEDIUM',   'All accepted',            'All accepted',           'FAILED'),
 ('Bulk claim upload rejects duplicate IDs',    14, 'NEGATIVE',   'duplicate IDs',          'COMPLEX',  'Error lists duplicates',  'Silent overwrite',       'FAILED'),
-('Live class scheduling conflict',             16, 'FUNCTIONAL', 'two classes same slot',  'MEDIUM',   'Conflict warning',        'Conflict warning',       'PASSED'),
+('Live class scheduling conflict',             16, 'FUNCTIONAL', 'two classes same slot',  'MEDIUM',   'Conflict warning',        'Conflict warning',       'FAILED'),
 ('Security patch applied without downtime',    18, 'POSITIVE',   'rolling restart',        'CRITICAL', 'Zero downtime',           'Zero downtime',          'PASSED'),
 ('Mainframe read latency under load',          20, 'FUNCTIONAL', '10k records',            'COMPLEX',  'Latency under 2 seconds', 'Latency under 2 seconds','NEW'),
 ('Reward redemption below minimum points',     24, 'NEGATIVE',   'balance=10 points',      'SIMPLE',   'Redemption rejected',     'Redemption rejected',    'PASSED'),
-('MFA with invalid OTP',                       26, 'NEGATIVE',   'otp=999999',             'MEDIUM',   'Retry prompt',            'Retry prompt',           'PASSED'),
+('MFA with invalid OTP',                       26, 'NEGATIVE',   'otp=999999',             'MEDIUM',   'Retry prompt',            'Retry prompt',           'FAILED'),
 ('Archive job idempotency',                    28, 'FUNCTIONAL', 'job re-run same day',    'MEDIUM',   'No duplicate rows',       'No duplicate rows',      'PASSED'),
-('KYC upload accepts 10MB PDF',                30, 'POSITIVE',   'doc=10MB.pdf',           'MEDIUM',   'Accepted and stored',     'Accepted and stored',    'PASSED'),
+('KYC upload accepts 10MB PDF',                30, 'POSITIVE',   'doc=10MB.pdf',           'MEDIUM',   'Accepted and stored',     'Accepted and stored',    'FAILED'),
 ('Risk scoring on edge inputs',                32, 'NEGATIVE',   'balance=-1',             'COMPLEX',  'Flag for manual review',  'Returned score=0',       'FAILED'),
 ('Driver app push delivery when offline',      34, 'FUNCTIONAL', 'device offline',         'MEDIUM',   'Queued for retry',        'Queued for retry',       'PASSED'),
 ('Interview scheduler drag-and-drop',          36, 'UI',         'drag slot across days',  'SIMPLE',   'Slot moves to target',    'Slot moves to target',   'NEW');
@@ -227,7 +227,7 @@ INSERT INTO test_case (description, designer_id, type, test_data, complexity, ex
 --  TEST-CASE ↔ USER-STORY LINKS (textcase_userstory, M2M) — 15 rows
 -- ═══════════════════════════════════════════════════════════════════════
 INSERT INTO textcase_userstory (test_case_id, ticket_id) VALUES
-(1, 2),  (2, 4),  (3, 6),  (4, 8),  (5, 9),
+(1, 3),  (2, 3),  (3, 6),  (4, 8),  (5, 9),
 (6, 10), (7, 11), (8, 12), (9, 14), (10, 15),
 (11, 17), (12, 18), (13, 19), (14, 20), (15, 2);
 
@@ -238,7 +238,7 @@ INSERT INTO textcase_userstory (test_case_id, ticket_id) VALUES
 INSERT INTO defect (ticket_id, reproducible, severity, status, test_case_id) VALUES
 (1,  'SOMETIMES', 'HIGH',     'OPEN',        1),
 (2,  'ALWAYS',    'CRITICAL', 'IN_PROGRESS', 2),
-(3, 'SOMETIMES', 'HIGH',     'NEW',         3),
+(17, 'SOMETIMES', 'HIGH',     'NEW',         3),
 (4,  'ONCE',      'LOW',      'CLOSED',      4),
 (5,  'ALWAYS',    'MEDIUM',   'OPEN',        5),
 (6, 'SOMETIMES', 'MEDIUM',   'FIXED',       6),

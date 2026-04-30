@@ -1,71 +1,82 @@
 <div>
   <div class="breadcrumb">
-    <span class="bc-link" routerLink="/board">ProjectSphere</span>
+    <span class="bc-link" routerLink="/board">{{ project?.projectName || 'ProjectSphere' }}</span>
     <span class="bc-sep mi">chevron_right</span>Team Info
   </div>
 
-  <!-- Team Banner -->
-  <div class="team-banner">
-    <div class="team-logo">👥</div>
-    <div>
-      <div class="team-name">LogicMinds</div>
-      <div class="team-desc">Software Development Team · ProjectSphere</div>
-    </div>
-    <div class="team-stats-row">
-      <div class="tstat"><div class="tstat-val">7</div><div class="tstat-lbl">Members</div></div>
-      <div class="tstat"><div class="tstat-val">3</div><div class="tstat-lbl">Sprints</div></div>
-      <div class="tstat"><div class="tstat-val">86%</div><div class="tstat-lbl">Velocity</div></div>
-      <div class="tstat"><div class="tstat-val">28</div><div class="tstat-lbl">Avg SP/Sprint</div></div>
-    </div>
-  </div>
+  <div *ngIf="loading" class="team-loading">Loading team…</div>
+  <div *ngIf="!loading && empty" class="team-loading">No team available for the current user.</div>
 
-  <!-- Team Leaders -->
-  <div class="team-leaders">
-    <div class="member-card" (click)="ui.toast('Rajesh Kumar — Project Manager')">
-      <div class="member-av av-pm">RK</div>
+  <ng-container *ngIf="!loading && !empty && team">
+    <!-- Team Banner -->
+    <div class="team-banner">
+      <div class="team-logo">👥</div>
       <div>
-        <div class="member-name">Rajesh Kumar</div>
-        <div class="member-role">Project Manager</div>
-        <div class="member-email">rajesh.kumar&#64;logicminds.dev</div>
+        <div class="team-name">{{ team.teamName }}</div>
+        <div class="team-desc">{{ project?.projectName }} · {{ project?.domain }}</div>
       </div>
-      <button class="icon-btn" style="margin-left:auto"
-        (click)="$event.stopPropagation(); ui.toast('Send message to Rajesh')">
-        <span class="mi">mail</span>
-      </button>
-    </div>
-    <div class="member-card" (click)="ui.toast('Priya Sharma — Scrum Master')">
-      <div class="member-av av-sm">PS</div>
-      <div>
-        <div class="member-name">Priya Sharma</div>
-        <div class="member-role">Scrum Master</div>
-        <div class="member-email">priya.sharma&#64;logicminds.dev</div>
-      </div>
-      <button class="icon-btn" style="margin-left:auto"
-        (click)="$event.stopPropagation(); ui.toast('Send message to Priya')">
-        <span class="mi">mail</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Engineers -->
-  <div class="engineers-wrap">
-    <div class="engineers-hdr">
-      <span style="font-weight:600;font-size:14px">Team Engineers</span>
-      <span class="lozenge loz-inprog">5 members</span>
-    </div>
-    <div class="engineers-grid">
-      <div class="eng-card" *ngFor="let e of ds.engineers" (click)="ui.toast(e.name + ' — ' + e.role)">
-        <div class="eng-av" [ngClass]="e.cls">{{ e.av }}</div>
-        <div>
-          <div style="font-weight:600;font-size:13px;color:var(--text)">{{ e.name }}</div>
-          <div style="font-size:12px;color:var(--jira-blue);font-weight:600;margin:.15rem 0">{{ e.role }}</div>
-          <div style="font-size:11px;color:var(--text3)">{{ e.email }}</div>
+      <div class="team-stats-row">
+        <div class="tstat">
+          <div class="tstat-val">{{ team.memberCount ?? team.members?.length ?? 0 }}</div>
+          <div class="tstat-lbl">Members</div>
         </div>
-        <button class="icon-btn" style="margin-left:auto;flex-shrink:0"
-          (click)="$event.stopPropagation(); ui.toast('Message ' + e.name)">
+        <div class="tstat">
+          <div class="tstat-val">{{ project?.status }}</div>
+          <div class="tstat-lbl">Status</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Leaders -->
+    <div class="team-leaders">
+      <div class="member-card" *ngIf="project?.managerName"
+           (click)="ui.toast(project!.managerName + ' — Project Manager')">
+        <div class="member-av av-pm">{{ (project?.managerName || '?').slice(0,2).toUpperCase() }}</div>
+        <div>
+          <div class="member-name">{{ project?.managerName }}</div>
+          <div class="member-role">Project Manager</div>
+          <div class="member-email">PM ID {{ project?.managerId }}</div>
+        </div>
+        <button class="icon-btn" style="margin-left:auto"
+          (click)="$event.stopPropagation(); ui.toast('Send message to ' + project!.managerName)">
+          <span class="mi">mail</span>
+        </button>
+      </div>
+      <div class="member-card" *ngIf="scrumMaster"
+           (click)="ui.toast(fullName(scrumMaster) + ' — Scrum Master')">
+        <div class="member-av av-sm">{{ initials(scrumMaster) }}</div>
+        <div>
+          <div class="member-name">{{ fullName(scrumMaster) }}</div>
+          <div class="member-role">Scrum Master</div>
+          <div class="member-email">{{ scrumMaster.email }}</div>
+        </div>
+        <button class="icon-btn" style="margin-left:auto"
+          (click)="$event.stopPropagation(); ui.toast('Send message to ' + fullName(scrumMaster))">
           <span class="mi">mail</span>
         </button>
       </div>
     </div>
-  </div>
+
+    <!-- Engineers -->
+    <div class="engineers-wrap">
+      <div class="engineers-hdr">
+        <span style="font-weight:600;font-size:14px">Team Engineers</span>
+        <span class="lozenge loz-inprog">{{ engineers.length }} members</span>
+      </div>
+      <div class="engineers-grid">
+        <div class="eng-card" *ngFor="let e of engineers" (click)="ui.toast(fullName(e) + ' — ' + e.role)">
+          <div class="eng-av av-dev">{{ initials(e) }}</div>
+          <div>
+            <div style="font-weight:600;font-size:13px;color:var(--text)">{{ fullName(e) }}</div>
+            <div style="font-size:12px;color:var(--jira-blue);font-weight:600;margin:.15rem 0">{{ e.role }}</div>
+            <div style="font-size:11px;color:var(--text3)">{{ e.email }}</div>
+          </div>
+          <button class="icon-btn" style="margin-left:auto;flex-shrink:0"
+            (click)="$event.stopPropagation(); ui.toast('Message ' + fullName(e))">
+            <span class="mi">mail</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 </div>

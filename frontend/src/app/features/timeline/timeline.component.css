@@ -1,3 +1,4 @@
+/* ── Container ─────────────────────────────────────────────────── */
 .tl-container {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -6,6 +7,7 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* ── Header ─────────────────────────────────────────────────────── */
 .tl-head {
   display: flex;
   border-bottom: 2px solid var(--border);
@@ -24,9 +26,10 @@
   border-right: 1px solid var(--border);
 }
 
-.tl-months { flex: 1; display: flex; }
+.tl-months { flex: 1; display: flex; overflow: hidden; }
+
 .tl-month-hd {
-  flex: 1;
+  flex-shrink: 0;
   text-align: center;
   padding: 9px 4px;
   font-size: 11px;
@@ -35,9 +38,13 @@
   border-right: 1px solid #eee;
   text-transform: uppercase;
   letter-spacing: .04em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .tl-month-hd:last-child { border-right: none; }
 
+/* ── Rows ────────────────────────────────────────────────────────── */
 .tl-row {
   display: flex;
   border-bottom: 1px solid #F4F5F7;
@@ -46,7 +53,10 @@
 }
 .tl-row:last-child { border-bottom: none; }
 .tl-row:hover .tl-lbl { background: #F4F5F7; }
+.tl-row-ticket { background: #FAFBFC; }
+.tl-row-empty  { min-height: 32px; }
 
+/* ── Work-column labels ──────────────────────────────────────────── */
 .tl-lbl {
   width: 260px;
   flex-shrink: 0;
@@ -54,24 +64,72 @@
   font-size: 13px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   border-right: 1px solid var(--border);
   min-height: 40px;
   transition: background .1s;
   cursor: pointer;
+  overflow: hidden;
 }
+
 .tl-lbl.sprint-lbl {
   background: var(--jira-blue-pale);
   font-weight: 600;
   color: var(--jira-blue);
   font-size: 13px;
 }
+
 .tl-lbl.story-lbl {
   color: var(--text2);
   padding-left: 28px;
   font-size: 12px;
+  cursor: default;
 }
 
+.toggle-icon {
+  font-size: 16px !important;
+  color: var(--jira-blue);
+  flex-shrink: 0;
+}
+
+.sp-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tk-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tk-tag {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+
+/* ── Sprint-status badges ────────────────────────────────────────── */
+.sp-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  flex-shrink: 0;
+}
+
+.badge-active  { background: #E3F9E5; color: #1A6B2A; }
+.badge-done    { background: #DEEBFF; color: #0052CC; }
+.badge-planned { background: #F4F5F7; color: #5E6C84; }
+
+/* ── Epic dot ────────────────────────────────────────────────────── */
 .tl-epic-dot {
   width: 8px;
   height: 8px;
@@ -79,6 +137,7 @@
   flex-shrink: 0;
 }
 
+/* ── Chart cell & bars ───────────────────────────────────────────── */
 .tl-cell { flex: 1; position: relative; min-height: 40px; }
 
 .tl-bar {
@@ -94,18 +153,23 @@
   white-space: nowrap;
   overflow: hidden;
   cursor: pointer;
-  transition: opacity .12s, transform .12s;
+  transition: opacity .12s, transform .12s, box-shadow .12s;
   z-index: 2;
   border: 1px solid;
 }
-.tl-bar:hover { opacity: .85; transform: scaleY(1.05); }
-
-.tl-sprint-bar {
-  background: rgba(0,82,204,.15) !important;
-  border-color: rgba(0,82,204,.35) !important;
-  color: var(--jira-blue);
+.tl-bar:hover {
+  opacity: .9;
+  transform: scaleY(1.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+  z-index: 3;
 }
 
+.tl-sprint-bar {
+  height: 26px;
+  top: 7px;
+}
+
+/* ── Today line ──────────────────────────────────────────────────── */
 .tl-today-line {
   position: absolute;
   top: 0; bottom: 0;
@@ -115,6 +179,7 @@
   z-index: 4;
   pointer-events: none;
 }
+
 .tl-today-label {
   position: absolute;
   top: -16px;
@@ -126,3 +191,97 @@
   background: var(--surface);
   padding: 0 2px;
 }
+
+/* ── Today button ────────────────────────────────────────────────── */
+.tl-today-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tl-today-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: #FF5630;
+  background: #FFF3EF;
+  border: 1px solid #FFB8A0;
+  border-radius: 4px;
+  padding: 1px 6px;
+  letter-spacing: .01em;
+}
+
+/* ── Floating date tooltip ───────────────────────────────────────── */
+.tl-tooltip-popup {
+  position: fixed;
+  z-index: 9999;
+  background: #172B4D;
+  color: #fff;
+  border-radius: 7px;
+  padding: 9px 13px;
+  pointer-events: none;
+  box-shadow: 0 4px 18px rgba(0,0,0,.3);
+  min-width: 180px;
+  max-width: 300px;
+}
+
+.tt-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tt-dates {
+  font-size: 12px;
+  color: #7FD1FF;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tt-meta {
+  font-size: 11px;
+  color: #8BA3C7;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* ── State boxes (loading / error / empty) ───────────────────────── */
+.tl-state-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 20px;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.tl-error-box {
+  background: #fff8f6;
+  border: 1px solid #ffc8b8;
+  border-radius: var(--radius);
+  color: #c0392b;
+}
+
+.tl-empty-box {
+  flex-direction: column;
+  justify-content: center;
+  padding: 56px 20px;
+  color: var(--text3);
+}
+
+/* ── Spinner ─────────────────────────────────────────────────────── */
+.tl-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--jira-blue);
+  border-radius: 50%;
+  animation: tl-spin .7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes tl-spin { to { transform: rotate(360deg); } }

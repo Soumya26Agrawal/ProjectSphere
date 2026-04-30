@@ -11,12 +11,17 @@
     </div>
     <div class="page-actions">
       <div class="seg">
-        <button class="seg-btn" (click)="ui.toast('Week view')">Week</button>
-        <button class="seg-btn active">Month</button>
-        <button class="seg-btn" (click)="ui.toast('Quarter view')">Quarter</button>
+        <button class="seg-btn" [class.active]="viewMode==='week'"    (click)="setView('week')">Week</button>
+        <button class="seg-btn" [class.active]="viewMode==='month'"   (click)="setView('month')">Month</button>
+        <button class="seg-btn" [class.active]="viewMode==='quarter'" (click)="setView('quarter')">Quarter</button>
       </div>
-      <button class="btn btn-secondary btn-sm" (click)="ui.toast('Today')">
-        <span class="mi">today</span>Today
+      <button class="btn btn-secondary btn-sm tl-today-btn" (click)="scrollToToday()" [title]="'Jump to ' + todayLabel">
+        <span class="mi">today</span>
+        <span>Today</span>
+        <span class="tl-today-date">{{ todayLabel }}</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" (click)="loadData()" title="Refresh">
+        <span class="mi">refresh</span>
       </button>
     </div>
   </div>
@@ -25,70 +30,129 @@
   <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
     <div class="jira-search">
       <span class="mi">search</span>
-      <input placeholder="Search sprints / stories…" style="width:200px"/>
+      <input placeholder="Search sprints / stories…" [(ngModel)]="searchQuery" style="width:200px"/>
     </div>
-    <select class="jira-select">
-      <option>All Assignees</option><option>Arjun Kumar</option>
-      <option>Priya Sharma</option><option>Ravi Patel</option>
+    <select class="jira-select" [(ngModel)]="filterAssignee">
+      <option value="">All Assignees</option>
+      <option *ngFor="let a of allAssignees" [value]="a">{{ a }}</option>
     </select>
-    <select class="jira-select">
-      <option>All Epics</option><option>Authentication</option>
-      <option>Chat System</option><option>Analytics</option><option>Defect Engine</option>
-    </select>
-    <select class="jira-select">
-      <option>Status Category</option><option>To Do</option>
-      <option>In Progress</option><option>Done</option>
+    <select class="jira-select" [(ngModel)]="filterStatus">
+      <option value="">Status Category</option>
+      <option *ngFor="let s of allStatuses" [value]="s">{{ ticketStatusLabel(s) }}</option>
     </select>
   </div>
 
+  <!-- Loading -->
+  <div *ngIf="loading" class="tl-state-box">
+    <div class="tl-spinner"></div>
+    <span>Loading timeline…</span>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="tl-state-box tl-error-box">
+    <span class="mi">error_outline</span>
+    {{ error }}
+    <button class="btn btn-secondary btn-sm" style="margin-left:8px" (click)="loadData()">Retry</button>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!loading && !error && !tlSprints.length" class="tl-state-box tl-empty-box">
+    <span class="mi" style="font-size:36px;opacity:.4">timeline</span>
+    <span>No sprint data found for this project.</span>
+  </div>
+
   <!-- Gantt -->
-  <div class="tl-container">
+  <div *ngIf="!loading && !error && tlSprints.length" class="tl-container">
+
     <!-- Header row -->
     <div class="tl-head">
       <div class="tl-work-hd">Work</div>
       <div class="tl-months">
-        <div class="tl-month-hd" *ngFor="let m of months">{{ m }} 2025</div>
+        <div class="tl-month-hd"
+             *ngFor="let col of headerCols"
+             [style.width]="col.pct + '%'">
+          {{ col.label }}
+        </div>
       </div>
     </div>
 
-    <!-- Sprint + story rows -->
-    <ng-container *ngFor="let sp of tlSprints">
+    <!-- Sprint + ticket rows -->
+    <ng-container *ngFor="let sp of filteredSprints">
+
       <!-- Sprint row -->
       <div class="tl-row">
-        <div class="tl-lbl sprint-lbl" (click)="ui.toast(sp.name + ' details')">
-          <span class="mi" style="font-size:14px;color:var(--jira-blue)">sprint</span>
-          {{ sp.name }}
+        <div class="tl-lbl sprint-lbl" (click)="toggleSprint(sp)">
+          <span class="mi toggle-icon">{{ sp.expanded ? 'expand_more' : 'chevron_right' }}</span>
+          <span class="mi" style="font-size:13px;color:var(--jira-blue)">view_timeline</span>
+          <span class="sp-name">{{ sp.name }}</span>
+          <span class="sp-badge" [ngClass]="sprintStatusClass(sp.status)">{{ sp.status }}</span>
         </div>
         <div class="tl-cell">
           <div class="tl-bar tl-sprint-bar"
-            [style.left]="pct(sp.s)"
-            [style.width]="pct(sp.e - sp.s)">
+               [style.left]="sp.leftPct"
+               [style.width]="sp.widthPct"
+               [style.background]="sp.color + '1A'"
+               [style.borderColor]="sp.color + '55'"
+               [style.color]="sp.color"
+               (mouseenter)="showSprintTooltip($event, sp)"
+               (mousemove)="moveTooltip($event)"
+               (mouseleave)="hideTooltip()">
             {{ sp.name }}
           </div>
-          <div class="tl-today-line" [style.left]="todayPct">
+          <div *ngIf="showTodayLine" class="tl-today-line" [style.left]="todayPct">
             <div class="tl-today-label">Today</div>
           </div>
         </div>
       </div>
 
-      <!-- Story rows -->
-      <div class="tl-row" *ngFor="let st of sp.stories">
-        <div class="tl-lbl story-lbl" (click)="ui.toast('Story details')">
-          <div class="tl-epic-dot" [style.background]="st.color"></div>
-          {{ st.title }}
-        </div>
-        <div class="tl-cell">
-          <div class="tl-bar"
-            [style.left]="pct(st.s)"
-            [style.width]="pct(st.e - st.s)"
-            [style.background]="st.color + '18'"
-            [style.borderColor]="st.color + '50'"
-            [style.color]="st.color">
-            {{ st.title }}
+      <!-- Ticket rows (expanded) -->
+      <ng-container *ngIf="sp.expanded">
+        <div class="tl-row tl-row-ticket" *ngFor="let tk of sp.tickets">
+          <div class="tl-lbl story-lbl">
+            <div class="tl-epic-dot" [style.background]="tk.color"></div>
+            <span class="tk-title" [title]="tk.title">{{ tk.title }}</span>
+            <span class="tk-tag">{{ tk.type || 'TASK' }}</span>
           </div>
-          <div class="tl-today-line" [style.left]="todayPct"></div>
+          <div class="tl-cell">
+            <div class="tl-bar"
+                 [style.left]="tk.leftPct"
+                 [style.width]="tk.widthPct"
+                 [style.background]="tk.color + '18'"
+                 [style.borderColor]="tk.color + '55'"
+                 [style.color]="tk.color"
+                 (mouseenter)="showTicketTooltip($event, tk)"
+                 (mousemove)="moveTooltip($event)"
+                 (mouseleave)="hideTooltip()">
+              {{ tk.title }}
+            </div>
+            <div *ngIf="showTodayLine" class="tl-today-line" [style.left]="todayPct"></div>
+          </div>
         </div>
-      </div>
+
+        <!-- Sprint with no tickets (after filter) -->
+        <div *ngIf="!sp.tickets.length" class="tl-row tl-row-empty">
+          <div class="tl-lbl story-lbl" style="color:var(--text3);font-style:italic;padding-left:36px">
+            No tickets
+          </div>
+          <div class="tl-cell">
+            <div *ngIf="showTodayLine" class="tl-today-line" [style.left]="todayPct"></div>
+          </div>
+        </div>
+      </ng-container>
+
     </ng-container>
+  </div>
+</div>
+
+<!-- Floating date tooltip -->
+<div class="tl-tooltip-popup"
+     *ngIf="tooltip.visible"
+     [style.left.px]="tooltip.x"
+     [style.top.px]="tooltip.y">
+  <div *ngFor="let line of tooltip.lines; let i = index"
+       [class.tt-title]="i === 0"
+       [class.tt-dates]="i === 1"
+       [class.tt-meta]="i === 2">
+    {{ line }}
   </div>
 </div>

@@ -11,13 +11,21 @@
           </span>
           <span class="td-drawer-id">PS-{{ ticket.id }}</span>
         </div>
-        <h2 class="dialog-hdr-title">{{ ticket.sum }}</h2>
+        <h2 class="dialog-hdr-title" *ngIf="!editing">{{ ticket.sum }}</h2>
+        <input *ngIf="editing" class="td-edit-title"
+               [(ngModel)]="editForm.title" placeholder="Issue title…" />
       </div>
       <div class="td-drawer-actions">
-        <button class="btn btn-secondary btn-sm" (click)="ui.toast('Share link copied!')">
-          <span class="mi">share</span>Share
+        <button class="btn btn-secondary btn-sm" *ngIf="!editing" (click)="startEdit()">
+          <span class="mi">edit</span>Edit
         </button>
-        <div class="dropdown" style="position:relative">
+        <button class="btn btn-secondary btn-sm" *ngIf="editing" (click)="cancelEdit()" [disabled]="saving">
+          Cancel
+        </button>
+        <button class="btn btn-primary btn-sm" *ngIf="editing" (click)="save()" [disabled]="saving">
+          <span class="mi">save</span>{{ saving ? 'Saving…' : 'Save' }}
+        </button>
+        <div class="dropdown" style="position:relative" *ngIf="!editing">
           <button class="icon-btn" (click)="moreOpen = !moreOpen; $event.stopPropagation()">
             <span class="mi">more_horiz</span>
           </button>
@@ -25,10 +33,6 @@
             <button class="dropdown-item" (click)="ui.toast('Linked to another issue'); moreOpen=false">
               <span class="mi">link</span>Link issue
             </button>
-            <button class="dropdown-item" (click)="ui.toast('Cloned ticket'); moreOpen=false">
-              <span class="mi">content_copy</span>Clone
-            </button>
-            <div class="dropdown-sep"></div>
             <button class="dropdown-item danger" (click)="deleteTicket()">
               <span class="mi">delete</span>Delete
             </button>
@@ -41,26 +45,17 @@
     <!-- Body -->
     <div class="dialog-body">
 
-      <!-- Quick action row -->
-      <div class="td-quick-actions">
-        <button class="btn btn-secondary btn-sm" (click)="ui.toast('Attach file')">
-          <span class="mi">attach_file</span>Attach
-        </button>
-        <button class="btn btn-secondary btn-sm" (click)="ui.toast('Link issue')">
-          <span class="mi">link</span>Link
-        </button>
-        <button class="btn btn-secondary btn-sm" (click)="ui.toast('Create child issue')">
-          <span class="mi">add_circle_outline</span>Child issue
-        </button>
-      </div>
+      <div *ngIf="errorMsg" class="td-error">{{ errorMsg }}</div>
 
-      <!-- Meta grid (status / assignee / priority / points / sprint / epic / labels / reporter) -->
-      <section class="td-section">
+      <!-- Meta grid (view mode) -->
+      <section class="td-section" *ngIf="!editing">
         <h4>Details</h4>
         <div class="td-meta-grid">
           <div class="td-meta-item">
             <small>Status</small>
-            <select class="td-status-select" [(ngModel)]="currentStatus" (change)="updateStatus()">
+            <select class="td-status-select"
+                    [ngModel]="ticket.status"
+                    (ngModelChange)="updateStatusOnly($event)">
               <option value="TO_DO">To Do</option>
               <option value="IN_PROGRESS">In Progress</option>
               <option value="REVIEW">In Review</option>
@@ -80,11 +75,8 @@
             <strong>{{ ticket.rep || '—' }}</strong>
           </div>
           <div class="td-meta-item">
-            <small>Priority</small>
-            <strong>
-              <span class="mi pri-icon" [ngClass]="ds.priClass(ticket.pri)">{{ ds.priIcon(ticket.pri) }}</span>
-              {{ ticket.pri }}
-            </strong>
+            <small>Type</small>
+            <strong>{{ ds.itLabel(ticket.type) }}</strong>
           </div>
           <div class="td-meta-item">
             <small>Story Points</small>
@@ -97,15 +89,61 @@
             <small>Sprint</small>
             <strong>{{ ticket.sprint || 'Backlog' }}</strong>
           </div>
+        </div>
+      </section>
+
+      <!-- Edit form (edit mode) -->
+      <section class="td-section" *ngIf="editing">
+        <h4>Edit details</h4>
+        <div class="td-meta-grid">
           <div class="td-meta-item">
-            <small>Epic</small>
-            <strong *ngIf="ticket.epic" style="color: #403294">{{ ticket.epic }}</strong>
-            <span class="td-meta-muted" *ngIf="!ticket.epic">None</span>
+            <small>Status</small>
+            <select [(ngModel)]="editForm.status" name="status">
+              <option value="TO_DO">To Do</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="REVIEW">In Review</option>
+              <option value="COMPLETED">Done</option>
+            </select>
           </div>
           <div class="td-meta-item">
-            <small>Labels</small>
-            <strong *ngIf="ticket.labels">{{ ticket.labels }}</strong>
-            <span class="td-meta-muted" *ngIf="!ticket.labels">None</span>
+            <small>Type</small>
+            <select [(ngModel)]="editForm.type" name="type" (ngModelChange)="onTypeChange()">
+              <option value="EPIC">Epic</option>
+              <option value="USER_STORY">User Story</option>
+              <option value="TASK">Task</option>
+              <option value="SUB_TASK">Sub-task</option>
+              <option value="DEFECT">Defect</option>
+            </select>
+          </div>
+          <div class="td-meta-item">
+            <small>Assignee</small>
+            <select [(ngModel)]="editForm.assigneeId" name="assignee">
+              <option [ngValue]="null">Unassigned</option>
+              <option *ngFor="let m of teamMembers" [ngValue]="m.userId">{{ fullName(m) }}</option>
+            </select>
+          </div>
+          <div class="td-meta-item">
+            <small>Story Points</small>
+            <input type="number" min="0" max="100"
+                   [(ngModel)]="editForm.storyPoints" name="storyPoints" placeholder="—" />
+          </div>
+          <div class="td-meta-item" *ngIf="editForm.type !== 'EPIC'">
+            <small>Sprint</small>
+            <select [(ngModel)]="editForm.sprintId" name="sprint">
+              <option [ngValue]="null">Backlog</option>
+              <option *ngFor="let s of sprints" [ngValue]="s.sprintId">
+                {{ s.sprintName }}<span *ngIf="s.status === 'ACTIVE'"> (active)</span>
+              </option>
+            </select>
+          </div>
+          <div class="td-meta-item" *ngIf="editForm.type !== 'EPIC'">
+            <small>{{ parentLabel }}</small>
+            <select [(ngModel)]="editForm.parentId" name="parent">
+              <option [ngValue]="null">None</option>
+              <option *ngFor="let p of availableParents" [ngValue]="p.ticketId">
+                PS-{{ p.ticketId }} · {{ p.title }}
+              </option>
+            </select>
           </div>
         </div>
       </section>
@@ -113,44 +151,77 @@
       <!-- Description -->
       <section class="td-section">
         <h4>Description</h4>
-        <div class="td-desc-box" (click)="ui.toast('Edit description')">
-          {{ ticket.desc || 'Click to add a description…' }}
+        <div class="td-desc-box" *ngIf="!editing">
+          {{ ticket.desc || '—' }}
         </div>
+        <textarea *ngIf="editing" class="td-edit-desc"
+                  [(ngModel)]="editForm.description" rows="4"
+                  placeholder="Add a description…"></textarea>
       </section>
 
-      <!-- Activity / Comments -->
+      <!-- Activity / Comments + History -->
       <section class="td-section">
         <h4>Activity</h4>
         <div class="act-tabs">
-          <button class="act-tab" [class.active]="activeTab==='all'"      (click)="activeTab='all'">All</button>
-          <button class="act-tab" [class.active]="activeTab==='comments'" (click)="activeTab='comments'">Comments</button>
-          <button class="act-tab" [class.active]="activeTab==='history'"  (click)="activeTab='history'">History</button>
+          <button class="act-tab" [class.active]="activeTab==='comments'" (click)="activeTab='comments'">
+            Comments<span class="act-tab-count" *ngIf="comments.length"> · {{ comments.length }}</span>
+          </button>
+          <button class="act-tab" [class.active]="activeTab==='history'" (click)="activeTab='history'">
+            History<span class="act-tab-count" *ngIf="history.length"> · {{ history.length }}</span>
+          </button>
         </div>
 
-        <div class="cmt-list" *ngIf="activeTab !== 'history'">
-          <div class="cmt" *ngFor="let c of ticket.comments">
-            <div class="cmt-av" [style.background]="ds.avColor(c.user)">{{ ds.ini(c.user) }}</div>
+        <!-- Comments list -->
+        <div class="cmt-list" *ngIf="activeTab === 'comments'">
+          <div class="cmt" *ngFor="let c of comments">
+            <div class="cmt-av" [style.background]="ds.avColor(commentAuthor(c))">{{ initialsForUser(c) }}</div>
             <div>
               <div>
-                <span class="cmt-author">{{ c.user }}</span>
-                <span class="cmt-time">{{ c.time }}</span>
+                <span class="cmt-author">{{ commentAuthor(c) }}</span>
+                <span class="cmt-time">{{ formatTimestamp(c.createdAt) }}</span>
               </div>
-              <div class="cmt-text">{{ c.text }}</div>
+              <div class="cmt-text">{{ c.commentBody }}</div>
             </div>
           </div>
-          <div *ngIf="ticket.comments.length === 0" class="td-meta-muted" style="padding:8px 0">
+          <div *ngIf="comments.length === 0" class="td-meta-muted" style="padding:8px 0">
             No comments yet.
+          </div>
+
+          <div class="cmt-input-row">
+            <div class="cmt-av" style="margin-top:2px">{{ ds.ini(ui.toastMessage ? '' : '') || 'U' }}</div>
+            <textarea [(ngModel)]="commentText" rows="2" placeholder="Add a comment…"></textarea>
+            <button class="btn btn-primary btn-sm" (click)="addComment()" style="align-self:flex-end"
+                    [disabled]="!commentText.trim()">Save</button>
           </div>
         </div>
 
-        <div *ngIf="activeTab === 'history'" class="td-meta-muted" style="padding:8px 0">
-          History tracking coming soon.
-        </div>
-
-        <div class="cmt-input-row" *ngIf="activeTab !== 'history'">
-          <div class="cmt-av" style="margin-top:2px">AK</div>
-          <textarea [(ngModel)]="commentText" rows="2" placeholder="Add a comment…"></textarea>
-          <button class="btn btn-primary btn-sm" (click)="addComment()" style="align-self:flex-end">Save</button>
+        <!-- History list — grouped: rows from one save click are shown together -->
+        <div class="td-history" *ngIf="activeTab === 'history'">
+          <div *ngIf="history.length === 0" class="td-meta-muted" style="padding:8px 0">
+            No history yet for this ticket.
+          </div>
+          <div class="td-history-row" *ngFor="let g of groupedHistory">
+            <span class="td-history-icon"><span class="mi">history</span></span>
+            <div class="td-history-body">
+              <div class="td-history-line">
+                <strong>{{ userIdToName(g.changedBy) }}</strong> {{ groupHeadline(g) }}
+                <span class="td-history-time">{{ formatTimestamp(g.timestamp) }}</span>
+              </div>
+              <ul class="td-history-changes" *ngIf="g.rows.length > 1">
+                <li *ngFor="let r of g.rows">
+                  <strong>{{ r.fieldChanged }}</strong>:
+                  <em>{{ formatHistoryValue(r.fieldChanged, r.oldValue) }}</em>
+                  <span class="mi td-history-arrow">arrow_right_alt</span>
+                  <em>{{ formatHistoryValue(r.fieldChanged, r.newValue) }}</em>
+                </li>
+              </ul>
+              <div class="td-history-single" *ngIf="g.rows.length === 1">
+                <em>{{ formatHistoryValue(g.rows[0].fieldChanged, g.rows[0].oldValue) }}</em>
+                <span class="mi td-history-arrow">arrow_right_alt</span>
+                <em>{{ formatHistoryValue(g.rows[0].fieldChanged, g.rows[0].newValue) }}</em>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

@@ -6,8 +6,16 @@
 
   <div class="page-hdr">
     <div>
-      <div class="page-title">Sprint 3 Board</div>
-      <div class="page-sub">Feb 1 – Feb 14, 2025 · <span class="lozenge loz-active">Active</span></div>
+      <div class="page-title">{{ activeSprintName || 'Sprint Board' }}</div>
+      <div class="page-sub">
+        <ng-container *ngIf="activeSprintName">
+          {{ activeSprintWindow }} · <span class="lozenge loz-active">Active</span>
+        </ng-container>
+        <ng-container *ngIf="!activeSprintName && !liveLoading">
+          <span class="lozenge loz-todo">No active sprint</span>
+        </ng-container>
+        <ng-container *ngIf="liveLoading">Loading sprint…</ng-container>
+      </div>
     </div>
     <div class="page-actions">
       <button class="btn btn-secondary" (click)="ui.toast('Epics panel')"><span class="mi">auto_awesome</span>Epics</button>
@@ -61,7 +69,7 @@
           <span class="k-col-cnt">{{ getColTickets(col.id).length }}</span>
         </div>
         <div style="display:flex;gap:2px">
-          <button class="icon-btn" (click)="ui.openCreateIssue()" title="Add issue"><span class="mi">add</span></button>
+          <button class="icon-btn" (click)="ui.openCreateIssue(col.id)" title="Add issue"><span class="mi">add</span></button>
           <button class="icon-btn" (click)="ui.toast('Column options')" title="More"><span class="mi">more_horiz</span></button>
         </div>
       </div>
@@ -100,7 +108,7 @@
         </ng-template>
       </div>
 
-      <button class="k-col-add" (click)="ui.openCreateIssue()">
+      <button class="k-col-add" (click)="ui.openCreateIssue(col.id)">
         <span class="mi">add</span>Create issue
       </button>
     </div>

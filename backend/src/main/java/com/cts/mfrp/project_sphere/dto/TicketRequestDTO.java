@@ -13,6 +13,7 @@ import lombok.*;
 public class TicketRequestDTO {
     private Long project;    // ID of the Project
     private Long assignee;   // ID of the User assigned// ID of the User reporting
+    private Long parent;     // ID of the parent ticket (epic for stories/tasks, story for sub-tasks)
     private TicketType type;    // Changed from String to Enum
     private Status status=Status.TO_DO;
     private Long sprint;// Enum String (e.g., TO_DO)

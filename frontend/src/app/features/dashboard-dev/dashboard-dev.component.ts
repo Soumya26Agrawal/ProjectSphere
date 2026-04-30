@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { DataService } from '../../core/services/data.service';
+import { ProjectContextService } from '../../core/services/project-context.service';
+import { AnalyticsApiService, ProjectDTO } from '../../core/services/analytics-api.service';
 
 @Component({
   selector: 'app-dashboard-dev',
@@ -14,53 +15,62 @@ import { DataService } from '../../core/services/data.service';
 export class DashboardDevComponent implements OnInit {
   readonly user = this.auth.currentUser;
 
-  /* Single-project model (mock). Matches the shape we'd get from /api/projects later. */
-  readonly project = {
-    name: 'ProjectSphere',
-    description: 'Jira-style project management platform with tickets, sprints, defect tracking and analytics.',
-    domain: 'TECHNOLOGY',
-    manager: 'Rajesh Kumar',
-    activeSprint: 'Sprint 3',
-  };
+  loading = true;
+  empty = false;
+  /** All projects the logged-in user belongs to. */
+  projects: ProjectDTO[] = [];
 
   constructor(
     private auth: AuthService,
     private router: Router,
-    public ds: DataService,
+    private api: AnalyticsApiService,
+    private projectCtx: ProjectContextService,
   ) {}
 
-  ngOnInit(): void { /* no-op; mock only */ }
-
-  /* ── Stats computed from the mock DataService ── */
-  get totalTickets(): number { return this.ds.tickets.length; }
-  get openTickets():  number { return this.ds.tickets.filter(t => t.status !== 'COMPLETED').length; }
-  get doneTickets():  number { return this.ds.tickets.filter(t => t.status === 'COMPLETED').length; }
-  get progressPct():  number {
-    return this.totalTickets ? Math.round(this.doneTickets / this.totalTickets * 100) : 0;
-  }
-  get openDefects():  number {
-    const resolved = ['FIXED','CLOSED','DEFERRED','REJECTED','DUPLICATE'];
-    return this.ds.defects.filter(d => !resolved.includes(d.status)).length;
-  }
-  get teamSize(): number { return this.ds.engineers.length; }
-  get myOpenTickets() {
-    const me = this.user()?.name;
-    return this.ds.tickets.filter(t => t.ass === me && t.status !== 'COMPLETED').slice(0, 4);
-  }
-  get recentActivity() {
-    // Derive a simple "latest tickets" list from mock data.
-    return [...this.ds.tickets]
-      .sort((a, b) => b.id - a.id)
-      .slice(0, 5);
+  ngOnInit(): void {
+    const userId = this.user()?.userId;
+    if (!userId) {
+      this.loading = false;
+      this.empty = true;
+      return;
+    }
+    this.api.getProjectsForUser(userId).subscribe(list => {
+      this.projects = list || [];
+      this.loading = false;
+      this.empty = this.projects.length === 0;
+    });
   }
 
-  enter(): void { this.router.navigate(['/board']); }
+  /** Active project — the IN_PROGRESS one. By rule, only one per user. */
+  get activeProject(): ProjectDTO | null {
+    return this.projects.find(p => (p.status || '').toUpperCase() === 'IN_PROGRESS') || null;
+  }
+
+  /** Past projects — anything that isn't IN_PROGRESS (typically COMPLETED). */
+  get pastProjects(): ProjectDTO[] {
+    return this.projects.filter(p => (p.status || '').toUpperCase() !== 'IN_PROGRESS');
+  }
+
+  /** Set the project context and navigate to /board. */
+  enter(p: ProjectDTO): void {
+    this.projectCtx.set(p.projectId);
+    this.router.navigate(['/board']);
+  }
+
+  shortDate(iso?: string | null): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  durationLabel(days?: number): string {
+    if (days == null) return '—';
+    const months = Math.round(days / 30);
+    if (months >= 12) return `${(months / 12).toFixed(1)} years`;
+    if (months >= 1) return `${months} month${months > 1 ? 's' : ''}`;
+    return `${days} day${days !== 1 ? 's' : ''}`;
+  }
+
   logout(): void { this.auth.logout(); }
-
-  statusClass(s: string): string { return this.ds.lozClass(s); }
-  typeClass(t: string):   string { return this.ds.itClass(t); }
-  typeIcon(t: string):    string { return this.ds.itIcon(t); }
-  priIcon(p: string):     string { return this.ds.priIcon(p); }
-  priClass(p: string):    string { return this.ds.priClass(p); }
-  sl(s: string):          string { return this.ds.sl(s); }
 }

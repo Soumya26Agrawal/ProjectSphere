@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Defect } from '../models/models';
@@ -15,6 +15,15 @@ export interface DefectResponseDTO {
   lastName: string;
   status: string;
   stepsToReproduce: string[];
+}
+
+export interface DefectRequestDTO {
+  ticketId: number;
+  testCaseId: number;
+  reproducible: string;
+  severity: string;
+  status: string;
+  steps: string[];
 }
 
 export interface Page<T> {
@@ -45,55 +54,35 @@ export class DefectApiService {
 
   /**
    * Fetch all defects from the backend.
-   * Backend returns a List, so we simulate pagination on the frontend.
+   * Backend returns a flat List; pagination and filtering are applied client-side.
    */
   getAlDefects(
     page: number = 0,
     size: number = 10,
     severity?: string,
     status?: string,
-    assignee?: string
+    assignee?: string,
+    reproducibility?: string
   ): Observable<Page<Defect>> {
     return this.http.get<DefectResponseDTO[]>(`${DEFECTS_BASE}`).pipe(
       map((dtos: DefectResponseDTO[]) => {
-        // Handle empty response
         if (!dtos || !Array.isArray(dtos)) {
-          console.warn('Invalid defect response format:', dtos);
-          return {
-            content: [],
-            totalElements: 0,
-            totalPages: 0,
-            number: page,
-            size,
-            first: true,
-            last: true,
-          };
+          return { content: [], totalElements: 0, totalPages: 0, number: page, size, first: true, last: true };
         }
 
-        // Map backend DTOs to frontend Defect models
-        const defects = dtos.map(dto => this.mapDtoToDefect(dto));
-        
-        // Apply client-side filtering
-        let filtered = defects;
-        if (severity) filtered = filtered.filter(d => d.sev === severity);
-        if (status) filtered = filtered.filter(d => d.status === status);
-        if (assignee) filtered = filtered.filter(d => d.ass === assignee);
-        
-        // Apply pagination
+        let filtered = dtos.map(dto => this.mapDtoToDefect(dto));
+
+        if (severity)       filtered = filtered.filter(d => d.sev === severity);
+        if (status)         filtered = filtered.filter(d => d.status === status);
+        if (assignee)       filtered = filtered.filter(d => d.ass === assignee);
+        if (reproducibility) filtered = filtered.filter(d => d.rep === reproducibility);
+
         const totalElements = filtered.length;
-        const totalPages = Math.ceil(totalElements / size) || 1;
-        const start = page * size;
-        const content = filtered.slice(start, start + size);
-        
-        return {
-          content,
-          totalElements,
-          totalPages,
-          number: page,
-          size,
-          first: page === 0,
-          last: page === totalPages - 1,
-        };
+        const totalPages    = Math.ceil(totalElements / size) || 1;
+        const start         = page * size;
+        const content       = filtered.slice(start, start + size);
+
+        return { content, totalElements, totalPages, number: page, size, first: page === 0, last: page >= totalPages - 1 };
       })
     );
   }
@@ -144,17 +133,8 @@ export class DefectApiService {
     );
   }
 
-  /**
-   * Create a new defect using DefectRequestDTO format.
-   */
-  createDefect(defectRequest: {
-    ticketId: number;
-    testCaseId: number;
-    severity: string;
-    reproducible: string;
-    status: string;
-    steps: string[];
-  }): Observable<DefectResponseDTO> {
+  /** Create a new defect. */
+  createDefect(defectRequest: DefectRequestDTO): Observable<DefectResponseDTO> {
     return this.http.post<DefectResponseDTO>(`${DEFECTS_BASE}`, defectRequest);
   }
 

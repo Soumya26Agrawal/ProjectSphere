@@ -30,21 +30,25 @@ public class User implements UserDetails {
     private String lastName;
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @Column(name = "phone_number")
     private Long phoneNumber;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "reporter", fetch=FetchType.LAZY, orphanRemoval = true)
 
     @Builder.Default
     private List<Ticket> reportedTickets = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "assignee", fetch=FetchType.LAZY, orphanRemoval = true)
 
     @Builder.Default
     private List<Ticket> assignedTickets = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "manager", fetch=FetchType.LAZY)
 
     @Builder.Default
@@ -60,10 +64,12 @@ public class User implements UserDetails {
     @Builder.Default
     private Boolean isActive = true;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "users")
     @Builder.Default
     private List<ProjectTeam> projectTeams=new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "designer")
     @Builder.Default
     private List<TestCase> testCasesDesigned=new ArrayList<>();

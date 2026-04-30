@@ -12,6 +12,8 @@ export class UiService {
   /* ── Dialog / Panel State ── */
   selectedTicket: Ticket | null = null;
   createIssueOpen = false;
+  /** Optional column-status hint for the Create Issue dialog (e.g. 'TO_DO'). */
+  createIssueInitialStatus: string | null = null;
   reportDefectOpen = false;
   notifOpen = false;
   sidebarOpen = true;
@@ -19,6 +21,11 @@ export class UiService {
   /* ── Defect Creation Events ── */
   private _defectCreated = new BehaviorSubject<void>(undefined);
   defectCreated$ = this._defectCreated.asObservable();
+
+  /* ── Ticket Creation Events ── */
+  private _ticketCreated = new Subject<void>();
+  ticketCreated$ = this._ticketCreated.asObservable();
+  notifyTicketCreated(): void { this._ticketCreated.next(); }
 
   /* ── Notifications ── */
   private _notifications = new BehaviorSubject<Notification[]>([
@@ -63,12 +70,14 @@ export class UiService {
   }
 
   /* ── Create Issue Dialog ── */
-  openCreateIssue(): void {
+  openCreateIssue(initialStatus: string | null = null): void {
+    this.createIssueInitialStatus = initialStatus;
     this.createIssueOpen = true;
   }
 
   closeCreateIssue(): void {
     this.createIssueOpen = false;
+    this.createIssueInitialStatus = null;
   }
 
   /* ── Report Defect Dialog ── */

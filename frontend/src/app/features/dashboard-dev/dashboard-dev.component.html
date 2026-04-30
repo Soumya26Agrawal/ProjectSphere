@@ -1,4 +1,4 @@
-<!-- Top bar — identical structure to admin-shell and pm-shell -->
+<!-- Top bar -->
 <header class="dev-topbar">
   <div class="dev-brand">
     <span class="dev-logo"><span class="mi">dashboard</span></span>
@@ -14,117 +14,59 @@
 </header>
 
 <main class="dev-page">
-  <!-- Project hero (compact) -->
-  <section class="dev-hero">
-    <div class="dev-hero-main">
-      <span class="dev-hero-pill">
-        <span class="mi">verified</span> Active
-      </span>
-      <h1 class="dev-hero-title">{{ project.name }}</h1>
-      <p class="dev-hero-sub">{{ project.description }}</p>
-
-      <div class="dev-hero-meta">
-        <span class="dev-meta-chip">
-          <span class="mi">domain</span>{{ project.domain }}
-        </span>
-        <span class="dev-meta-chip">
-          <span class="mi">person</span>PM · {{ project.manager }}
-        </span>
-        <span class="dev-meta-chip">
-          <span class="mi">timer</span>{{ project.activeSprint }} active
-        </span>
-      </div>
-
-      <div class="dev-hero-cta">
-        <button class="ax-btn primary dev-go-btn" (click)="enter()">
-          <span class="mi">arrow_forward</span> Move to Workspace
-        </button>
-        <span class="dev-cta-hint">Open the full board, backlog, timeline and analytics.</span>
-      </div>
-    </div>
-
-    <div class="dev-hero-progress">
-      <div class="dev-progress-ring"
-           [style.background]="'conic-gradient(#0052CC ' + progressPct + '%, #DFE1E6 0)'">
-        <div class="dev-progress-inner">
-          <span class="dev-progress-value">{{ progressPct }}%</span>
-          <small class="dev-progress-label">Completed</small>
-        </div>
-      </div>
-      <div class="dev-progress-meta">
-        <span><strong>{{ doneTickets }}</strong> done · <strong>{{ openTickets }}</strong> open</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- KPI cards -->
-  <div class="ax-kpi-grid">
-    <div class="ax-kpi">
-      <span class="ax-kpi-icon blue"><span class="mi">confirmation_number</span></span>
-      <span><span class="ax-kpi-label">Total Tickets</span><div class="ax-kpi-value">{{ totalTickets }}</div></span>
-    </div>
-    <div class="ax-kpi">
-      <span class="ax-kpi-icon amber"><span class="mi">schedule</span></span>
-      <span><span class="ax-kpi-label">Open Tickets</span><div class="ax-kpi-value">{{ openTickets }}</div></span>
-    </div>
-    <div class="ax-kpi">
-      <span class="ax-kpi-icon pink"><span class="mi">bug_report</span></span>
-      <span><span class="ax-kpi-label">Open Defects</span><div class="ax-kpi-value">{{ openDefects }}</div></span>
-    </div>
-    <div class="ax-kpi">
-      <span class="ax-kpi-icon purple"><span class="mi">group</span></span>
-      <span><span class="ax-kpi-label">Team Size</span><div class="ax-kpi-value">{{ teamSize }}</div></span>
-    </div>
+  <div *ngIf="loading" class="dev-state-card">Loading your projects…</div>
+  <div *ngIf="!loading && empty" class="dev-state-card">
+    You're not assigned to any project yet. Contact your project manager to be added to a team.
   </div>
 
-  <!-- Two-column: My open work + Recent tickets -->
-  <div class="dev-cols">
-    <section class="dev-card">
-      <div class="dev-card-head">
-        <h3>My Open Work</h3>
-        <button class="ax-btn ghost" (click)="enter()">
-          Open board <span class="mi">arrow_forward</span>
-        </button>
-      </div>
-      <div class="dev-card-body" *ngIf="myOpenTickets.length > 0; else noMine">
-        <div class="dev-ticket-row" *ngFor="let t of myOpenTickets">
-          <span class="ticket-type-chip" [ngClass]="typeClass(t.type)">
-            <span class="mi">{{ typeIcon(t.type) }}</span>
-            {{ ds.itLabel(t.type) }}
-          </span>
-          <span class="dev-ticket-title">{{ t.sum }}</span>
-          <span class="lozenge" [ngClass]="statusClass(t.status)">{{ sl(t.status) }}</span>
-          <span class="dev-pri" [ngClass]="priClass(t.pri)" [title]="t.pri">
-            <span class="mi">{{ priIcon(t.pri) }}</span>
-          </span>
-          <span class="dev-pts" *ngIf="t.pts">{{ t.pts }} pt</span>
+  <ng-container *ngIf="!loading && !empty">
+    <!-- Active project (full overview) -->
+    <section *ngIf="activeProject as p" class="dev-hero">
+      <div class="dev-hero-main">
+        <span class="dev-hero-pill"><span class="mi">verified</span> Active</span>
+        <h1 class="dev-hero-title">{{ p.projectName }}</h1>
+        <p class="dev-hero-sub">{{ p.description }}</p>
+
+        <div class="dev-hero-meta">
+          <span class="dev-meta-chip"><span class="mi">domain</span>{{ p.domain }}</span>
+          <span class="dev-meta-chip"><span class="mi">person</span>PM · {{ p.managerName }}</span>
+          <span class="dev-meta-chip"><span class="mi">group</span>{{ p.teamSize }} members</span>
+          <span class="dev-meta-chip"><span class="mi">event</span>Started {{ shortDate(p.createdAt) }}</span>
+        </div>
+
+        <div class="dev-hero-cta">
+          <button class="ax-btn primary dev-go-btn" (click)="enter(p)">
+            <span class="mi">arrow_forward</span> Move to Workspace
+          </button>
+          <span class="dev-cta-hint">Open the full board, backlog, timeline and analytics for this project.</span>
         </div>
       </div>
-      <ng-template #noMine>
-        <div class="dev-empty">
-          <span class="mi">inbox</span>
-          <p>You have no open tickets. Enjoy the quiet!</p>
-        </div>
-      </ng-template>
     </section>
 
-    <section class="dev-card">
-      <div class="dev-card-head">
-        <h3>Recent Tickets</h3>
-      </div>
-      <div class="dev-card-body">
-        <div class="dev-activity-row" *ngFor="let t of recentActivity">
-          <span class="ticket-type-chip" [ngClass]="typeClass(t.type)">
-            <span class="mi">{{ typeIcon(t.type) }}</span>
-            {{ ds.itLabel(t.type) }}
-          </span>
-          <div class="dev-activity-text">
-            <strong>{{ t.sum }}</strong>
-            <small>{{ t.ass || 'Unassigned' }}</small>
+    <div *ngIf="!activeProject" class="dev-state-card">
+      You currently have no active project. Past projects are listed below.
+    </div>
+
+    <!-- Past projects (limited overview) -->
+    <ng-container *ngIf="pastProjects.length > 0">
+      <h2 class="dev-section-h">Past Projects</h2>
+      <div class="dev-past-grid">
+        <article class="dev-past-card" *ngFor="let p of pastProjects">
+          <div class="dev-past-head">
+            <span class="dev-past-pill">{{ p.status }}</span>
+            <span class="dev-past-domain">{{ p.domain }}</span>
           </div>
-          <span class="lozenge" [ngClass]="statusClass(t.status)">{{ sl(t.status) }}</span>
-        </div>
+          <h3 class="dev-past-title">{{ p.projectName }}</h3>
+          <div class="dev-past-meta">
+            <span><span class="mi">event_busy</span>Closed {{ shortDate(p.completedAt) }}</span>
+            <span><span class="mi">timer</span>{{ durationLabel(p.durationDays) }}</span>
+            <span><span class="mi">group</span>{{ p.teamSize }} members</span>
+          </div>
+          <button class="ax-btn ghost dev-past-cta" (click)="enter(p)">
+            Move to Workspace<span class="mi">arrow_forward</span>
+          </button>
+        </article>
       </div>
-    </section>
-  </div>
+    </ng-container>
+  </ng-container>
 </main>

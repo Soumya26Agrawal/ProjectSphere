@@ -31,3 +31,24 @@ build/
 
 ### VS Code ###
 .vscode
+
+### Local config / secrets ###
+# Local Spring profile overrides that shouldn't be shared
+application-local.properties
+application-local.yml
+application-local.yaml
+application-secrets.properties
+.env
+.env.*
+!.env.example
+*.env
+
+### Logs ###
+logs/
+*.log
+
+### Misc ###
+*.bak
+*.tmp
+.DS_Store
+Thumbs.db

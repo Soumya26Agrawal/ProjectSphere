@@ -15,13 +15,30 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Build output (top-level safety nets in case anything escapes the per-module gitignores)
+target/
+build/
+out/
+.angular/cache/
+
+# Environment / secrets — never commit local credentials
+.env
+.env.*
+!.env.example
+*.env
+
+# OS / editor scratch files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.bak
+*.tmp
+*.swp
+*.swo

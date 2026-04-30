@@ -1,8 +1,10 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { AuthUser, UserRole } from '../models/models';
+import { ProjectContextService } from './project-context.service';
+import { AnalyticsApiService } from './analytics-api.service';
 
 const API_BASE = 'http://localhost:8081/api/v1';
 
@@ -22,6 +24,8 @@ const STORAGE_TOKEN = 'ps_token';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly _user = signal<AuthUser | null>(this._loadUser());
+  private readonly projectCtx = inject(ProjectContextService);
+  private readonly analyticsApi = inject(AnalyticsApiService);
 
   readonly currentUser = this._user.asReadonly();
   readonly isLoggedIn  = computed(() => this._user() !== null);
@@ -53,6 +57,8 @@ export class AuthService {
     this._user.set(null);
     sessionStorage.removeItem(STORAGE_USER);
     sessionStorage.removeItem(STORAGE_TOKEN);
+    this.projectCtx.clear();
+    this.analyticsApi.invalidateProjectCaches();
     this.router.navigate(['/login']);
   }
 

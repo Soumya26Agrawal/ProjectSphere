@@ -56,11 +56,13 @@
   <div class="login-box">
     <div class="login-header">
       <div class="ps-badge">PS</div>
-      <h2>Welcome back</h2>
-      <p>Sign in to your ProjectSphere workspace</p>
+      <h2>{{ forgotMode ? 'Reset password' : 'Welcome back' }}</h2>
+      <p *ngIf="!forgotMode">Sign in to your ProjectSphere workspace</p>
+      <p *ngIf="forgotMode">Set a new password for <strong>{{ email.value }}</strong></p>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <!-- ── Sign-in form ─────────────────────────────────────────── -->
+    <form *ngIf="!forgotMode" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
       <!-- Email -->
       <div class="field" [class.has-error]="email.invalid && email.touched">
@@ -105,7 +107,7 @@
           <input type="checkbox" formControlName="rememberMe" />
           Remember me for 30 days
         </label>
-        <span class="forgot">Forgot password?</span>
+        <span class="forgot" (click)="openForgot()">Forgot password?</span>
       </div>
 
       <!-- Server-side error -->
@@ -122,7 +124,74 @@
 
     </form>
 
-    <div class="bottom-note">
+    <!-- ── Forgot-password form ─────────────────────────────────── -->
+    <form *ngIf="forgotMode" [formGroup]="forgotForm" (ngSubmit)="submitForgot()" novalidate>
+
+      <!-- New password -->
+      <div class="field" [class.has-error]="newPassword.invalid && newPassword.touched">
+        <label>New Password</label>
+        <div class="input-wrap">
+          <span class="mi">lock_outline</span>
+          <input
+            [type]="showNewPassword ? 'text' : 'password'"
+            placeholder="Enter new password"
+            formControlName="newPassword"
+            autocomplete="new-password" />
+          <span class="mi toggle-pw" (click)="toggleNewPassword()">
+            {{ showNewPassword ? 'visibility' : 'visibility_off' }}
+          </span>
+        </div>
+        <div class="error-msg" *ngIf="newPassword.touched && newPassword.errors">
+          <span *ngIf="newPassword.errors?.['required']">New password is required.</span>
+          <span *ngIf="newPassword.errors?.['minlength']">Password must be at least 3 characters.</span>
+        </div>
+      </div>
+
+      <!-- Confirm new password -->
+      <div class="field" [class.has-error]="confirmPassword.invalid && confirmPassword.touched">
+        <label>Confirm New Password</label>
+        <div class="input-wrap">
+          <span class="mi">lock_outline</span>
+          <input
+            [type]="showConfirmPw ? 'text' : 'password'"
+            placeholder="Re-enter new password"
+            formControlName="confirmPassword"
+            autocomplete="new-password" />
+          <span class="mi toggle-pw" (click)="toggleConfirmPassword()">
+            {{ showConfirmPw ? 'visibility' : 'visibility_off' }}
+          </span>
+        </div>
+        <div class="error-msg" *ngIf="confirmPassword.touched && confirmPassword.errors">
+          <span *ngIf="confirmPassword.errors?.['required']">Please confirm your password.</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <span class="forgot" (click)="backToLogin()">
+          <span class="mi" style="font-size:14px; vertical-align:middle;">arrow_back</span>
+          Change email
+        </span>
+      </div>
+
+      <div class="login-error" *ngIf="forgotError">
+        <span class="mi">error_outline</span>
+        {{ forgotError }}
+      </div>
+
+      <div class="login-ok" *ngIf="forgotMessage">
+        <span class="mi">check_circle</span>
+        {{ forgotMessage }}
+      </div>
+
+      <button type="submit" class="btn-sign" [disabled]="resetting">
+        <span class="mi" *ngIf="!resetting">lock_reset</span>
+        <span class="mi spin" *ngIf="resetting">sync</span>
+        {{ resetting ? 'Updating…' : 'Reset Password' }}
+      </button>
+
+    </form>
+
+    <div class="bottom-note" *ngIf="!forgotMode">
       New to ProjectSphere?
       <a routerLink="/landing">Contact your admin</a> to get access.
     </div>

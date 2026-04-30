@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ProjectContextService } from '../../core/services/project-context.service';
 import {
   AdminProject, AdminTeam, BackendDomain, BackendProjectStatus,
 } from '../../core/services/admin-api.service';
@@ -69,6 +70,7 @@ export class DashboardPmComponent implements OnInit, AfterViewInit {
     private api: PmApiService,
     private router: Router,
     private fb: FormBuilder,
+    private projectCtx: ProjectContextService,
   ) {
     this.projectForm = this.fb.group({
       projectName: ['', [Validators.required, Validators.minLength(2)]],
@@ -136,6 +138,8 @@ export class DashboardPmComponent implements OnInit, AfterViewInit {
     this.api.listMyProjects(id, 0, 1000).subscribe({
       next: (p) => {
         this.projects = p.content;
+        // Mirror this PM's project IDs into the global store for downstream pages.
+        this.projectCtx.setUserProjectIds(this.projects.map(x => x.projectId));
         this.analyticsLoading = false;
         this.dataReady = true;
         this.tryBuildCharts();

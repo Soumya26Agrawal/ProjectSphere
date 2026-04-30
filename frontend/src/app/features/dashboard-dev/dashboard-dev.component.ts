@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ProjectContextService } from '../../core/services/project-context.service';
 import { AnalyticsApiService, ProjectDTO } from '../../core/services/analytics-api.service';
+import { TopnavComponent } from '../../layout/topnav/topnav.component';
 
 @Component({
   selector: 'app-dashboard-dev',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TopnavComponent],
   templateUrl: './dashboard-dev.component.html',
   styleUrls: ['../admin/admin-theme.css', './dashboard-dev.component.css'],
 })
@@ -34,8 +35,12 @@ export class DashboardDevComponent implements OnInit {
       this.empty = true;
       return;
     }
+    // Hits the shared shareReplay cache in AnalyticsApiService — if login
+    // already fetched this list, we get it instantly with no HTTP call.
     this.api.getProjectsForUser(userId).subscribe(list => {
       this.projects = list || [];
+      // Keep the global ID store in sync with whatever we just rendered.
+      this.projectCtx.setUserProjectIds(this.projects.map(p => p.projectId));
       this.loading = false;
       this.empty = this.projects.length === 0;
     });

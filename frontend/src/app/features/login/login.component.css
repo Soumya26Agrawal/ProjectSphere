@@ -190,7 +190,7 @@
   display: flex;
   align-items: center;
 }
-.input-wrap .mi {
+.input-wrap > .mi:not(.toggle-pw) {
   position: absolute;
   left: 12px;
   color: #97a0af;
@@ -217,14 +217,16 @@
 .input-wrap input::placeholder {
   color: #97a0af;
 }
-.toggle-pw {
+.input-wrap > .toggle-pw {
   position: absolute;
+  left: auto;
   right: 12px;
   color: #97a0af;
   cursor: pointer;
   font-size: 18px !important;
   pointer-events: all;
 }
+.input-wrap > .toggle-pw:hover { color: #0052cc; }
 
 .row {
   display: flex;
@@ -327,6 +329,24 @@
 .login-error .mi {
   font-size: 17px;
   color: #ff5630;
+}
+
+/* ── Reset-password success ── */
+.login-ok {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e3fcef;
+  border: 1px solid #abf5d1;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #006644;
+  margin-bottom: 16px;
+}
+.login-ok .mi {
+  font-size: 17px;
+  color: #00875a;
 }
 
 /* ── Loading spin ── */

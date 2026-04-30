@@ -1,5 +1,13 @@
 /* Sidebar is pinned: position: fixed below the topnav. It does NOT scroll
-   with the page — only the inner list scrolls if it overflows vertically. */
+   with the page — only the inner list scrolls if it overflows vertically.
+
+   Collapse animation:
+   - Slides off via translateX so its layout/size doesn't reflow content.
+   - Same 220ms cubic-bezier as `.main`'s margin transition so the right edge
+     of the sidebar stays glued to the left edge of `.main` throughout the
+     animation — no flash of empty 240px column behind a sliding panel.
+   - Fades opacity in lockstep so the slide doesn't feel like it leaves
+     "ghost" content visible at the seam. */
 .sidebar {
   position: fixed;
   top: 56px;
@@ -8,47 +16,27 @@
   width: 240px;
   background: var(--surface);
   border-right: 1px solid var(--border);
-  padding: 12px 8px;
+  /* Top padding matches `.main`'s 20px so the first item lines up
+     vertically with the page header. */
+  padding: 20px 8px 12px;
   display: flex;
   flex-direction: column;
   gap: 2px;
   overflow-y: auto;
   z-index: 40;
-  transition: transform 0.3s ease;
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+  transition:
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
 }
 
 :host-context(.layout.sidebar-closed) .sidebar {
   transform: translateX(-100%);
-}
-
-:host-context(.layout:not(.sidebar-closed)) .sidebar {
-  transform: translateX(0);
-}
-
-.sb-header {
-  display: flex;
-  justify-content: flex-end;
-  padding: 4px 8px;
-  margin-bottom: 8px;
-}
-
-.sb-toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: none;
-  color: var(--text3);
-  font-size: 18px;
-  cursor: pointer;
-  border-radius: var(--radius);
-  transition: background .12s;
-}
-
-.sb-toggle-btn:hover {
-  background: var(--surface3);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .sb-section { margin-bottom: 4px; }

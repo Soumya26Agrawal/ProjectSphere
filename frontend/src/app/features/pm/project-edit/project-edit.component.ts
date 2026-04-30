@@ -6,6 +6,8 @@ import {
   AdminProject, AdminTeam, BackendDomain, BackendProjectStatus,
 } from '../../../core/services/admin-api.service';
 import { PmApiService } from '../../../core/services/pm-api.service';
+import { AnalyticsApiService } from '../../../core/services/analytics-api.service';
+import { ProjectContextService } from '../../../core/services/project-context.service';
 
 @Component({
   selector: 'app-pm-project-edit',
@@ -18,6 +20,8 @@ export class PmProjectEditComponent implements OnInit {
   projectId!: number;
   loading = false;
   saving = false;
+  deleting = false;
+  showDeleteConfirm = false;
   error = '';
   message = '';
   project: AdminProject | null = null;
@@ -35,6 +39,8 @@ export class PmProjectEditComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
+    private analyticsApi: AnalyticsApiService,
+    private projectCtx: ProjectContextService,
   ) {}
 
   ngOnInit(): void {
@@ -113,4 +119,34 @@ export class PmProjectEditComponent implements OnInit {
   }
 
   prjTag(id: number): string { return 'PRJ-' + String(id).padStart(3, '0'); }
+
+  askDelete(): void {
+    this.error = '';
+    this.message = '';
+    this.showDeleteConfirm = true;
+  }
+  cancelDelete(): void { this.showDeleteConfirm = false; }
+
+  confirmDelete(): void {
+    this.deleting = true;
+    this.error = '';
+    this.api.deleteProject(this.projectId).subscribe({
+      next: () => {
+        this.deleting = false;
+        this.showDeleteConfirm = false;
+        this.analyticsApi.invalidateProjectCaches();
+        if (this.projectCtx.selectedProjectId() === this.projectId) {
+          this.projectCtx.clear();
+        }
+        this.router.navigate(['/pm/projects']);
+      },
+      error: (err) => {
+        this.deleting = false;
+        this.showDeleteConfirm = false;
+        this.error = typeof err?.error === 'string' && err.error.length < 200
+          ? err.error
+          : 'Failed to delete the project.';
+      },
+    });
+  }
 }

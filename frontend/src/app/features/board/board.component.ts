@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, switchMap, takeUntil, timeout } from 'rxjs/operators';
 import { Subject, of } from 'rxjs';
 import { DataService } from '../../core/services/data.service';
 import { UiService } from '../../core/services/ui.service';
@@ -12,6 +12,12 @@ import {
   AnalyticsApiService, BackendSprint, BackendTicket,
 } from '../../core/services/analytics-api.service';
 import { Ticket } from '../../core/models/models';
+
+/** Hard cap on how long the page will wait for sprint data before
+ *  giving up and showing the empty state. The backend's `/sprint/project/{id}`
+ *  walks lazy associations and can stall on rich seed data — without this
+ *  cap, the UI sits on "Loading sprint…" forever. */
+const SPRINT_FETCH_TIMEOUT_MS = 6_000;
 
 @Component({
   selector: 'app-board',
@@ -35,6 +41,11 @@ export class BoardComponent implements OnInit, OnDestroy {
   liveTickets: Ticket[] = [];
   liveLoading = true;
   liveEmpty = false;
+  /** Set when the fetch hard-timed-out so the UI can say so explicitly. */
+  liveTimedOut = false;
+  /** Set when the user has no project context AND no projects of their own —
+   *  e.g. an admin who hasn't picked a project from the cards yet. */
+  noProjectSelected = false;
   /** Active sprint name + window for the page header. */
   activeSprintName: string | null = null;
   activeSprintWindow: string | null = null;
@@ -63,32 +74,49 @@ export class BoardComponent implements OnInit, OnDestroy {
   private loadActiveSprint(): void {
     const userId = this.auth.currentUser()?.userId;
     const selected = this.projectCtx.selectedProjectId();
+
+    // Reset flags up front so re-loads (e.g. after creating a ticket) start clean.
+    this.liveTimedOut = false;
+    this.noProjectSelected = false;
+
     const sprints$ = selected != null
       ? this.analyticsApi.getSprintsByProject(selected)
       : userId
         ? this.analyticsApi.getProjectIdsForUser(userId).pipe(
-            switchMap(ids => ids.length > 0
-              ? this.analyticsApi.getSprintsByProject(ids[0])
-              : of([] as BackendSprint[])),
+            switchMap(ids => {
+              if (ids.length === 0) {
+                this.noProjectSelected = true;
+                return of([] as BackendSprint[]);
+              }
+              return this.analyticsApi.getSprintsByProject(ids[0]);
+            }),
           )
-        : of([] as BackendSprint[]);
+        : (this.noProjectSelected = true, of([] as BackendSprint[]));
 
     this.liveLoading = true;
-    sprints$.subscribe(sprints => {
-      this.liveLoading = false;
-      const active = (sprints || []).find(s => (s.status || '').toUpperCase() === 'ACTIVE');
-      if (!active) {
-        this.liveTickets = [];
-        this.liveEmpty = true;
-        this.activeSprintName = null;
-        this.activeSprintWindow = null;
-        return;
-      }
-      this.activeSprintName = active.sprintName;
-      this.activeSprintWindow = this.formatWindow(active.startDate, active.endDate);
-      this.liveTickets = (active.tickets || []).map(t => this.mapTicket(t, active.sprintName));
-      this.liveEmpty = this.liveTickets.length === 0;
-    });
+    sprints$
+      .pipe(
+        timeout(SPRINT_FETCH_TIMEOUT_MS),
+        catchError(err => {
+          if (err && err.name === 'TimeoutError') this.liveTimedOut = true;
+          return of([] as BackendSprint[]);
+        }),
+      )
+      .subscribe(sprints => {
+        this.liveLoading = false;
+        const active = (sprints || []).find(s => (s.status || '').toUpperCase() === 'ACTIVE');
+        if (!active) {
+          this.liveTickets = [];
+          this.liveEmpty = true;
+          this.activeSprintName = null;
+          this.activeSprintWindow = null;
+          return;
+        }
+        this.activeSprintName = active.sprintName;
+        this.activeSprintWindow = this.formatWindow(active.startDate, active.endDate);
+        this.liveTickets = (active.tickets || []).map(t => this.mapTicket(t, active.sprintName));
+        this.liveEmpty = this.liveTickets.length === 0;
+      });
   }
 
   /** Tickets shown on the kanban — strictly the backend response, never mock data. */

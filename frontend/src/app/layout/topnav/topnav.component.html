@@ -1,6 +1,10 @@
 <!-- Top bar — identical structure to admin-shell and pm-shell -->
 <header class="ax-topbar">
-  <button class="ax-hamburger-small" *ngIf="!ui.sidebarOpen" (click)="ui.toggleSidebar()">
+  <!-- The single sidebar toggle for the whole app, sitting beside the logo. -->
+  <button class="ax-hamburger-small"
+          (click)="ui.toggleSidebar()"
+          [attr.aria-pressed]="ui.sidebarOpen"
+          aria-label="Toggle sidebar">
     <span class="mi">menu</span>
   </button>
   <a class="ax-brand" routerLink="/board">

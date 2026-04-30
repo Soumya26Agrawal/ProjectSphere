@@ -20,6 +20,9 @@
       <span class="mi">group</span>
       {{ team ? 'Edit Team' : 'Create Team' }}
     </button>
+    <button class="ax-btn danger" (click)="askDelete()" *ngIf="project" [disabled]="deleting">
+      <span class="mi">delete</span> Delete Project
+    </button>
   </div>
 </div>
 
@@ -71,3 +74,30 @@
 
   <div class="ax-ok"  *ngIf="message"><span class="mi">check_circle</span> {{ message }}</div>
 </section>
+
+<!-- Delete confirmation modal -->
+<div class="ax-modal-backdrop" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="ax-modal" (click)="$event.stopPropagation()" style="max-width:460px;">
+    <header class="ax-modal-head">
+      <span class="ax-kpi-icon" style="background:#FFEBE6;color:#BF2600;"><span class="mi">delete</span></span>
+      <div class="ax-modal-title">Delete project?</div>
+      <button class="ax-modal-close" (click)="cancelDelete()"><span class="mi">close</span></button>
+    </header>
+    <div class="ax-modal-body">
+      <p style="margin:0 0 8px;">
+        This will permanently delete
+        <strong *ngIf="project">{{ project.projectName }}</strong>
+        and any sprints, tickets and history attached to it.
+      </p>
+      <p style="margin:0;color:#5E6C84;font-size:13px;">This action can't be undone.</p>
+    </div>
+    <footer class="ax-modal-foot">
+      <button class="ax-btn ghost" (click)="cancelDelete()" [disabled]="deleting">Cancel</button>
+      <button class="ax-btn danger" (click)="confirmDelete()" [disabled]="deleting">
+        <span class="mi" *ngIf="!deleting">delete_forever</span>
+        <span class="mi spin" *ngIf="deleting">sync</span>
+        {{ deleting ? 'Deleting…' : 'Delete project' }}
+      </button>
+    </footer>
+  </div>
+</div>

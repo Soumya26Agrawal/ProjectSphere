@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ProjectContextService } from '../../core/services/project-context.service';
 import {
   AdminApiService, AdminProject, AdminStats,
   BackendDomain, BackendProjectStatus, BackendRole,
@@ -85,6 +86,7 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
     private router: Router,
     private route: ActivatedRoute,
     private fb: FormBuilder,
+    private projectCtx: ProjectContextService,
   ) {
     this.teamForm = this.fb.group({
       employeeId:  ['', [Validators.required]],
@@ -163,7 +165,12 @@ export class DashboardAdminComponent implements OnInit, AfterViewInit {
       }
     };
     this.api.listProjects(0, 1000).subscribe({
-      next: (p) => { this.projects = p.content; done(); },
+      next: (p) => {
+        this.projects = p.content;
+        // Mirror the IDs into the global store so /board, /timeline etc. don't refetch.
+        this.projectCtx.setUserProjectIds(this.projects.map(x => x.projectId));
+        done();
+      },
       error: () => { this.analyticsError = 'Failed to load analytics data.'; done(); },
     });
     this.api.getProjectManagers(0, 1000).subscribe({

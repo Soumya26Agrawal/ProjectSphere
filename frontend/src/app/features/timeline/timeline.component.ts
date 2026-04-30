@@ -3,9 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
+import { catchError, timeout } from 'rxjs/operators';
+import { of } from 'rxjs';
+
 import { UiService } from '../../core/services/ui.service';
 import { ProjectContextService } from '../../core/services/project-context.service';
 import { AnalyticsApiService, BackendSprint } from '../../core/services/analytics-api.service';
+
+const TIMELINE_FETCH_TIMEOUT_MS = 6_000;
 
 interface TlTicket {
   ticketId: number;
@@ -94,10 +99,22 @@ export class TimelineComponent implements OnInit {
     const fetch$ = projectId
       ? this.api.getSprintsByProject(projectId)
       : this.api.getAllSprints();
-    fetch$.subscribe({
-      next:  (s: BackendSprint[]) => { this.buildTimeline(s); this.loading = false; },
-      error: () => { this.error = 'Failed to load timeline data.'; this.loading = false; },
-    });
+    let timedOut = false;
+    fetch$
+      .pipe(
+        timeout(TIMELINE_FETCH_TIMEOUT_MS),
+        catchError(err => {
+          if (err && err.name === 'TimeoutError') timedOut = true;
+          return of([] as BackendSprint[]);
+        }),
+      )
+      .subscribe(s => {
+        this.buildTimeline(s);
+        if (timedOut && !s.length) {
+          this.error = 'Couldn’t load timeline in time — showing empty view.';
+        }
+        this.loading = false;
+      });
   }
 
   private buildTimeline(sprints: BackendSprint[]): void {

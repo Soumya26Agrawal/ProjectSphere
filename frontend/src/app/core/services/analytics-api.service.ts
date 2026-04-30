@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, forkJoin } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 
 const SPRINT_BASE   = 'http://localhost:8081/api/v1/sprint';
 const TEAMS_BASE    = 'http://localhost:8081/api/project-teams';
@@ -89,7 +89,21 @@ export interface SprintBurndown {
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsApiService {
+  /** Session-long cache for the "projects this user belongs to" lookup.
+   *  Login fills it for devs; /dev's dashboard reuses it instead of refetching.
+   *  Invalidated on logout (auth.service) and on project create/delete. */
+  private projectsForUserCache = new Map<number, Observable<ProjectDTO[]>>();
+  /** Same idea for the lighter "just the project IDs" call. */
+  private projectIdsForUserCache = new Map<number, Observable<number[]>>();
+
   constructor(private http: HttpClient) {}
+
+  /** Wipes every cached project lookup. Call on logout, or after a project
+   *  is created/deleted/edited so the next read sees fresh data. */
+  invalidateProjectCaches(): void {
+    this.projectsForUserCache.clear();
+    this.projectIdsForUserCache.clear();
+  }
 
   /** Fetch every sprint with its tickets. Returns [] on any error. */
   getAllSprints(): Observable<BackendSprint[]> {
@@ -114,12 +128,19 @@ export class AnalyticsApiService {
     );
   }
 
-  /** Project IDs the given user belongs to via project teams. */
+  /** Project IDs the given user belongs to via project teams.
+   *  Cached per-user for the session — call `invalidateProjectCaches()` after
+   *  any project create/delete (or on logout) to clear it. */
   getProjectIdsForUser(userId: number): Observable<number[]> {
-    return this.http.get<{ projectId: number }[]>(`${TEAMS_BASE}/user/${userId}`).pipe(
+    const hit = this.projectIdsForUserCache.get(userId);
+    if (hit) return hit;
+    const fresh$ = this.http.get<{ projectId: number }[]>(`${TEAMS_BASE}/user/${userId}`).pipe(
       map(list => Array.isArray(list) ? list.map(t => t.projectId).filter(id => id != null) : []),
       catchError(() => of([] as number[])),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
+    this.projectIdsForUserCache.set(userId, fresh$);
+    return fresh$;
   }
 
   /** Project metadata (name, description, manager, etc.). */
@@ -129,15 +150,22 @@ export class AnalyticsApiService {
     );
   }
 
-  /** Resolve the user → all projects (full DTOs), one HTTP call per project. */
+  /** Resolve the user → all projects (full DTOs), one HTTP call per project.
+   *  Cached per-user for the session. Same invalidation rules as
+   *  `getProjectIdsForUser`. */
   getProjectsForUser(userId: number): Observable<ProjectDTO[]> {
-    return this.getProjectIdsForUser(userId).pipe(
+    const hit = this.projectsForUserCache.get(userId);
+    if (hit) return hit;
+    const fresh$ = this.getProjectIdsForUser(userId).pipe(
       switchMap(ids => ids.length === 0
         ? of([] as ProjectDTO[])
         : forkJoin(ids.map(id => this.getProject(id))).pipe(
             map(list => list.filter((p): p is ProjectDTO => !!p)),
           )),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
+    this.projectsForUserCache.set(userId, fresh$);
+    return fresh$;
   }
 
   /** Team for a project — includes scrum master name + members list. */

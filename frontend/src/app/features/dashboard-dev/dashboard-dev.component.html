@@ -1,17 +1,5 @@
-<!-- Top bar -->
-<header class="dev-topbar">
-  <div class="dev-brand">
-    <span class="dev-logo"><span class="mi">dashboard</span></span>
-    <span class="dev-brand-name">Project Sphere</span>
-  </div>
-  <div class="dev-user">
-    <span class="dev-avatar">{{ user()?.avatar || 'U' }}</span>
-    <span class="dev-user-name">{{ user()?.name || 'Welcome' }}</span>
-    <button class="dev-icon-btn" (click)="logout()" title="Logout">
-      <span class="mi">logout</span>
-    </button>
-  </div>
-</header>
+<!-- Top bar (shared with /board for visual consistency) -->
+<app-topnav></app-topnav>
 
 <main class="dev-page">
   <div *ngIf="loading" class="dev-state-card">Loading your projects…</div>

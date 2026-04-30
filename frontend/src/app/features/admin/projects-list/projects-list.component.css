@@ -1,0 +1,56 @@
+.ax-card-wrap {
+  position: relative;
+  display: block;
+  /* Without min-width:0 a long manager name inside the card pushes the
+     grid track beyond 1fr and the row overflows horizontally. */
+  min-width: 0;
+}
+
+.ax-card-wrap > .ax-person {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Same containment: keep "PM · <name>" inside the card on long names. */
+.ax-card-wrap .ax-person-row { min-width: 0; }
+.ax-card-wrap .ax-person-row > .text {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Compact CTA tucked into the bottom-right footer, beside the status pill —
+   does NOT cover the project description or the status dot. */
+.ax-mtw-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: #0052cc;
+  color: #fff;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(9, 30, 66, .18);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity .15s, transform .15s, background .15s;
+  z-index: 2;
+  white-space: nowrap;
+}
+.ax-card-wrap:hover .ax-mtw-btn,
+.ax-card-wrap:focus-within .ax-mtw-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.ax-mtw-btn:hover { background: #0065ff; }
+.ax-mtw-btn .mi { font-size: 13px; }

@@ -7,6 +7,7 @@ import {
 } from '../../../core/services/admin-api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PmApiService } from '../../../core/services/pm-api.service';
+import { ProjectContextService } from '../../../core/services/project-context.service';
 
 type Tab = 'ALL' | 'IN_PROGRESS' | 'COMPLETED';
 
@@ -49,6 +50,7 @@ export class PmProjectsListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
+    private projectCtx: ProjectContextService,
   ) {
     this.createForm = this.fb.group({
       projectName: ['', [Validators.required, Validators.minLength(2)]],
@@ -147,6 +149,12 @@ export class PmProjectsListComponent implements OnInit {
   }
 
   open(p: AdminProject): void { this.router.navigate(['/pm/projects', p.projectId]); }
+
+  moveToWorkspace(e: Event, p: AdminProject): void {
+    e.stopPropagation();
+    this.projectCtx.set(p.projectId);
+    this.router.navigate(['/board']);
+  }
 
   /* Create-project modal */
 

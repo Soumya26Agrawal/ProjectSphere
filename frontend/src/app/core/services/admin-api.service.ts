@@ -193,6 +193,12 @@ export class AdminApiService {
     return this.http.put<AdminProject>(`${API_BASE}/projects/${id}`, body);
   }
 
+  /** Delete a project. Hits the public ProjectController endpoint, not the
+   *  admin-scoped one, because that's where the existing DELETE lives. */
+  deleteProject(id: number): Observable<void> {
+    return this.http.delete<void>(`http://localhost:8081/api/projects/${id}`);
+  }
+
   getUser(id: number): Observable<TeamMember> {
     return this.http.get<TeamMember>(`${API_BASE}/users/${id}`);
   }

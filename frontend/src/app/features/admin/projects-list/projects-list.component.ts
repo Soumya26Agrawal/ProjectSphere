@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AdminApiService, AdminProject, BackendDomain, BackendProjectStatus, ProjectManager,
 } from '../../../core/services/admin-api.service';
+import { ProjectContextService } from '../../../core/services/project-context.service';
 
 type Tab = 'ALL' | 'IN_PROGRESS' | 'COMPLETED';
 
@@ -48,6 +49,7 @@ export class ProjectsListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
+    private projectCtx: ProjectContextService,
   ) {
     this.createForm = this.fb.group({
       projectName: ['', [Validators.required, Validators.minLength(2)]],
@@ -139,6 +141,12 @@ export class ProjectsListComponent implements OnInit {
   }
 
   open(p: AdminProject): void { this.router.navigate(['/admin/projects', p.projectId]); }
+
+  moveToWorkspace(e: Event, p: AdminProject): void {
+    e.stopPropagation();
+    this.projectCtx.set(p.projectId);
+    this.router.navigate(['/board']);
+  }
 
   /* Create-project modal */
 

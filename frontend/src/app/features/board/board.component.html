@@ -11,7 +11,13 @@
         <ng-container *ngIf="activeSprintName">
           {{ activeSprintWindow }} · <span class="lozenge loz-active">Active</span>
         </ng-container>
-        <ng-container *ngIf="!activeSprintName && !liveLoading">
+        <ng-container *ngIf="!activeSprintName && !liveLoading && noProjectSelected">
+          <span class="lozenge loz-todo">No project selected</span>
+        </ng-container>
+        <ng-container *ngIf="!activeSprintName && !liveLoading && liveTimedOut">
+          <span class="lozenge loz-todo">Couldn't load sprint — showing empty board</span>
+        </ng-container>
+        <ng-container *ngIf="!activeSprintName && !liveLoading && !noProjectSelected && !liveTimedOut">
           <span class="lozenge loz-todo">No active sprint</span>
         </ng-container>
         <ng-container *ngIf="liveLoading">Loading sprint…</ng-container>

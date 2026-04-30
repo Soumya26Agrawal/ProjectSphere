@@ -46,6 +46,10 @@
   font-size: 16px !important;
   cursor: pointer !important;
   margin-right: 8px !important;
-  z-index: 1000 !important;
+  border-radius: 6px !important;
+  transition: background .12s ease !important;
+}
+.ax-hamburger-small:hover {
+  background: rgba(255, 255, 255, .12) !important;
 }
 

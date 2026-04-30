@@ -68,9 +68,19 @@
           <td style="color:var(--text3);font-size:12px">{{ h.end }}</td>
           <td><span class="lozenge loz-backlog">{{ duration(h.start, h.end) }}</span></td>
         </tr>
-        <tr *ngIf="filtered.length === 0">
+        <tr *ngIf="loading">
           <td colspan="9" style="text-align:center;color:var(--text3);padding:24px">
-            No stories found matching filters
+            Loading sprint history…
+          </td>
+        </tr>
+        <tr *ngIf="!loading && rows.length === 0">
+          <td colspan="9" style="text-align:center;color:var(--text3);padding:24px">
+            No completed stories yet for this project.
+          </td>
+        </tr>
+        <tr *ngIf="!loading && rows.length > 0 && filtered.length === 0">
+          <td colspan="9" style="text-align:center;color:var(--text3);padding:24px">
+            No stories match the current filters.
           </td>
         </tr>
       </tbody>

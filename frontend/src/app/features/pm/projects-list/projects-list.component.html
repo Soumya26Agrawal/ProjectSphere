@@ -68,44 +68,51 @@
 
 <!-- Cards -->
 <div class="ax-grid" *ngIf="filtered.length > 0">
-  <button class="ax-person" *ngFor="let p of pageItems; let i = index" (click)="open(p)">
-    <div class="ax-person-top">
-      <span class="ax-pill">{{ prjTag(p.projectId) }}</span>
-    </div>
-
-    <div class="ax-person-hero">
-      <div class="ax-big-av" [ngClass]="colorClass(i)">{{ projInitials(p.projectName) }}</div>
-      <div class="ax-person-hero-text">
-        <div class="ax-person-name">{{ p.projectName }}</div>
-        <div class="ax-person-role">{{ p.domain }}</div>
+  <div class="ax-card-wrap" *ngFor="let p of pageItems; let i = index">
+    <button class="ax-person" (click)="open(p)">
+      <div class="ax-person-top">
+        <span class="ax-pill">{{ prjTag(p.projectId) }}</span>
       </div>
-    </div>
 
-    <div class="ax-person-rows">
-      <div class="ax-person-row">
-        <span class="mi">description</span>
-        <span class="text">{{ p.description || '—' }}</span>
+      <div class="ax-person-hero">
+        <div class="ax-big-av" [ngClass]="colorClass(i)">{{ projInitials(p.projectName) }}</div>
+        <div class="ax-person-hero-text">
+          <div class="ax-person-name">{{ p.projectName }}</div>
+          <div class="ax-person-role">{{ p.domain }}</div>
+        </div>
       </div>
-      <div class="ax-person-row team-row">
-        <span class="mi">group</span>
-        <span class="ax-avs" *ngIf="p.teamSize > 0">
-          <span class="ax-av"
-                *ngFor="let initial of p.memberInitials; let j = index"
-                [ngClass]="avClass(i + j)">{{ initial }}</span>
-          <span class="ax-av ax-av-plus" *ngIf="overflow(p) > 0">+{{ overflow(p) }}</span>
+
+      <div class="ax-person-rows">
+        <div class="ax-person-row">
+          <span class="mi">description</span>
+          <span class="text">{{ p.description || '—' }}</span>
+        </div>
+        <div class="ax-person-row team-row">
+          <span class="mi">group</span>
+          <span class="ax-avs" *ngIf="p.teamSize > 0">
+            <span class="ax-av"
+                  *ngFor="let initial of p.memberInitials; let j = index"
+                  [ngClass]="avClass(i + j)">{{ initial }}</span>
+            <span class="ax-av ax-av-plus" *ngIf="overflow(p) > 0">+{{ overflow(p) }}</span>
+          </span>
+          <span class="muted" *ngIf="p.teamSize === 0">No team assigned yet</span>
+        </div>
+      </div>
+
+      <div class="ax-person-foot">
+        <span class="ax-status-dot"
+              [class.ongoing]="p.status === 'IN_PROGRESS'"
+              [class.completed]="p.status === 'COMPLETED'">
+          {{ p.status === 'IN_PROGRESS' ? 'Ongoing' : 'Completed' }}
         </span>
-        <span class="muted" *ngIf="p.teamSize === 0">No team assigned yet</span>
       </div>
-    </div>
-
-    <div class="ax-person-foot">
-      <span class="ax-status-dot"
-            [class.ongoing]="p.status === 'IN_PROGRESS'"
-            [class.completed]="p.status === 'COMPLETED'">
-        {{ p.status === 'IN_PROGRESS' ? 'Ongoing' : 'Completed' }}
-      </span>
-    </div>
-  </button>
+    </button>
+    <button type="button" class="ax-mtw-btn"
+            (click)="moveToWorkspace($event, p)"
+            title="Open in workspace">
+      <span class="mi">arrow_forward</span> Move to Workspace
+    </button>
+  </div>
 </div>
 
 <!-- Pagination -->

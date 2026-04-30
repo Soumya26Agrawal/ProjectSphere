@@ -45,8 +45,10 @@
 }
 .dev-icon-btn:hover { background: rgba(255,255,255,.12); }
 
-/* ── Page container (compact padding) ── */
-.dev-page { padding: 14px 28px 32px; max-width: 1280px; margin: 0 auto; }
+/* ── Page container (compact padding) ──
+   Top padding includes the 56px fixed-position shared topnav so
+   the first card isn't tucked under the navbar. */
+.dev-page { padding: 70px 28px 32px; max-width: 1280px; margin: 0 auto; }
 
 /* ── Hero (compact) ── */
 .dev-hero {

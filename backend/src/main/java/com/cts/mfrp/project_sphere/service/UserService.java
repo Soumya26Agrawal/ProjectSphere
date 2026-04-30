@@ -146,6 +146,19 @@ public class UserService {
                 .map(this::toProManagerDTO);
     }
 
+    public void resetPasswordByEmail(String email, String newPassword) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new IllegalArgumentException("New password is required");
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("No account found for that email"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
     private ProManagerResponseDTO toProManagerDTO(User user) {
         return ProManagerResponseDTO.builder()
                 .userId(user.getUserId())

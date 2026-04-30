@@ -44,6 +44,10 @@ export class PmApiService {
     return this.http.put<AdminProject>(`${PROJECTS_BASE}/dto/${id}`, body);
   }
 
+  deleteProject(id: number): Observable<void> {
+    return this.http.delete<void>(`${PROJECTS_BASE}/${id}`);
+  }
+
   /* ─── Teams (shared; every authenticated user can use these) ─── */
 
   listTeams(): Observable<AdminTeam[]> {

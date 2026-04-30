@@ -36,6 +36,19 @@ yarn-error.log
 /libpeerdeps
 /typings
 
+# Environment / secrets — keep local API URLs and tokens out of git
+.env
+.env.*
+!.env.example
+*.env
+src/environments/environment.local.ts
+
 # System files
 .DS_Store
 Thumbs.db
+
+# Misc scratch files
+*.bak
+*.tmp
+*.swp
+*.swo

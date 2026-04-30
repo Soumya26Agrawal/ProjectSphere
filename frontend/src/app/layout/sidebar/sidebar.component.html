@@ -1,12 +1,9 @@
 <aside class="sidebar">
-  <div class="sb-header">
-    <button class="sb-toggle-btn" (click)="ui.toggleSidebar()">
-      <span class="mi">menu</span>
-    </button>
-  </div>
+  <!-- Toggle lives only in the topnav (next to the logo). The duplicate
+       in-sidebar burger was creating an awkward leading gap. -->
 
   <div class="sb-section">
-    <button class="sb-item sb-home" routerLink="/dev">
+    <button class="sb-item sb-home" [routerLink]="homeRoute">
       <span class="mi">home</span>Home
     </button>
   </div>

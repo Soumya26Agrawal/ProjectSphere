@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AdminApiService, AdminProject, BackendDomain, BackendProjectStatus, ProjectManager,
 } from '../../../core/services/admin-api.service';
+import { AnalyticsApiService } from '../../../core/services/analytics-api.service';
+import { ProjectContextService } from '../../../core/services/project-context.service';
 
 @Component({
   selector: 'app-project-edit',
@@ -17,6 +19,8 @@ export class ProjectEditComponent implements OnInit {
   projectId!: number;
   loading = false;
   saving = false;
+  deleting = false;
+  showDeleteConfirm = false;
   error = '';
   message = '';
   project: AdminProject | null = null;
@@ -34,6 +38,8 @@ export class ProjectEditComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
+    private analyticsApi: AnalyticsApiService,
+    private projectCtx: ProjectContextService,
   ) {}
 
   ngOnInit(): void {
@@ -101,4 +107,35 @@ export class ProjectEditComponent implements OnInit {
   back(): void { this.router.navigate(['/admin/projects']); }
 
   prjTag(id: number): string { return 'PRJ-' + String(id).padStart(3, '0'); }
+
+  askDelete(): void {
+    this.error = '';
+    this.message = '';
+    this.showDeleteConfirm = true;
+  }
+  cancelDelete(): void { this.showDeleteConfirm = false; }
+
+  confirmDelete(): void {
+    this.deleting = true;
+    this.error = '';
+    this.api.deleteProject(this.projectId).subscribe({
+      next: () => {
+        this.deleting = false;
+        this.showDeleteConfirm = false;
+        // Cache + global IDs are now stale — wipe them so other pages refetch.
+        this.analyticsApi.invalidateProjectCaches();
+        if (this.projectCtx.selectedProjectId() === this.projectId) {
+          this.projectCtx.clear();
+        }
+        this.router.navigate(['/admin/projects']);
+      },
+      error: (err) => {
+        this.deleting = false;
+        this.showDeleteConfirm = false;
+        this.error = typeof err?.error === 'string' && err.error.length < 200
+          ? err.error
+          : 'Failed to delete the project.';
+      },
+    });
+  }
 }
